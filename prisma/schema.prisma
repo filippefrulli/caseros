@@ -1,0 +1,204 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  SOLD_OUT
+  ARCHIVED
+}
+
+enum SellerStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+// ─── Core models ──────────────────────────────────────────────────────────────
+
+model User {
+  id         String   @id @default(cuid())
+  supabaseId String   @unique @map("supabase_id")
+  email      String   @unique
+  name       String?
+  avatarUrl  String?  @map("avatar_url")
+  locale     String   @default("en")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  seller    SellerProfile?
+  orders    Order[]
+  reviews   Review[]
+  addresses Address[]
+
+  @@map("users")
+}
+
+model SellerProfile {
+  id                    String       @id @default(cuid())
+  userId                String       @unique @map("user_id")
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shopName              String       @unique @map("shop_name")
+  slug                  String       @unique
+  bio                   String?
+  avatarUrl             String?      @map("avatar_url")
+  bannerUrl             String?      @map("banner_url")
+  country               String
+  currency              String       @default("EUR")
+  status                SellerStatus @default(PENDING)
+  stripeAccountId       String?      @unique @map("stripe_account_id")
+  stripeOnboardingDone  Boolean      @default(false) @map("stripe_onboarding_done")
+  commissionRate        Decimal      @default(0.05) @map("commission_rate") @db.Decimal(5, 4)
+  createdAt             DateTime     @default(now()) @map("created_at")
+  updatedAt             DateTime     @updatedAt @map("updated_at")
+
+  listings Listing[]
+
+  @@map("seller_profiles")
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  imageUrl    String?    @map("image_url")
+  parentId    String?    @map("parent_id")
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  listings    Listing[]
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  @@map("categories")
+}
+
+model Listing {
+  id          String        @id @default(cuid())
+  sellerId    String        @map("seller_id")
+  seller      SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  categoryId  String?       @map("category_id")
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  title       String
+  slug        String        @unique
+  description String
+  priceAmount Int           @map("price_amount")
+  currency    String        @default("EUR")
+  stock       Int           @default(1)
+  status      ListingStatus @default(DRAFT)
+  tags        String[]
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  images     ListingImage[]
+  orderItems OrderItem[]
+  reviews    Review[]
+
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([status])
+  @@map("listings")
+}
+
+model ListingImage {
+  id        String   @id @default(cuid())
+  listingId String   @map("listing_id")
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  altText   String?  @map("alt_text")
+  position  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([listingId])
+  @@map("listing_images")
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  line1      String
+  line2      String?
+  city       String
+  postalCode String   @map("postal_code")
+  country    String
+  isDefault  Boolean  @default(false) @map("is_default")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  orders Order[]
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+model Order {
+  id                    String      @id @default(cuid())
+  buyerId               String      @map("buyer_id")
+  buyer                 User        @relation(fields: [buyerId], references: [id])
+  shippingAddressId     String?     @map("shipping_address_id")
+  shippingAddress       Address?    @relation(fields: [shippingAddressId], references: [id])
+  status                OrderStatus @default(PENDING)
+  totalAmount           Int         @map("total_amount")
+  currency              String      @default("EUR")
+  stripePaymentIntentId String?     @unique @map("stripe_payment_intent_id")
+  stripeTaxAmount       Int?        @map("stripe_tax_amount")
+  createdAt             DateTime    @default(now()) @map("created_at")
+  updatedAt             DateTime    @updatedAt @map("updated_at")
+
+  items OrderItem[]
+
+  @@index([buyerId])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String   @map("order_id")
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  listingId   String   @map("listing_id")
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  quantity    Int      @default(1)
+  unitAmount  Int      @map("unit_amount")
+  currency    String   @default("EUR")
+  sellerPayout Int     @map("seller_payout")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([orderId])
+  @@index([listingId])
+  @@map("order_items")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  listingId String   @map("listing_id")
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  authorId  String   @map("author_id")
+  author    User     @relation(fields: [authorId], references: [id])
+  rating    Int
+  body      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([listingId, authorId])
+  @@index([listingId])
+  @@map("reviews")
+}
