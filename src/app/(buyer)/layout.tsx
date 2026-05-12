@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/layout/navbar";
 
-export default function MarketplaceLayout({ children }: { children: React.ReactNode }) {
+export default function BuyerLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />

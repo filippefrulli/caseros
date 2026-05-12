@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import path from "path";
 
 const nextConfig: NextConfig = {
   typedRoutes: true,
@@ -11,10 +10,12 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
+      {
+        // Google profile pictures (OAuth avatars)
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
     ],
-  },
-  turbopack: {
-    root: path.resolve(__dirname),
   },
 };
 
