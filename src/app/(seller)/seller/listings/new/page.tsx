@@ -25,7 +25,7 @@ export default async function NewListingPage() {
         </Link>
         <h1 className="text-2xl font-bold">New listing</h1>
       </div>
-      <ListingForm />
+      <ListingForm userId={user.id} />
     </main>
   );
 }

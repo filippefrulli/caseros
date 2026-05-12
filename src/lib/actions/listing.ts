@@ -6,8 +6,14 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const listingSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters").max(100, "Title must be 100 characters or less"),
-  description: z.string().min(10, "Description must be at least 10 characters").max(5000, "Description must be 5000 characters or less"),
+  title: z
+    .string()
+    .min(3, "Title must be at least 3 characters")
+    .max(100, "Title must be 100 characters or less"),
+  description: z
+    .string()
+    .min(10, "Description must be at least 10 characters")
+    .max(5000, "Description must be 5000 characters or less"),
   priceEuros: z.coerce
     .number({ error: "Enter a valid price" })
     .positive("Price must be greater than 0")
@@ -22,7 +28,9 @@ const listingSchema = z.object({
 
 export type ListingActionState = {
   error?: string;
-  fieldErrors?: Partial<Record<"title" | "description" | "priceEuros" | "stock", string[]>>;
+  fieldErrors?: Partial<
+    Record<"title" | "description" | "priceEuros" | "stock", string[]>
+  >;
 } | null;
 
 function toSlug(title: string): string {
@@ -42,7 +50,9 @@ export async function createListing(
   formData: FormData,
 ): Promise<ListingActionState> {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return { error: "You must be signed in." };
 
   const parsed = listingSchema.safeParse({
@@ -59,6 +69,13 @@ export async function createListing(
 
   const { title, description, priceEuros, stock, publishNow } = parsed.data;
 
+  const imageUrls = formData.getAll("imageUrls").map(String).filter(Boolean);
+  const videoUrl = formData.get("videoUrl")?.toString() || null;
+
+  if (imageUrls.length === 0) {
+    return { error: "Add at least one photo before saving." };
+  }
+
   const seller = await prisma.sellerProfile.findFirst({
     where: { user: { supabaseId: user.id } },
   });
@@ -73,7 +90,11 @@ export async function createListing(
       priceAmount: Math.round(priceEuros * 100),
       currency: seller.currency,
       stock,
+      videoUrl,
       status: publishNow ? "ACTIVE" : "DRAFT",
+      images: {
+        create: imageUrls.map((url, position) => ({ url, position })),
+      },
     },
   });
 

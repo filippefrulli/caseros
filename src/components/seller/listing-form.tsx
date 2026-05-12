@@ -1,14 +1,23 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useCallback } from "react";
 import { createListing, type ListingActionState } from "@/lib/actions/listing";
+import { MediaUploader } from "@/components/seller/media-uploader";
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
   return <p className="mt-1 text-sm text-red-600">{messages[0]}</p>;
 }
 
-function Label({ htmlFor, children, required }: { htmlFor: string; children: React.ReactNode; required?: boolean }) {
+function Label({
+  htmlFor,
+  children,
+  required,
+}: {
+  htmlFor: string;
+  children: React.ReactNode;
+  required?: boolean;
+}) {
   return (
     <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700">
       {children}
@@ -20,21 +29,32 @@ function Label({ htmlFor, children, required }: { htmlFor: string; children: Rea
 const inputClass =
   "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
 
-export function ListingForm() {
+type Props = { userId: string };
+
+export function ListingForm({ userId }: Props) {
   const [state, action, isPending] = useActionState<ListingActionState, FormData>(
     createListing,
     null,
   );
+  const [uploading, setUploading] = useState(false);
+  const handleBusyChange = useCallback((busy: boolean) => setUploading(busy), []);
 
   return (
     <form action={action} className="space-y-6">
       {state?.error && (
-        <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{state.error}</p>
+        <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+          {state.error}
+        </p>
       )}
+
+      {/* Media */}
+      <MediaUploader userId={userId} onBusyChange={handleBusyChange} />
 
       {/* Title */}
       <div>
-        <Label htmlFor="title" required>Title</Label>
+        <Label htmlFor="title" required>
+          Title
+        </Label>
         <input
           id="title"
           name="title"
@@ -49,7 +69,9 @@ export function ListingForm() {
 
       {/* Description */}
       <div>
-        <Label htmlFor="description" required>Description</Label>
+        <Label htmlFor="description" required>
+          Description
+        </Label>
         <textarea
           id="description"
           name="description"
@@ -65,7 +87,9 @@ export function ListingForm() {
       {/* Price + Stock side by side */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="priceEuros" required>Price</Label>
+          <Label htmlFor="priceEuros" required>
+            Price
+          </Label>
           <div className="relative mt-1">
             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-gray-500">
               €
@@ -86,7 +110,9 @@ export function ListingForm() {
         </div>
 
         <div>
-          <Label htmlFor="stock" required>Stock</Label>
+          <Label htmlFor="stock" required>
+            Stock
+          </Label>
           <input
             id="stock"
             name="stock"
@@ -112,20 +138,25 @@ export function ListingForm() {
           className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
         />
         <div>
-          <label htmlFor="publishNow" className="text-sm font-medium text-gray-700 cursor-pointer">
+          <label
+            htmlFor="publishNow"
+            className="cursor-pointer text-sm font-medium text-gray-700"
+          >
             Publish immediately
           </label>
-          <p className="text-xs text-gray-400">Leave unchecked to save as a draft first</p>
+          <p className="text-xs text-gray-400">
+            Leave unchecked to save as a draft first
+          </p>
         </div>
       </div>
 
       <div className="flex gap-3 pt-2">
         <button
           type="submit"
-          disabled={isPending}
-          className="flex-1 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+          disabled={isPending || uploading}
+          className="flex-1 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
         >
-          {isPending ? "Saving…" : "Save listing"}
+          {uploading ? "Uploading media…" : isPending ? "Saving…" : "Save listing"}
         </button>
       </div>
     </form>

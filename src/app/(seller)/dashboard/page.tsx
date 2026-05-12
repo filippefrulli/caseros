@@ -33,12 +33,20 @@ export default async function SellerDashboardPage() {
           <h1 className="text-2xl font-bold">{seller.shopName}</h1>
           <p className="text-sm text-gray-500">artcraft.com/shop/{seller.slug}</p>
         </div>
-        <Link
-          href="/seller/listings/new"
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
-        >
-          + New listing
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/seller/profile"
+            className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Edit profile
+          </Link>
+          <Link
+            href="/seller/listings/new"
+            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+          >
+            + New listing
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}

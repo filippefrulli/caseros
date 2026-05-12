@@ -150,6 +150,7 @@ model Listing {
   // When variants exist, stock is tracked per-variant and this field is ignored.
   stock       Int           @default(1)
   isDigital   Boolean       @default(false) @map("is_digital")
+  videoUrl    String?       @map("video_url")
   status      ListingStatus @default(DRAFT)
   tags        String[]
   // Soft delete — preserve FK integrity for historical orders

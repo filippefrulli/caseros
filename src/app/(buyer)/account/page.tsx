@@ -3,17 +3,14 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { SignOutButton } from "@/components/layout/sign-out-button";
 import { redirect } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
+import { AvatarUploader } from "@/components/seller/avatar-uploader";
 
 export const metadata: Metadata = { title: "My Account" };
 
 export default async function AccountPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/account");
 
   const dbUser = await prisma.user.findUnique({
@@ -23,29 +20,24 @@ export default async function AccountPage() {
     },
   });
 
-  const avatarUrl = user.user_metadata?.avatar_url as string | undefined;
   const name = (user.user_metadata?.full_name as string) ?? dbUser?.name ?? "Anonymous";
   const email = user.email ?? dbUser?.email ?? "";
   const orderCount = dbUser?._count?.orders ?? 0;
   const favoriteCount = dbUser?._count?.favorites ?? 0;
 
+  // Uploaded avatar takes priority over the OAuth provider avatar
+  const avatarUrl =
+    dbUser?.avatarUrl ?? (user.user_metadata?.avatar_url as string | null) ?? null;
+
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
       {/* Profile header */}
-      <div className="flex items-center gap-5">
-        {avatarUrl ? (
-          <Image
-            src={avatarUrl}
-            alt={name}
-            width={80}
-            height={80}
-            className="rounded-full"
-          />
-        ) : (
-          <span className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-200 text-2xl font-semibold text-gray-600">
-            {name[0]?.toUpperCase() ?? "?"}
-          </span>
-        )}
+      <div className="mb-8 flex items-center gap-6">
+        <AvatarUploader
+          userId={user.id}
+          currentUrl={avatarUrl}
+          displayName={name}
+        />
         <div>
           <h1 className="text-2xl font-bold">{name}</h1>
           <p className="text-sm text-gray-500">{email}</p>
@@ -53,7 +45,7 @@ export default async function AccountPage() {
       </div>
 
       {/* Stats */}
-      <div className="mt-8 grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <div className="rounded-xl border border-gray-200 p-5">
           <p className="text-3xl font-bold">{orderCount}</p>
           <p className="mt-1 text-sm text-gray-500">Orders</p>

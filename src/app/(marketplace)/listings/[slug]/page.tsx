@@ -3,8 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import Link from "next/link";
-import Image from "next/image";
-import { Package } from "lucide-react";
+import { ListingImageCarousel } from "@/components/marketplace/listing-image-carousel";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -27,8 +26,6 @@ export default async function ListingPage({ params }: Props) {
 
   if (!listing) notFound();
 
-  const mainImage = listing.images[0];
-
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
       <Link href="/" className="mb-8 inline-block text-sm text-gray-500 hover:text-gray-900 transition-colors">
@@ -36,22 +33,8 @@ export default async function ListingPage({ params }: Props) {
       </Link>
 
       <div className="grid gap-10 md:grid-cols-2">
-        {/* Image */}
-        <div className="aspect-square w-full overflow-hidden rounded-2xl bg-gray-100">
-          {mainImage ? (
-            <Image
-              src={mainImage.url}
-              alt={mainImage.altText ?? listing.title}
-              width={600}
-              height={600}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-gray-300">
-              <Package size={64} strokeWidth={1} />
-            </div>
-          )}
-        </div>
+        {/* Images */}
+        <ListingImageCarousel images={listing.images} title={listing.title} />
 
         {/* Details */}
         <div className="flex flex-col">
