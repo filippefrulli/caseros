@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "./sign-out-button";
 import Link from "next/link";
 import Image from "next/image";
+import { Home } from "lucide-react";
 
 export async function Navbar() {
   const supabase = await createClient();
@@ -15,7 +16,11 @@ export async function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        <Link href="/" className="text-lg font-bold tracking-tight">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-lg font-bold tracking-tight hover:opacity-75 transition-opacity"
+        >
+          <Home size={18} />
           Artcraft
         </Link>
 
