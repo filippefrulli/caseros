@@ -4,8 +4,10 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ListingCard } from "@/components/marketplace/listing-card";
+import { FiltersBar } from "@/components/marketplace/filters-bar";
+import { parseFilters, buildPriceWhere, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ slug: string }>; searchParams: Promise<FilterParams> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -13,16 +15,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: cat?.name ?? "Category not found" };
 }
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const sp = await searchParams;
+  const { selectedCountries, minPrice, maxPrice } = parseFilters(sp);
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [category, listings, favIds] = await Promise.all([
+  const [category, listings, favIds, availableCountries] = await Promise.all([
     prisma.category.findUnique({ where: { slug } }),
     prisma.listing.findMany({
-      where: { status: "ACTIVE", deletedAt: null, category: { slug } },
+      where: {
+        status: "ACTIVE",
+        deletedAt: null,
+        category: { slug },
+        ...(selectedCountries.length ? { seller: { country: { in: selectedCountries } } } : {}),
+        ...buildPriceWhere(minPrice, maxPrice),
+      },
       select: {
         id: true,
         slug: true,
@@ -43,6 +53,7 @@ export default async function CategoryPage({ params }: Props) {
           })
           .then((favs) => new Set(favs.map((f) => f.listingId)))
       : Promise.resolve(new Set<string>()),
+    fetchAvailableCountries(),
   ]);
 
   if (!category) notFound();
@@ -59,9 +70,12 @@ export default async function CategoryPage({ params }: Props) {
         {category.description && (
           <p className="mt-1 text-text-secondary">{category.description}</p>
         )}
-        <p className="mt-1 text-sm text-text-muted">
-          {listings.length} item{listings.length === 1 ? "" : "s"}
-        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+          <p className="text-sm text-text-muted">
+            {listings.length} item{listings.length === 1 ? "" : "s"}
+          </p>
+          <FiltersBar availableCountries={availableCountries} />
+        </div>
       </div>
 
       {listings.length > 0 ? (

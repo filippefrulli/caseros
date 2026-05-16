@@ -2,16 +2,28 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { ListingCard } from "@/components/marketplace/listing-card";
+import { FiltersBar } from "@/components/marketplace/filters-bar";
+import { parseFilters, buildPriceWhere, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
 
 export const metadata: Metadata = { title: "Home" };
 
-export default async function HomePage() {
+type Props = { searchParams: Promise<FilterParams> };
+
+export default async function HomePage({ searchParams }: Props) {
+  const sp = await searchParams;
+  const { selectedCountries, minPrice, maxPrice } = parseFilters(sp);
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [listings, favIds, sellerProfile] = await Promise.all([
+  const [listings, favIds, sellerProfile, availableCountries] = await Promise.all([
     prisma.listing.findMany({
-      where: { status: "ACTIVE", deletedAt: null },
+      where: {
+        status: "ACTIVE",
+        deletedAt: null,
+        ...(selectedCountries.length ? { seller: { country: { in: selectedCountries } } } : {}),
+        ...buildPriceWhere(minPrice, maxPrice),
+      },
       select: {
         id: true,
         slug: true,
@@ -39,10 +51,15 @@ export default async function HomePage() {
           select: { id: true },
         })
       : Promise.resolve(null),
+    fetchAvailableCountries(),
   ]);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
+      <div className="mb-6">
+        <FiltersBar availableCountries={availableCountries} />
+      </div>
+
       {listings.length > 0 ? (
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
           {listings.map((listing) => (
@@ -57,9 +74,9 @@ export default async function HomePage() {
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-24 text-center">
-          <p className="text-text-muted">No listings yet.</p>
+          <p className="text-text-muted">No listings found.</p>
           <p className="mt-1 text-sm text-text-muted">
-            Open a shop and create your first listing to get started.
+            Try adjusting your filters or browse all listings.
           </p>
         </div>
       )}

@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { ListingCard } from "@/components/marketplace/listing-card";
+import { FiltersBar } from "@/components/marketplace/filters-bar";
 import { buildSearchQuery } from "@/lib/search-synonyms";
+import { parseFilters, buildPriceWhere, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
 
-type Props = { searchParams: Promise<{ q?: string }> };
+type Props = { searchParams: Promise<{ q?: string } & FilterParams> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { q } = await searchParams;
@@ -12,8 +14,9 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function SearchPage({ searchParams }: Props) {
-  const { q: raw } = await searchParams;
-  const q = raw?.trim() ?? "";
+  const sp = await searchParams;
+  const q = sp.q?.trim() ?? "";
+  const { selectedCountries, minPrice, maxPrice } = parseFilters(sp);
 
   if (!q) {
     return (
@@ -26,8 +29,6 @@ export default async function SearchPage({ searchParams }: Props) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Build a synonym-expanded to_tsquery string, e.g. "(hat | cap | beanie) & leather".
-  // Falls back to websearch_to_tsquery if the expanded query hits a stop-word error.
   const expandedQuery = buildSearchQuery(q);
 
   let rankedIds: { id: string }[];
@@ -65,11 +66,15 @@ export default async function SearchPage({ searchParams }: Props) {
 
   const ids = rankedIds.map((r) => r.id);
 
-  const [listingsUnordered, favIds, sellerProfile] = await Promise.all([
+  const [listingsUnordered, favIds, sellerProfile, availableCountries] = await Promise.all([
     ids.length === 0
       ? Promise.resolve([])
       : prisma.listing.findMany({
-          where: { id: { in: ids } },
+          where: {
+            id: { in: ids },
+            ...(selectedCountries.length ? { seller: { country: { in: selectedCountries } } } : {}),
+            ...buildPriceWhere(minPrice, maxPrice),
+          },
           select: {
             id: true,
             slug: true,
@@ -92,19 +97,22 @@ export default async function SearchPage({ searchParams }: Props) {
           select: { id: true },
         })
       : Promise.resolve(null),
+    fetchAvailableCountries(),
   ]);
 
-  // Restore the rank order from the FTS query (findMany with `in` doesn't guarantee order).
   const listingById = new Map(listingsUnordered.map((l) => [l.id, l]));
   const listings = ids.map((id) => listingById.get(id)).filter(Boolean) as typeof listingsUnordered;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">
-      <p className="mb-6 text-sm text-gray-500">
-        {listings.length === 0
-          ? `No results for "${q}"`
-          : `${listings.length} result${listings.length === 1 ? "" : "s"} for "${q}"`}
-      </p>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <p className="text-sm text-gray-500">
+          {listings.length === 0
+            ? `No results for "${q}"`
+            : `${listings.length} result${listings.length === 1 ? "" : "s"} for "${q}"`}
+        </p>
+        <FiltersBar availableCountries={availableCountries} />
+      </div>
 
       {listings.length > 0 ? (
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
@@ -121,7 +129,7 @@ export default async function SearchPage({ searchParams }: Props) {
       ) : (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-24 text-center">
           <p className="text-text-muted">No listings match your search.</p>
-          <p className="mt-1 text-sm text-text-muted">Try different keywords.</p>
+          <p className="mt-1 text-sm text-text-muted">Try different keywords or adjust your filters.</p>
         </div>
       )}
     </main>
