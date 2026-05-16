@@ -101,5 +101,66 @@ export async function createListing(
     },
   });
 
-  redirect("/dashboard");
+  redirect("/seller/dashboard");
+}
+
+export async function updateListing(
+  _prev: ListingActionState,
+  formData: FormData,
+): Promise<ListingActionState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "You must be signed in." };
+
+  const listingId = formData.get("listingId")?.toString();
+  if (!listingId) return { error: "Listing ID missing." };
+
+  const parsed = listingSchema.safeParse({
+    categoryId: formData.get("categoryId"),
+    title: formData.get("title"),
+    description: formData.get("description"),
+    priceEuros: formData.get("priceEuros"),
+    stock: formData.get("stock"),
+  });
+
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
+  }
+
+  const { categoryId, title, description, priceEuros, stock } = parsed.data;
+
+  const imageUrls = formData.getAll("imageUrls").map(String).filter(Boolean);
+  const videoUrl = formData.get("videoUrl")?.toString() || null;
+
+  if (imageUrls.length === 0) {
+    return { error: "Add at least one photo before saving." };
+  }
+
+  const existing = await prisma.listing.findFirst({
+    where: { id: listingId, seller: { user: { supabaseId: user.id } }, deletedAt: null },
+    select: { id: true },
+  });
+  if (!existing) return { error: "Listing not found." };
+
+  await prisma.$transaction(async (tx) => {
+    await tx.listingImage.deleteMany({ where: { listingId } });
+    await tx.listing.update({
+      where: { id: listingId },
+      data: {
+        categoryId,
+        title,
+        description,
+        priceAmount: Math.round(priceEuros * 100),
+        stock,
+        videoUrl,
+        images: {
+          create: imageUrls.map((url, position) => ({ url, position })),
+        },
+      },
+    });
+  });
+
+  redirect("/seller/dashboard");
 }

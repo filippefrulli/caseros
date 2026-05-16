@@ -21,7 +21,7 @@ export default async function NewListingPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
       <div className="mb-8 flex items-center gap-3">
-        <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+        <Link href="/seller/dashboard" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
           ← Dashboard
         </Link>
         <h1 className="text-2xl font-bold">New listing</h1>

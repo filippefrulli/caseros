@@ -33,6 +33,11 @@ enum SellerStatus {
   SUSPENDED
 }
 
+enum SellerType {
+  INDIVIDUAL
+  TRADER
+}
+
 enum NotificationType {
   ORDER_PLACED
   ORDER_PAID
@@ -93,6 +98,8 @@ model SellerProfile {
   listings      Listing[]
   sections      ShopSection[]
   conversations Conversation[] @relation("SellerConversations")
+  kyc           SellerKyc?
+  socialLinks   SellerSocialLinks?
 
   @@map("seller_profiles")
 }
@@ -392,4 +399,58 @@ model Notification {
   @@index([userId])
   @@index([userId, readAt])
   @@map("notifications")
+}
+
+// ─── Seller Social Links ──────────────────────────────────────────────────────
+
+model SellerSocialLinks {
+  id        String        @id @default(cuid())
+  sellerId  String        @unique @map("seller_id")
+  seller    SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  website   String?
+  instagram String?
+  tiktok    String?
+  youtube   String?
+  facebook  String?
+  twitter   String?
+  pinterest String?
+  linkedin  String?
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("seller_social_links")
+}
+
+// ─── Seller KYC ───────────────────────────────────────────────────────────────
+
+model SellerKyc {
+  id       String        @id @default(cuid())
+  sellerId String        @unique @map("seller_id")
+  seller   SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  sellerType SellerType @map("seller_type")
+
+  // Individual identity fields
+  fullName     String?   @map("full_name")
+  addressLine1 String?   @map("address_line_1")
+  addressLine2 String?   @map("address_line_2")
+  city         String?
+  postalCode   String?   @map("postal_code")
+  dateOfBirth  DateTime? @map("date_of_birth")
+
+  // Trader business fields
+  businessRegNumber String? @map("business_reg_number")
+  safetyCompliant   Boolean @default(false) @map("safety_compliant")
+  contactPhone      String? @map("contact_phone")
+  contactEmail      String? @map("contact_email")
+
+  // Acknowledgements & verification
+  disclaimerAcknowledged Boolean   @default(false) @map("disclaimer_acknowledged")
+  verifiedAt             DateTime? @map("verified_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("seller_kyc")
 }

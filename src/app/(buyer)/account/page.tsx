@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { SignOutButton } from "@/components/layout/sign-out-button";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { AvatarUploader } from "@/components/seller/avatar-uploader";
 
 export const metadata: Metadata = { title: "My Account" };
@@ -24,6 +22,10 @@ export default async function AccountPage() {
   const email = user.email ?? dbUser?.email ?? "";
   const orderCount = dbUser?._count?.orders ?? 0;
   const favoriteCount = dbUser?._count?.favorites ?? 0;
+  const memberSinceDate = dbUser?.createdAt ?? (user.created_at ? new Date(user.created_at) : null);
+  const memberSince = memberSinceDate
+    ? new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric" }).format(memberSinceDate)
+    : null;
 
   // Uploaded avatar takes priority over the OAuth provider avatar
   const avatarUrl =
@@ -41,6 +43,9 @@ export default async function AccountPage() {
         <div>
           <h1 className="text-2xl font-bold">{name}</h1>
           <p className="text-sm text-gray-500">{email}</p>
+          {memberSince && (
+            <p className="mt-1 text-xs text-gray-400">Member since {memberSince}</p>
+          )}
         </div>
       </div>
 
@@ -56,35 +61,7 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="mt-8 space-y-3">
-        <Link
-          href="/dashboard"
-          className="flex w-full items-center justify-between rounded-xl border border-gray-200 px-5 py-4 text-sm font-medium hover:bg-gray-50 transition-colors"
-        >
-          <span>Seller dashboard</span>
-          <span className="text-gray-400">→</span>
-        </Link>
-        <Link
-          href="/account/orders"
-          className="flex w-full items-center justify-between rounded-xl border border-gray-200 px-5 py-4 text-sm font-medium hover:bg-gray-50 transition-colors"
-        >
-          <span>My orders</span>
-          <span className="text-gray-400">→</span>
-        </Link>
-        <Link
-          href="/account/favourites"
-          className="flex w-full items-center justify-between rounded-xl border border-gray-200 px-5 py-4 text-sm font-medium hover:bg-gray-50 transition-colors"
-        >
-          <span>Saved items</span>
-          <span className="text-gray-400">→</span>
-        </Link>
-      </div>
 
-      {/* Sign out */}
-      <div className="mt-10 border-t border-gray-100 pt-6">
-        <SignOutButton />
-      </div>
     </main>
   );
 }

@@ -97,10 +97,7 @@ export function AvatarUploader({ userId, currentUrl, displayName }: Props) {
         </div>
       </button>
 
-      <p className="text-xs text-gray-400">
-        Click to change · JPEG, PNG or WebP · max 2 MB
-      </p>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+{error && <p className="text-sm text-red-600">{error}</p>}
 
       <input
         ref={inputRef}

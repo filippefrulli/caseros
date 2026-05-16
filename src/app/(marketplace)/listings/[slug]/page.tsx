@@ -24,12 +24,14 @@ export default async function ListingPage({ params }: Props) {
   const listing = await prisma.listing.findUnique({
     where: { slug, status: "ACTIVE", deletedAt: null },
     include: {
-      seller: { select: { shopName: true, slug: true } },
+      seller: { select: { shopName: true, slug: true, user: { select: { supabaseId: true } } } },
       images: { orderBy: { position: "asc" } },
     },
   });
 
   if (!listing) notFound();
+
+  const isOwner = !!user && user.id === listing.seller.user.supabaseId;
 
   let isFavorited = false;
   if (user) {
@@ -74,19 +76,30 @@ export default async function ListingPage({ params }: Props) {
           </p>
 
           <div className="mt-8 flex gap-3">
-            <button
-              disabled
-              className="flex-1 rounded-xl bg-gray-900 py-3 text-sm font-medium text-white disabled:opacity-40"
-            >
-              Buy now — coming soon
-            </button>
-            <FavoriteButton
-              listingId={listing.id}
-              isFavorited={isFavorited}
-              isLoggedIn={!!user}
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-gray-200 transition hover:bg-gray-50"
-              iconSize={20}
-            />
+            {isOwner ? (
+              <Link
+                href={`/seller/listings/${listing.slug}/edit`}
+                className="flex-1 rounded-xl border border-gray-900 py-3 text-center text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+              >
+                Edit listing
+              </Link>
+            ) : (
+              <>
+                <button
+                  disabled
+                  className="flex-1 rounded-xl bg-gray-900 py-3 text-sm font-medium text-white disabled:opacity-40"
+                >
+                  Buy now — coming soon
+                </button>
+                <FavoriteButton
+                  listingId={listing.id}
+                  isFavorited={isFavorited}
+                  isLoggedIn={!!user}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-gray-200 transition hover:bg-gray-50"
+                  iconSize={20}
+                />
+              </>
+            )}
           </div>
 
           {listing.description && (

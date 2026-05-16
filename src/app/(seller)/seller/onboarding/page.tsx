@@ -17,16 +17,10 @@ export default async function SellerOnboardingPage() {
   });
 
   // Already onboarded — skip straight to dashboard
-  if (dbUser?.seller) redirect("/dashboard");
+  if (dbUser?.seller) redirect("/seller/dashboard");
 
   return (
     <main className="mx-auto max-w-lg px-4 py-12">
-      <div className="mb-8 space-y-1">
-        <h1 className="text-2xl font-bold">Open your shop</h1>
-        <p className="text-sm text-gray-500">
-          Set up your seller profile to start listing your work.
-        </p>
-      </div>
       <OnboardingForm />
     </main>
   );

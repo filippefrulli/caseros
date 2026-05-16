@@ -3,13 +3,14 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { CopyShopLink } from "@/components/seller/copy-shop-link";
 
 export const metadata: Metadata = { title: "Seller Dashboard" };
 
 export default async function SellerDashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?next=/dashboard");
+  if (!user) redirect("/login?next=/seller/dashboard");
 
   const dbUser = await prisma.user.findUnique({
     where: { supabaseId: user.id },
@@ -28,12 +29,10 @@ export default async function SellerDashboardPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{seller.shopName}</h1>
-          <p className="text-sm text-gray-500">caseros.com/shop/{seller.slug}</p>
-        </div>
-        <div className="flex items-center gap-3">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold">{seller.shopName}</h1>
+        <div className="mt-4 flex items-center gap-3">
+          <CopyShopLink slug={seller.slug} />
           <Link
             href="/seller/profile"
             className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
@@ -44,7 +43,7 @@ export default async function SellerDashboardPage() {
             href="/seller/listings/new"
             className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
           >
-            + New listing
+            New listing
           </Link>
         </div>
       </div>

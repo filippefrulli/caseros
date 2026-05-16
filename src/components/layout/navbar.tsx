@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { SignOutButton } from "./sign-out-button";
+import { prisma } from "@/lib/prisma";
+import { UserMenu } from "./user-menu";
 import Link from "next/link";
-import Image from "next/image";
 import { Home } from "lucide-react";
 
 export async function Navbar() {
@@ -12,6 +12,10 @@ export async function Navbar() {
 
   const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
   const name = user?.user_metadata?.full_name as string | undefined;
+
+  const isSeller = user
+    ? !!(await prisma.sellerProfile.findFirst({ where: { user: { supabaseId: user.id } }, select: { id: true } }))
+    : false;
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur-sm">
@@ -24,30 +28,14 @@ export async function Navbar() {
           Caseros
         </Link>
 
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center">
           {user ? (
-            <>
-              <Link
-                href="/account"
-                className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 transition-colors"
-              >
-                {avatarUrl ? (
-                  <Image
-                    src={avatarUrl}
-                    alt={name ?? "Profile"}
-                    width={28}
-                    height={28}
-                    className="rounded-full"
-                  />
-                ) : (
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-gray-600">
-                    {name?.[0]?.toUpperCase() ?? "?"}
-                  </span>
-                )}
-                <span className="hidden sm:inline">{name ?? user.email}</span>
-              </Link>
-              <SignOutButton />
-            </>
+            <UserMenu
+              avatarUrl={avatarUrl}
+              name={name}
+              email={user.email}
+              isSeller={isSeller}
+            />
           ) : (
             <Link
               href="/login"

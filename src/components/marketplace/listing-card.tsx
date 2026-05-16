@@ -16,9 +16,11 @@ type Props = {
   };
   isFavorited?: boolean;
   isLoggedIn?: boolean;
+  hideShopLink?: boolean;
+  hideFavorite?: boolean;
 };
 
-export function ListingCard({ listing, isFavorited = false, isLoggedIn = false }: Props) {
+export function ListingCard({ listing, isFavorited = false, isLoggedIn = false, hideShopLink = false, hideFavorite = false }: Props) {
   const image = listing.images[0];
 
   return (
@@ -45,19 +47,23 @@ export function ListingCard({ listing, isFavorited = false, isLoggedIn = false }
         <Link href={`/listings/${listing.slug}`} className="block truncate text-sm font-medium text-gray-900 transition-colors hover:text-gray-600">
           {listing.title}
         </Link>
-        <Link href={`/shop/${listing.seller.slug}`} className="block text-xs text-gray-400 transition-colors hover:text-gray-700">
-          {listing.seller.shopName}
-        </Link>
+        {!hideShopLink && (
+          <Link href={`/shop/${listing.seller.slug}`} className="block text-xs text-gray-400 transition-colors hover:text-gray-700">
+            {listing.seller.shopName}
+          </Link>
+        )}
         <p className="text-sm font-semibold text-gray-900">
           {formatPrice(listing.priceAmount, listing.currency)}
         </p>
       </div>
 
-      <FavoriteButton
-        listingId={listing.id}
-        isFavorited={isFavorited}
-        isLoggedIn={isLoggedIn}
-      />
+      {!hideFavorite && (
+        <FavoriteButton
+          listingId={listing.id}
+          isFavorited={isFavorited}
+          isLoggedIn={isLoggedIn}
+        />
+      )}
     </div>
   );
 }

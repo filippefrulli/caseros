@@ -9,7 +9,7 @@ export default async function HomePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [listings, favIds] = await Promise.all([
+  const [listings, favIds, sellerProfile] = await Promise.all([
     prisma.listing.findMany({
       where: { status: "ACTIVE", deletedAt: null },
       select: {
@@ -18,6 +18,7 @@ export default async function HomePage() {
         title: true,
         priceAmount: true,
         currency: true,
+        sellerId: true,
         seller: { select: { shopName: true, slug: true } },
         images: { orderBy: { position: "asc" }, take: 1 },
       },
@@ -32,6 +33,12 @@ export default async function HomePage() {
           })
           .then((favs) => new Set(favs.map((f) => f.listingId)))
       : Promise.resolve(new Set<string>()),
+    user
+      ? prisma.sellerProfile.findFirst({
+          where: { user: { supabaseId: user.id } },
+          select: { id: true },
+        })
+      : Promise.resolve(null),
   ]);
 
   return (
@@ -44,6 +51,7 @@ export default async function HomePage() {
               listing={listing}
               isFavorited={favIds.has(listing.id)}
               isLoggedIn={!!user}
+              hideFavorite={!!sellerProfile && listing.sellerId === sellerProfile.id}
             />
           ))}
         </div>

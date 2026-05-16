@@ -28,6 +28,8 @@ type VideoEntry = {
 type Props = {
   userId: string;
   onBusyChange: (busy: boolean) => void;
+  initialImages?: { url: string; altText?: string | null }[];
+  initialVideoUrl?: string | null;
 };
 
 async function uploadToSupabase(file: File, bucket: string, userId: string): Promise<string> {
@@ -40,9 +42,21 @@ async function uploadToSupabase(file: File, bucket: string, userId: string): Pro
   return publicUrl;
 }
 
-export function MediaUploader({ userId, onBusyChange }: Props) {
-  const [images, setImages] = useState<ImageEntry[]>([]);
-  const [video, setVideo] = useState<VideoEntry | null>(null);
+export function MediaUploader({ userId, onBusyChange, initialImages, initialVideoUrl }: Props) {
+  const [images, setImages] = useState<ImageEntry[]>(() =>
+    (initialImages ?? []).map((img) => ({
+      id: crypto.randomUUID(),
+      preview: img.url,
+      url: img.url,
+      error: null,
+      uploading: false,
+    })),
+  );
+  const [video, setVideo] = useState<VideoEntry | null>(() =>
+    initialVideoUrl
+      ? { preview: initialVideoUrl, name: "Current video", url: initialVideoUrl, error: null, uploading: false }
+      : null,
+  );
   const imageInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
