@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { ListingCard } from "@/components/marketplace/listing-card";
 import { FiltersBar } from "@/components/marketplace/filters-bar";
-import { parseFilters, buildPriceWhere, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
+import { parseFilters, buildPriceWhere, buildOrderBy, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
 
 export const metadata: Metadata = { title: "Home" };
 
@@ -11,7 +11,7 @@ type Props = { searchParams: Promise<FilterParams> };
 
 export default async function HomePage({ searchParams }: Props) {
   const sp = await searchParams;
-  const { selectedCountries, minPrice, maxPrice } = parseFilters(sp);
+  const { selectedCountries, minPrice, maxPrice, sort } = parseFilters(sp);
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -34,7 +34,7 @@ export default async function HomePage({ searchParams }: Props) {
         seller: { select: { shopName: true, slug: true } },
         images: { orderBy: { position: "asc" }, take: 1 },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: buildOrderBy(sort),
       take: 48,
     }),
     user
@@ -62,7 +62,31 @@ export default async function HomePage({ searchParams }: Props) {
 
       {listings.length > 0 ? (
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
-          {listings.map((listing) => (
+          {listings.slice(0, 8).map((listing) => (
+            <ListingCard
+              key={listing.id}
+              listing={listing}
+              isFavorited={favIds.has(listing.id)}
+              isLoggedIn={!!user}
+              hideFavorite={!!sellerProfile && listing.sellerId === sellerProfile.id}
+            />
+          ))}
+
+          {listings.length > 8 && (
+            <div className="col-span-full rounded-2xl px-8 py-10 text-accent-fg" style={{ backgroundColor: "#6a9bcc" }}>
+              <p className="text-xs font-semibold uppercase tracking-widest opacity-60">Our promise</p>
+              <h2 className="mt-2 text-xl font-bold sm:text-2xl">Real. Handmade. European.</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed opacity-80">
+                Every listing on Caseros is a genuine handmade item crafted by an independent maker based in the EU.
+                Dropshipping and AI-generated product images are strictly not allowed.
+              </p>
+              <p className="mt-4 text-xs opacity-50">
+                While we do our best to uphold these standards — if you spot an AI image or a dropshipped product, please use the report function on the listing.
+              </p>
+            </div>
+          )}
+
+          {listings.slice(8).map((listing) => (
             <ListingCard
               key={listing.id}
               listing={listing}

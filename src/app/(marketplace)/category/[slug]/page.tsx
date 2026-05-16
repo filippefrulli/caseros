@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ListingCard } from "@/components/marketplace/listing-card";
 import { FiltersBar } from "@/components/marketplace/filters-bar";
-import { parseFilters, buildPriceWhere, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
+import { parseFilters, buildPriceWhere, buildOrderBy, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<FilterParams> };
 
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const sp = await searchParams;
-  const { selectedCountries, minPrice, maxPrice } = parseFilters(sp);
+  const { selectedCountries, minPrice, maxPrice, sort } = parseFilters(sp);
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -42,7 +42,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         seller: { select: { shopName: true, slug: true } },
         images: { orderBy: { position: "asc" }, take: 1 },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: buildOrderBy(sort),
       take: 48,
     }),
     user

@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ListingCard } from "@/components/marketplace/listing-card";
 import { FiltersBar } from "@/components/marketplace/filters-bar";
 import { buildSearchQuery } from "@/lib/search-synonyms";
-import { parseFilters, buildPriceWhere, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
+import { parseFilters, buildPriceWhere, buildOrderBy, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
 
 type Props = { searchParams: Promise<{ q?: string } & FilterParams> };
 
@@ -16,7 +16,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default async function SearchPage({ searchParams }: Props) {
   const sp = await searchParams;
   const q = sp.q?.trim() ?? "";
-  const { selectedCountries, minPrice, maxPrice } = parseFilters(sp);
+  const { selectedCountries, minPrice, maxPrice, sort } = parseFilters(sp);
 
   if (!q) {
     return (
@@ -85,6 +85,7 @@ export default async function SearchPage({ searchParams }: Props) {
             seller: { select: { shopName: true, slug: true } },
             images: { orderBy: { position: "asc" }, take: 1 },
           },
+          ...(sort !== "newest" ? { orderBy: buildOrderBy(sort) } : {}),
         }),
     user
       ? prisma.favorite
@@ -100,8 +101,12 @@ export default async function SearchPage({ searchParams }: Props) {
     fetchAvailableCountries(),
   ]);
 
-  const listingById = new Map(listingsUnordered.map((l) => [l.id, l]));
-  const listings = ids.map((id) => listingById.get(id)).filter(Boolean) as typeof listingsUnordered;
+  const listings = sort === "newest"
+    ? (() => {
+        const listingById = new Map(listingsUnordered.map((l) => [l.id, l]));
+        return ids.map((id) => listingById.get(id)).filter(Boolean) as typeof listingsUnordered;
+      })()
+    : listingsUnordered;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8">

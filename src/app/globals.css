@@ -4,30 +4,30 @@
    DESIGN TOKENS  —  edit this block to restyle the whole UI
    ═══════════════════════════════════════════════════════════ */
 :root {
-  /* ── Accent (blue) ── */
-  --accent:        #2563EB;   /* blue-600  primary buttons, links, badges  */
-  --accent-hover:  #1D4ED8;   /* blue-700  hover / active states            */
-  --accent-subtle: #EFF6FF;   /* blue-50   chip backgrounds, light tints    */
-  --accent-fg:     #FFFFFF;   /* text rendered on accent backgrounds        */
+  /* ── Accent (sky blue #61AAF2) ── */
+  --accent:        #61AAF2;   /* primary buttons, links, active states      */
+  --accent-hover:  #4A97E6;   /* hover / pressed — slightly deeper          */
+  --accent-subtle: #EAF4FD;   /* light tints, chip backgrounds              */
+  --accent-fg:     #1A1816;   /* dark text — #61AAF2 is light, white fails contrast */
 
-  /* ── Page structure ── */
-  --bg-page:   #EEF2FF;       /* overall canvas — light indigo wash         */
-  --bg-card:   #FFFFFF;       /* cards, modals, panels                      */
-  --bg-subtle: #F8FAFF;       /* inset areas, inputs, table stripes         */
+  /* ── Page structure (Anthropic-inspired warm cream) ── */
+  --bg-page:   #FAFAF7;       /* overall canvas                             */
+  --bg-card:   #FDFCF8;       /* cards, panels, modals — slightly off-white */
+  --bg-subtle: #EEEAE2;       /* inset areas, inputs, table stripes         */
 
   /* ── Text ── */
-  --text-primary:   #0F172A;  /* headings and strong emphasis               */
-  --text-secondary: #64748B;  /* body copy and descriptions                 */
-  --text-muted:     #94A3B8;  /* captions, placeholders, disabled           */
+  --text-primary:   #1A1816;  /* headings — near-black with warm undertone  */
+  --text-secondary: #5C5A55;  /* body copy and descriptions                 */
+  --text-muted:     #9A9891;  /* captions, placeholders, disabled           */
 
   /* ── Borders ── */
-  --border:       #E2E8F0;    /* default dividers and outlines              */
-  --border-strong: #CBD5E1;   /* stronger-emphasis borders                  */
+  --border:        #E5E1D8;   /* warm-beige default dividers                */
+  --border-strong: #D4D0C8;   /* stronger-emphasis borders                  */
 
-  /* ── Shadows ── */
-  --shadow-card:  0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.05);
-  --shadow-hover: 0 4px 20px 0 rgb(0 0 0 / 0.10);
-  --shadow-float: 0 8px 32px 0 rgb(0 0 0 / 0.12);
+  /* ── Shadows (softer against cream) ── */
+  --shadow-card:  0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --shadow-hover: 0 4px 20px 0 rgb(0 0 0 / 0.08);
+  --shadow-float: 0 8px 32px 0 rgb(0 0 0 / 0.10);
 }
 
 /* ═══════════════════════════════════════════════════════════

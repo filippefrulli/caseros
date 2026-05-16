@@ -36,6 +36,12 @@ const rangeInputCls = [
 
 export type Country = { code: string; name: string };
 
+const SORT_OPTIONS = [
+  { value: "newest", label: "Newest" },
+  { value: "price_asc", label: "Price: low to high" },
+  { value: "price_desc", label: "Price: high to low" },
+] as const;
+
 function FiltersBarInner({ availableCountries }: { availableCountries: Country[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -43,6 +49,7 @@ function FiltersBarInner({ availableCountries }: { availableCountries: Country[]
   const selectedCodes = (searchParams.get("countries") ?? "").split(",").filter(Boolean);
   const urlMin = Number(searchParams.get("minPrice") ?? 0);
   const urlMax = Number(searchParams.get("maxPrice") ?? MAX_EUR);
+  const sort = searchParams.get("sort") ?? "newest";
 
   // Store positions (0–SLIDER_MAX), not prices, so the range inputs are always linear.
   const [localMin, setLocalMin] = useState(() => priceToPos(urlMin));
@@ -88,7 +95,7 @@ function FiltersBarInner({ availableCountries }: { availableCountries: Country[]
     });
   }
 
-  const hasFilters = selectedCodes.length > 0 || urlMin > 0 || urlMax < MAX_EUR;
+  const hasFilters = selectedCodes.length > 0 || urlMin > 0 || urlMax < MAX_EUR || sort !== "newest";
 
   const countryLabel =
     selectedCodes.length === 0
@@ -104,21 +111,21 @@ function FiltersBarInner({ availableCountries }: { availableCountries: Country[]
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setOpen((o) => !o)}
-          className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm hover:border-gray-400 transition-colors"
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-bg-card px-3 py-1.5 text-sm hover:border-border-strong transition-colors"
         >
           {countryLabel}
           <ChevronDown size={13} className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
         </button>
 
         {open && (
-          <div className="absolute left-0 top-full z-30 mt-1.5 w-52 overflow-hidden rounded-xl border border-gray-200 bg-white py-1 shadow-lg">
+          <div className="absolute left-0 top-full z-30 mt-1.5 w-52 overflow-hidden rounded-xl border border-border bg-bg-card py-1 shadow-lg">
             {availableCountries.length === 0 ? (
               <p className="px-3 py-2 text-sm text-gray-400">No sellers yet</p>
             ) : (
               availableCountries.map((country) => (
                 <label
                   key={country.code}
-                  className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 hover:bg-gray-50"
+                  className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 hover:bg-bg-subtle"
                 >
                   <input
                     type="checkbox"
@@ -186,10 +193,24 @@ function FiltersBarInner({ availableCountries }: { availableCountries: Country[]
         </span>
       </div>
 
+      {/* ── Sort ────────────────────────────────────────────────── */}
+      <div className="relative">
+        <select
+          value={sort}
+          onChange={(e) => push({ sort: e.target.value === "newest" ? null : e.target.value })}
+          className="appearance-none cursor-pointer rounded-lg border border-border bg-bg-card py-1.5 pl-3 pr-7 text-sm transition-colors hover:border-border-strong focus:outline-none"
+        >
+          {SORT_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+        <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted" />
+      </div>
+
       {/* ── Clear ───────────────────────────────────────────────── */}
       {hasFilters && (
         <button
-          onClick={() => push({ countries: null, minPrice: null, maxPrice: null })}
+          onClick={() => push({ countries: null, minPrice: null, maxPrice: null, sort: null })}
           className="flex items-center gap-1 text-sm text-gray-400 transition-colors hover:text-gray-900"
         >
           <X size={13} />

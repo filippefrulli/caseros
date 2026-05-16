@@ -19,7 +19,7 @@ export async function Navbar() {
     : false;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b border-border bg-bg-page/90 backdrop-blur-sm">
       <div className="mx-auto grid h-14 max-w-6xl grid-cols-3 items-center px-4">
         <Link
           href="/"
@@ -30,7 +30,7 @@ export async function Navbar() {
         </Link>
 
         <div className="flex justify-center">
-          <div className="w-full max-w-sm">
+          <div className="w-full max-w-lg">
             <SearchBar />
           </div>
         </div>

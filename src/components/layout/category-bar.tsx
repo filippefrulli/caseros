@@ -7,7 +7,7 @@ export async function CategoryBar() {
   if (categories.length === 0) return null;
 
   return (
-    <div className="border-b border-border bg-bg-card">
+    <div className="border-b border-border bg-bg-page">
       <div className="mx-auto flex max-w-6xl items-center gap-0.5 overflow-x-auto px-4 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {categories.map((cat) => (
           <Link
