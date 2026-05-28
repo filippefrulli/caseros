@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   User, Store, AlertTriangle, ChevronDown, Loader2, Video, X, CheckCircle,
@@ -41,6 +41,18 @@ interface FormState {
   youtube: string;
   facebook: string;
 }
+
+const EMPTY_FORM: FormState = {
+  sellerType: null,
+  disclaimerAcknowledged: false,
+  fullName: "", dateOfBirth: "",
+  addressLine1: "", addressLine2: "", city: "", postalCode: "",
+  businessRegNumber: "", contactPhone: "", contactEmail: "",
+  safetyCompliant: false,
+  shopName: "", slug: "", bio: "", country: "",
+  verificationVideoUrl: "",
+  website: "", instagram: "", tiktok: "", youtube: "", facebook: "",
+};
 
 const EU_COUNTRIES = [
   { code: "AT", name: "Austria" }, { code: "BE", name: "Belgium" },
@@ -98,33 +110,52 @@ function Field({ label, hint, required, children }: {
 
 const STEP_LABELS = ["Account type", "Identity", "Your shop", "Verify craft"];
 
-function StepIndicator({ current }: { current: Step }) {
+function StepIndicator({ current, maxStep, onStepClick }: {
+  current: Step;
+  maxStep: Step;
+  onStepClick: (step: Step) => void;
+}) {
   return (
     <div className="mb-10 flex items-center gap-0">
       {STEP_LABELS.map((label, i) => {
         const n = (i + 1) as Step;
         const done = current > n;
         const active = current === n;
+        const reachable = n <= maxStep;
         return (
           <div key={n} className="flex flex-1 flex-col items-center">
             <div className="flex w-full items-center">
               {i > 0 && (
                 <div className={`h-px flex-1 ${done || active ? "bg-gray-900" : "bg-gray-200"}`} />
               )}
-              <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
-                done ? "bg-gray-900 text-white"
-                  : active ? "border-2 border-gray-900 text-gray-900"
-                  : "border-2 border-gray-200 text-gray-300"
-              }`}>
+              <button
+                type="button"
+                onClick={() => reachable && onStepClick(n)}
+                disabled={!reachable}
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                  done ? "bg-gray-900 text-white" + (reachable ? " cursor-pointer hover:bg-gray-700" : "")
+                    : active ? "border-2 border-gray-900 text-gray-900"
+                    : "border-2 border-gray-200 text-gray-300"
+                } ${reachable && !active ? "cursor-pointer" : ""}`}
+              >
                 {done ? "✓" : n}
-              </div>
+              </button>
               {i < STEP_LABELS.length - 1 && (
                 <div className={`h-px flex-1 ${done ? "bg-gray-900" : "bg-gray-200"}`} />
               )}
             </div>
-            <span className={`mt-1.5 text-center text-xs ${active ? "font-medium text-gray-900" : "text-gray-400"}`}>
+            <button
+              type="button"
+              onClick={() => reachable && onStepClick(n)}
+              disabled={!reachable}
+              className={`mt-1.5 text-center text-xs transition-colors ${
+                active ? "font-medium text-gray-900"
+                  : reachable ? "text-gray-400 hover:text-gray-700 cursor-pointer"
+                  : "text-gray-300"
+              }`}
+            >
               {label}
-            </span>
+            </button>
           </div>
         );
       })}
@@ -136,9 +167,13 @@ function StepIndicator({ current }: { current: Step }) {
 
 export function OnboardingForm({ userId }: { userId: string }) {
   const router = useRouter();
+  const storageKey = `caseros_onboarding_${userId}`;
+
   const [step, setStep] = useState<Step>(1);
+  const [maxStep, setMaxStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
   const slugEdited = useRef(false);
 
   // Video upload state
@@ -147,20 +182,50 @@ export function OnboardingForm({ userId }: { userId: string }) {
   const [videoName, setVideoName] = useState<string | null>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
 
-  const [form, setForm] = useState<FormState>({
-    sellerType: null,
-    disclaimerAcknowledged: false,
-    fullName: "", dateOfBirth: "",
-    addressLine1: "", addressLine2: "", city: "", postalCode: "",
-    businessRegNumber: "", contactPhone: "", contactEmail: "",
-    safetyCompliant: false,
-    shopName: "", slug: "", bio: "", country: "",
-    verificationVideoUrl: "",
-    website: "", instagram: "", tiktok: "", youtube: "", facebook: "",
-  });
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
 
   function set(partial: Partial<FormState>) {
     setForm(prev => ({ ...prev, ...partial }));
+  }
+
+  // ── Persistence ────────────────────────────────────────────────────────────
+
+  // Load saved draft on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.form) setForm(parsed.form);
+        if (parsed.step) setStep(parsed.step as Step);
+        if (parsed.maxStep) setMaxStep(parsed.maxStep as Step);
+        if (parsed.videoName) setVideoName(parsed.videoName);
+        // If slug differs from auto-generated version, the user manually edited it
+        if (parsed.form?.slug && parsed.form?.shopName &&
+            parsed.form.slug !== toSlug(parsed.form.shopName)) {
+          slugEdited.current = true;
+        }
+      }
+    } catch {
+      // ignore corrupt storage
+    }
+    setHydrated(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Save draft on every change
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({ form, step, maxStep, videoName }));
+    } catch {
+      // ignore storage errors (e.g. private browsing quota)
+    }
+  }, [form, step, maxStep, videoName, hydrated, storageKey]);
+
+  function goToStep(n: Step) {
+    setStep(n);
+    setMaxStep(prev => (n > prev ? n : prev));
   }
 
   // ── Video upload ───────────────────────────────────────────────────────────
@@ -263,7 +328,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
 
         <button
           type="button"
-          onClick={() => setStep(2)}
+          onClick={() => goToStep(2)}
           disabled={!step1CanContinue}
           className="w-full rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
         >
@@ -355,11 +420,11 @@ export function OnboardingForm({ userId }: { userId: string }) {
         )}
 
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={() => setStep(1)}
+          <button type="button" onClick={() => goToStep(1)}
             className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
             Back
           </button>
-          <button type="button" onClick={() => setStep(3)} disabled={!step2CanContinue}
+          <button type="button" onClick={() => goToStep(3)} disabled={!step2CanContinue}
             className="flex-1 rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-40 transition-colors">
             Continue
           </button>
@@ -436,11 +501,11 @@ export function OnboardingForm({ userId }: { userId: string }) {
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={() => setStep(2)}
+          <button type="button" onClick={() => goToStep(2)}
             className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
             Back
           </button>
-          <button type="button" onClick={() => setStep(4)} disabled={!step3CanContinue}
+          <button type="button" onClick={() => goToStep(4)} disabled={!step3CanContinue}
             className="flex-1 rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-40 transition-colors">
             Continue
           </button>
@@ -467,6 +532,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Submission failed");
+      localStorage.removeItem(storageKey);
       router.push("/seller/dashboard");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Something went wrong");
@@ -560,7 +626,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
         )}
 
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={() => setStep(3)}
+          <button type="button" onClick={() => goToStep(3)}
             className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
             Back
           </button>
@@ -577,9 +643,11 @@ export function OnboardingForm({ userId }: { userId: string }) {
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
+  if (!hydrated) return null;
+
   return (
     <div>
-      <StepIndicator current={step} />
+      <StepIndicator current={step} maxStep={maxStep} onStepClick={goToStep} />
       {step === 1 && renderStep1()}
       {step === 2 && renderStep2()}
       {step === 3 && renderStep3()}
