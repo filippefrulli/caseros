@@ -10,8 +10,6 @@ export default defineConfig({
     seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
-    // @ts-ignore — directUrl is a valid Prisma CLI config property not yet reflected in the type
-    directUrl: process.env["DIRECT_URL"],
+    url: process.env["DIRECT_URL"],
   },
 });
