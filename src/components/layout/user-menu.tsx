@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { User, ShoppingBag, Heart, Store, Plus, LogOut, X } from "lucide-react";
+import { User, ShoppingBag, Heart, Store, Plus, LogOut, X, LayoutDashboard } from "lucide-react";
 
 interface UserMenuProps {
   avatarUrl?: string;
@@ -123,14 +123,24 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
             Favourites
           </Link>
           {isSeller ? (
-            <Link
-              href="/seller/listings/new"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium bg-gray-900 text-white hover:bg-gray-700 transition-colors mt-1"
-            >
-              <Plus size={16} className="shrink-0" />
-              Add a new listing
-            </Link>
+            <>
+              <Link
+                href="/seller/dashboard"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+              >
+                <LayoutDashboard size={16} className="shrink-0 text-gray-400" />
+                Seller dashboard
+              </Link>
+              <Link
+                href="/seller/listings/new"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium bg-gray-900 text-white hover:bg-gray-700 transition-colors mt-1"
+              >
+                <Plus size={16} className="shrink-0" />
+                Add a new listing
+              </Link>
+            </>
           ) : (
             <Link
               href="/seller/onboarding"

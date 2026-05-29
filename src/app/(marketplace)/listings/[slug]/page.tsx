@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/utils";
 import Link from "next/link";
 import { ListingImageCarousel } from "@/components/marketplace/listing-image-carousel";
 import { FavoriteButton } from "@/components/marketplace/favorite-button";
+import { BuyNowButton } from "@/components/marketplace/buy-now-button";
 import { StartConversationButton } from "@/components/messages/start-conversation-button";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -25,7 +26,16 @@ export default async function ListingPage({ params }: Props) {
   const listing = await prisma.listing.findUnique({
     where: { slug, status: "ACTIVE", deletedAt: null },
     include: {
-      seller: { select: { id: true, shopName: true, slug: true, user: { select: { supabaseId: true } } } },
+      seller: {
+        select: {
+          id: true,
+          shopName: true,
+          slug: true,
+          stripeOnboardingDone: true,
+          payoutsEnabled: true,
+          user: { select: { supabaseId: true } },
+        },
+      },
       images: { orderBy: { position: "asc" } },
     },
   });
@@ -86,12 +96,13 @@ export default async function ListingPage({ params }: Props) {
               </Link>
             ) : (
               <>
-                <button
-                  disabled
-                  className="flex-1 rounded-xl bg-gray-900 py-3 text-sm font-medium text-white disabled:opacity-40"
-                >
-                  Buy now — coming soon
-                </button>
+                <BuyNowButton
+                  listingId={listing.id}
+                  slug={listing.slug}
+                  stock={listing.stock}
+                  payable={listing.seller.stripeOnboardingDone && listing.seller.payoutsEnabled}
+                  isLoggedIn={!!user}
+                />
                 <FavoriteButton
                   listingId={listing.id}
                   isFavorited={isFavorited}

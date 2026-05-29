@@ -83,6 +83,10 @@ export async function createListing(
   });
   if (!seller) return { error: "Seller profile not found." };
 
+  if (publishNow && !seller.stripeOnboardingDone) {
+    return { error: "Connect your Stripe account before publishing a listing." };
+  }
+
   await prisma.listing.create({
     data: {
       sellerId: seller.id,

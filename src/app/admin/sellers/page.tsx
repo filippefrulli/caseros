@@ -1,11 +1,11 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { SellerActions } from "@/components/admin/seller-actions";
 import { MapPin, CalendarDays, ExternalLink } from "lucide-react";
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+import { env } from "@/env";
 
 const PLATFORMS = ["website", "instagram", "tiktok", "youtube", "facebook", "twitter", "pinterest", "linkedin"] as const;
 
@@ -13,7 +13,7 @@ export default async function AdminSellersPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!ADMIN_EMAIL || !user || user.email !== ADMIN_EMAIL) return notFound();
+  if (!user || user.email !== env.ADMIN_EMAIL) return notFound();
 
   const sellers = await prisma.sellerProfile.findMany({
     where: { status: { in: ["PENDING", "REJECTED"] } },
@@ -47,9 +47,14 @@ export default async function AdminSellersPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">Seller Review</h1>
-        <p className="mt-1 text-sm text-gray-500">{sellers.length} seller{sellers.length === 1 ? "" : "s"} pending review</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Seller Review</h1>
+          <p className="mt-1 text-sm text-gray-500">{sellers.length} seller{sellers.length === 1 ? "" : "s"} pending review</p>
+        </div>
+        <Link href="/admin/orders" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
+          Orders →
+        </Link>
       </div>
 
       {sellers.length === 0 ? (

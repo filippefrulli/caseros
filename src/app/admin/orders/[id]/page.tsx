@@ -1,0 +1,205 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { prisma } from "@/lib/prisma";
+import { formatPrice } from "@/lib/utils";
+import { env } from "@/env";
+import { MarkStatusButton } from "@/components/admin/mark-status-button";
+import { ReleasePayoutButton } from "@/components/admin/release-payout-button";
+import { RefundButton } from "@/components/admin/refund-button";
+import type { Route } from "next";
+import type { OrderStatus } from "@/generated/prisma/client";
+
+export const metadata: Metadata = { title: "Admin — Order detail" };
+
+const STATUS_LABEL: Record<OrderStatus, string> = {
+  PENDING: "Pending",
+  PAID: "Paid",
+  PROCESSING: "Processing",
+  SHIPPED: "Shipped",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+  REFUNDED: "Refunded",
+};
+
+const STATUS_STYLE: Record<OrderStatus, string> = {
+  PENDING: "bg-gray-100 text-gray-600",
+  PAID: "bg-green-100 text-green-800",
+  PROCESSING: "bg-blue-100 text-blue-800",
+  SHIPPED: "bg-violet-100 text-violet-800",
+  DELIVERED: "bg-emerald-100 text-emerald-800",
+  CANCELLED: "bg-red-100 text-red-700",
+  REFUNDED: "bg-amber-100 text-amber-800",
+};
+
+const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+type Props = { params: Promise<{ id: string }> };
+
+export default async function AdminOrderDetailPage({ params }: Props) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.email !== env.ADMIN_EMAIL) return notFound();
+
+  const { id } = await params;
+
+  const order = await prisma.order.findUnique({
+    where: { id },
+    include: {
+      buyer: { select: { email: true, name: true } },
+      items: {
+        include: {
+          listing: {
+            select: {
+              slug: true,
+              images: { orderBy: { position: "asc" }, take: 1, select: { url: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+  if (!order) return notFound();
+
+  const sellerIds = [...new Set(order.items.map((i) => i.sellerId))];
+  const sellers = await prisma.sellerProfile.findMany({
+    where: { id: { in: sellerIds } },
+    select: { id: true, shopName: true, slug: true },
+  });
+  const sellerMap = new Map(sellers.map((s) => [s.id, s]));
+
+  const allPayoutsReleased =
+    order.items.length > 0 && order.items.every((i) => i.stripeTransferId);
+  const canRelease =
+    order.status === "DELIVERED" && !allPayoutsReleased && !!order.stripeChargeId;
+
+  return (
+    <main className="mx-auto max-w-3xl px-4 py-12">
+      <div className="mb-6 flex items-center gap-3">
+        <Link href="/admin/orders" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+          ← Orders
+        </Link>
+        <span className="text-gray-300">/</span>
+        <span className="font-mono text-sm text-gray-700">#{order.id.slice(-8).toUpperCase()}</span>
+      </div>
+
+      {/* Header */}
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold">Order detail</h1>
+          <p className="mt-1 text-sm text-gray-500">{DATE_FMT.format(order.createdAt)}</p>
+          <p className="mt-0.5 font-mono text-xs text-gray-400">{order.id}</p>
+        </div>
+        <span className={`rounded-full px-3 py-1 text-sm font-medium ${STATUS_STYLE[order.status]}`}>
+          {STATUS_LABEL[order.status]}
+        </span>
+      </div>
+
+      {/* Buyer */}
+      <section className="mb-6 rounded-xl border border-gray-200 p-5">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Buyer</h2>
+        <p className="text-sm text-gray-900">{order.buyer.name ?? "—"}</p>
+        <p className="text-sm text-gray-500">{order.buyer.email}</p>
+      </section>
+
+      {/* Items */}
+      <section className="mb-6 rounded-xl border border-gray-200 p-5">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">Items</h2>
+        <ul className="space-y-4">
+          {order.items.map((item) => {
+            const thumb = item.listing?.images?.[0]?.url ?? item.listingImageUrl;
+            const seller = sellerMap.get(item.sellerId);
+            return (
+              <li key={item.id} className="flex items-start gap-3">
+                {thumb ? (
+                  <Image
+                    src={thumb}
+                    alt={item.listingTitle}
+                    width={56}
+                    height={56}
+                    className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="h-14 w-14 shrink-0 rounded-lg bg-gray-100" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-900">{item.listingTitle}</p>
+                  <p className="mt-0.5 text-xs text-gray-500">
+                    Qty {item.quantity} ·{" "}
+                    {seller ? (
+                      <Link
+                        href={`/shops/${seller.slug}` as Route}
+                        className="hover:underline"
+                        target="_blank"
+                      >
+                        {seller.shopName}
+                      </Link>
+                    ) : (
+                      "Unknown seller"
+                    )}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-400">
+                    Payout: {formatPrice(item.sellerPayout, item.currency)}
+                    {item.stripeTransferId ? (
+                      <span className="ml-2 text-emerald-600">
+                        ✓ Released{item.payoutReleasedAt ? ` ${DATE_FMT.format(item.payoutReleasedAt)}` : ""}
+                      </span>
+                    ) : null}
+                  </p>
+                </div>
+                <p className="shrink-0 text-sm tabular-nums text-gray-700">
+                  {formatPrice(item.unitAmount * item.quantity, item.currency)}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
+          <p className="text-sm text-gray-500">Total</p>
+          <p className="text-sm font-semibold tabular-nums text-gray-900">
+            {formatPrice(order.totalAmount, order.currency)}
+          </p>
+        </div>
+      </section>
+
+      {/* Stripe IDs */}
+      <section className="mb-6 rounded-xl border border-gray-200 p-5">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Stripe</h2>
+        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-xs">
+          <dt className="text-gray-400">Payment Intent</dt>
+          <dd className="font-mono text-gray-700 truncate">{order.stripePaymentIntentId ?? "—"}</dd>
+          <dt className="text-gray-400">Charge</dt>
+          <dd className="font-mono text-gray-700 truncate">{order.stripeChargeId ?? "—"}</dd>
+          <dt className="text-gray-400">Session</dt>
+          <dd className="font-mono text-gray-700 truncate">{order.checkoutSessionId ?? "—"}</dd>
+        </dl>
+      </section>
+
+      {/* Actions */}
+      {(order.status !== "CANCELLED" && order.status !== "REFUNDED") && (
+        <section className="rounded-xl border border-gray-200 p-5">
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">Actions</h2>
+          <div className="flex flex-wrap gap-3">
+            <MarkStatusButton orderId={order.id} status={order.status} />
+            {canRelease && <ReleasePayoutButton orderId={order.id} />}
+            {allPayoutsReleased && (
+              <span className="flex items-center text-sm text-emerald-600">✓ All payouts released</span>
+            )}
+            {order.status !== "PENDING" && (
+              <RefundButton orderId={order.id} totalAmount={order.totalAmount} />
+            )}
+          </div>
+        </section>
+      )}
+    </main>
+  );
+}

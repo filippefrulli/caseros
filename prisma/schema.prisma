@@ -45,6 +45,7 @@ enum NotificationType {
   ORDER_SHIPPED
   ORDER_DELIVERED
   ORDER_CANCELLED
+  ORDER_REFUNDED
   NEW_MESSAGE
   NEW_REVIEW
   PAYOUT_SENT
@@ -91,6 +92,7 @@ model SellerProfile {
   status               SellerStatus @default(PENDING)
   stripeAccountId      String?      @unique @map("stripe_account_id")
   stripeOnboardingDone Boolean      @default(false) @map("stripe_onboarding_done")
+  payoutsEnabled       Boolean      @default(false) @map("payouts_enabled")
   // Platform commission taken before paying out to seller (0.05 = 5%)
   commissionRate       Decimal      @default(0.05) @map("commission_rate") @db.Decimal(5, 4)
   createdAt            DateTime     @default(now()) @map("created_at")
@@ -254,11 +256,16 @@ model Order {
   buyer                 User        @relation(fields: [buyerId], references: [id])
   shippingAddressId     String?     @map("shipping_address_id")
   shippingAddress       Address?    @relation(fields: [shippingAddressId], references: [id])
+  shippingName          String?     @map("shipping_name")
   status                OrderStatus @default(PENDING)
   totalAmount           Int         @map("total_amount")
   shippingAmount        Int         @default(0) @map("shipping_amount")
   currency              String      @default("EUR")
   stripePaymentIntentId String?     @unique @map("stripe_payment_intent_id")
+  // Captured from payment_intent.latest_charge; used as source_transaction when releasing the seller transfer.
+  stripeChargeId        String?     @unique @map("stripe_charge_id")
+  // Stripe Checkout Session id; set at /api/checkout time, before the PI exists.
+  checkoutSessionId     String?     @unique @map("checkout_session_id")
   stripeTaxAmount       Int?        @map("stripe_tax_amount")
   createdAt             DateTime    @default(now()) @map("created_at")
   updatedAt             DateTime    @updatedAt @map("updated_at")
@@ -298,8 +305,11 @@ model OrderItem {
   sellerPayout Int      @map("seller_payout")
 
   // Set after Stripe transfer is created for this seller's payout
-  stripeTransferId String?  @unique @map("stripe_transfer_id")
-  createdAt        DateTime @default(now()) @map("created_at")
+  stripeTransferId   String?   @unique @map("stripe_transfer_id")
+  payoutReleasedAt   DateTime? @map("payout_released_at")
+  // Amount refunded so far (cents). Equals unitAmount * quantity when fully refunded.
+  refundedAmount     Int       @default(0) @map("refunded_amount")
+  createdAt          DateTime  @default(now()) @map("created_at")
 
   review Review?
 
@@ -456,4 +466,17 @@ model SellerKyc {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("seller_kyc")
+}
+
+// ─── Stripe ───────────────────────────────────────────────────────────────────
+
+// Dedup table for Stripe webhook events. The primary key IS the Stripe event id;
+// inserting a duplicate (P2002) signals we've already processed this event and
+// should ack with 200 without re-running side effects.
+model StripeWebhookEvent {
+  id         String   @id
+  type       String
+  receivedAt DateTime @default(now()) @map("received_at")
+
+  @@map("stripe_webhook_events")
 }

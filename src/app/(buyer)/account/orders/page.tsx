@@ -1,18 +1,151 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { prisma } from "@/lib/prisma";
+import { formatPrice } from "@/lib/utils";
+import type { OrderStatus } from "@/generated/prisma/client";
 
 export const metadata: Metadata = { title: "My Orders" };
 
-export default function OrdersPage() {
+const STATUS_LABEL: Record<OrderStatus, string> = {
+  PENDING: "Awaiting payment",
+  PAID: "Paid",
+  PROCESSING: "Processing",
+  SHIPPED: "Shipped",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+  REFUNDED: "Refunded",
+};
+
+const STATUS_STYLE: Record<OrderStatus, string> = {
+  PENDING: "bg-gray-100 text-gray-700",
+  PAID: "bg-green-100 text-green-800",
+  PROCESSING: "bg-blue-100 text-blue-800",
+  SHIPPED: "bg-violet-100 text-violet-800",
+  DELIVERED: "bg-emerald-100 text-emerald-800",
+  CANCELLED: "bg-red-100 text-red-700",
+  REFUNDED: "bg-amber-100 text-amber-800",
+};
+
+const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+export default async function OrdersPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login?next=/account/orders");
+
+  const dbUser = await prisma.user.findUnique({
+    where: { supabaseId: user.id },
+    select: { id: true },
+  });
+  if (!dbUser) redirect("/account");
+
+  const orders = await prisma.order.findMany({
+    where: { buyerId: dbUser.id, status: { not: "PENDING" } },
+    orderBy: { createdAt: "desc" },
+    include: {
+      items: {
+        include: {
+          listing: {
+            select: {
+              slug: true,
+              images: { orderBy: { position: "asc" }, take: 1, select: { url: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+
   return (
-    <main className="mx-auto max-w-2xl px-4 py-12">
+    <main className="mx-auto max-w-5xl px-4 py-12">
       <div className="mb-6 flex items-center gap-3">
-        <Link href="/account" className="text-sm text-gray-500 hover:text-gray-900">
+        <Link href="/account" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
           ← Account
         </Link>
         <h1 className="text-2xl font-bold">My Orders</h1>
       </div>
-      <p className="text-gray-500">You have no orders yet.</p>
+
+      {orders.length === 0 ? (
+        <p className="text-gray-500">You have no orders yet.</p>
+      ) : (
+        <ul className="space-y-5">
+          {orders.map((order) => (
+            <li
+              key={order.id}
+              className="rounded-xl border border-gray-200 p-5"
+            >
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-wide text-gray-500">
+                    {DATE_FMT.format(order.createdAt)}
+                  </p>
+                  <p className="mt-0.5 font-mono text-xs text-gray-400">{order.id}</p>
+                </div>
+                <span
+                  className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[order.status]}`}
+                >
+                  {STATUS_LABEL[order.status]}
+                </span>
+              </div>
+
+              <ul className="space-y-3 border-t border-gray-100 pt-4">
+                {order.items.map((item) => {
+                  const thumb = item.listing?.images?.[0]?.url ?? item.listingImageUrl;
+                  return (
+                    <li key={item.id} className="flex items-start gap-3">
+                      {thumb ? (
+                        <Image
+                          src={thumb}
+                          alt={item.listingTitle}
+                          width={56}
+                          height={56}
+                          className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="h-14 w-14 shrink-0 rounded-lg bg-gray-100" />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        {item.listing?.slug ? (
+                          <Link
+                            href={`/listings/${item.listing.slug}`}
+                            className="text-sm font-medium text-gray-900 hover:underline"
+                          >
+                            {item.listingTitle}
+                          </Link>
+                        ) : (
+                          <span className="text-sm font-medium text-gray-900">
+                            {item.listingTitle}
+                          </span>
+                        )}
+                        <p className="mt-0.5 text-xs text-gray-500">Qty {item.quantity}</p>
+                      </div>
+                      <p className="shrink-0 text-sm tabular-nums text-gray-700">
+                        {formatPrice(item.unitAmount * item.quantity, item.currency)}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
+                <p className="text-sm text-gray-500">Total</p>
+                <p className="text-sm font-semibold tabular-nums text-gray-900">
+                  {formatPrice(order.totalAmount, order.currency)}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </main>
   );
 }
