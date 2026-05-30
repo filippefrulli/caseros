@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { ListingCard } from "@/components/marketplace/listing-card";
 
 export const metadata: Metadata = { title: "Saved Items" };
@@ -33,8 +34,8 @@ export default async function FavouritesPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-12">
       <div className="mb-8 flex items-center gap-3">
-        <Link href="/account" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
-          ← Account
+        <Link href="/account" className="inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+          <ChevronLeft size={20} />
         </Link>
         <h1 className="text-2xl font-bold">Saved items</h1>
       </div>

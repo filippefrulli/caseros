@@ -89,7 +89,6 @@ const profileSchema = z.object({
   facebook: urlOrEmpty.optional(),
   twitter: urlOrEmpty.optional(),
   pinterest: urlOrEmpty.optional(),
-  linkedin: urlOrEmpty.optional(),
 });
 
 export type ProfileState = {
@@ -120,7 +119,6 @@ export async function updateSellerProfile(
     facebook: (formData.get("facebook") as string) || "",
     twitter: (formData.get("twitter") as string) || "",
     pinterest: (formData.get("pinterest") as string) || "",
-    linkedin: (formData.get("linkedin") as string) || "",
   };
 
   const parsed = profileSchema.safeParse(raw);
@@ -148,7 +146,6 @@ export async function updateSellerProfile(
         facebook: nullIfEmpty(links.facebook),
         twitter: nullIfEmpty(links.twitter),
         pinterest: nullIfEmpty(links.pinterest),
-        linkedin: nullIfEmpty(links.linkedin),
       },
       update: {
         website: nullIfEmpty(links.website),
@@ -158,10 +155,81 @@ export async function updateSellerProfile(
         facebook: nullIfEmpty(links.facebook),
         twitter: nullIfEmpty(links.twitter),
         pinterest: nullIfEmpty(links.pinterest),
-        linkedin: nullIfEmpty(links.linkedin),
       },
     }),
   ]);
 
   return { success: true };
+}
+
+// ─── Update seller pickup address ─────────────────────────────────────────────
+
+const pickupSchema = z.object({
+  pickupName: z.string().min(1, "Name is required").max(100),
+  pickupLine1: z.string().min(1, "Address line 1 is required").max(200),
+  pickupLine2: z.string().max(200).optional(),
+  pickupHouseNumber: z.string().max(20).optional(),
+  pickupCity: z.string().min(1, "City is required").max(100),
+  pickupPostalCode: z.string().min(1, "Postal code is required").max(20),
+  pickupCountry: z.string().length(2, "Select a country"),
+  pickupPhone: z.string().min(5, "Phone is required").max(30),
+});
+
+export type PickupAddressState = {
+  success?: boolean;
+  error?: string;
+  fieldErrors?: Partial<Record<keyof z.infer<typeof pickupSchema>, string[]>>;
+  data?: z.infer<typeof pickupSchema>;
+} | null;
+
+export async function updatePickupAddress(
+  _prev: PickupAddressState,
+  formData: FormData,
+): Promise<PickupAddressState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "You must be signed in." };
+
+  const seller = await prisma.sellerProfile.findFirst({
+    where: { user: { supabaseId: user.id } },
+  });
+  if (!seller) return { error: "Seller profile not found." };
+
+  const raw = {
+    pickupName: formData.get("pickupName") as string,
+    pickupLine1: formData.get("pickupLine1") as string,
+    pickupLine2: (formData.get("pickupLine2") as string) || undefined,
+    pickupHouseNumber: (formData.get("pickupHouseNumber") as string) || undefined,
+    pickupCity: formData.get("pickupCity") as string,
+    pickupPostalCode: formData.get("pickupPostalCode") as string,
+    pickupCountry: formData.get("pickupCountry") as string,
+    pickupPhone: formData.get("pickupPhone") as string,
+  };
+
+  const parsed = pickupSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
+  }
+
+  const saved = {
+    pickupName: parsed.data.pickupName.trim(),
+    pickupLine1: parsed.data.pickupLine1.trim(),
+    pickupLine2: parsed.data.pickupLine2?.trim() || undefined,
+    pickupHouseNumber: parsed.data.pickupHouseNumber?.trim() || undefined,
+    pickupCity: parsed.data.pickupCity.trim(),
+    pickupPostalCode: parsed.data.pickupPostalCode.trim(),
+    pickupCountry: parsed.data.pickupCountry,
+    pickupPhone: parsed.data.pickupPhone.trim(),
+  };
+
+  await prisma.sellerProfile.update({
+    where: { id: seller.id },
+    data: {
+      ...saved,
+      pickupLine2: saved.pickupLine2 ?? null,
+      pickupHouseNumber: saved.pickupHouseNumber ?? null,
+    },
+  });
+
+  return { success: true, data: saved };
 }

@@ -14,8 +14,7 @@ interface Props {
     facebook: string | null;
     twitter: string | null;
     pinterest: string | null;
-    linkedin: string | null;
-  } | null;
+    } | null;
 }
 
 const inputCls = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
@@ -28,7 +27,6 @@ const PLATFORMS = [
   { key: "facebook",  label: "Facebook",    placeholder: "https://facebook.com/yourpage" },
   { key: "twitter",   label: "X / Twitter", placeholder: "https://x.com/yourhandle" },
   { key: "pinterest", label: "Pinterest",   placeholder: "https://pinterest.com/yourprofile" },
-  { key: "linkedin",  label: "LinkedIn",    placeholder: "https://linkedin.com/in/yourprofile" },
 ] as const;
 
 function FieldError({ messages }: { messages?: string[] }) {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
@@ -64,8 +65,8 @@ export default async function AdminOrdersPage() {
           <h1 className="text-2xl font-bold">Orders</h1>
           <p className="mt-1 text-sm text-gray-500">{orders.length} total</p>
         </div>
-        <Link href="/admin/sellers" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
-          ← Sellers
+        <Link href="/admin/sellers" className="inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+          <ChevronLeft size={20} />
         </Link>
       </div>
 

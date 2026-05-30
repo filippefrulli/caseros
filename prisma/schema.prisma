@@ -95,6 +95,15 @@ model SellerProfile {
   payoutsEnabled       Boolean      @default(false) @map("payouts_enabled")
   // Platform commission taken before paying out to seller (0.05 = 5%)
   commissionRate       Decimal      @default(0.05) @map("commission_rate") @db.Decimal(5, 4)
+  // Pickup / return address used as Sendcloud from_address on shipping labels
+  pickupName        String? @map("pickup_name")
+  pickupLine1       String? @map("pickup_line1")
+  pickupLine2       String? @map("pickup_line2")
+  pickupHouseNumber String? @map("pickup_house_number")
+  pickupCity        String? @map("pickup_city")
+  pickupPostalCode  String? @map("pickup_postal_code")
+  pickupCountry     String? @map("pickup_country")
+  pickupPhone       String? @map("pickup_phone")
   createdAt            DateTime     @default(now()) @map("created_at")
   updatedAt            DateTime     @updatedAt @map("updated_at")
 
@@ -160,6 +169,11 @@ model Listing {
   stock       Int           @default(1)
   isDigital   Boolean       @default(false) @map("is_digital")
   videoUrl    String?       @map("video_url")
+  // Shipping — required for physical listings; ignored when isDigital.
+  weightGrams    Int?  @map("weight_grams")
+  lengthCm       Int?  @map("length_cm")
+  widthCm        Int?  @map("width_cm")
+  heightCm       Int?  @map("height_cm")
   status      ListingStatus @default(DRAFT)
   tags        String[]
   // Soft delete — preserve FK integrity for historical orders
@@ -233,16 +247,20 @@ model ListingFile {
 // ─── Orders ───────────────────────────────────────────────────────────────────
 
 model Address {
-  id         String   @id @default(cuid())
-  userId     String   @map("user_id")
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  line1      String
-  line2      String?
-  city       String
-  postalCode String   @map("postal_code")
-  country    String
-  isDefault  Boolean  @default(false) @map("is_default")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String?
+  line1       String
+  line2       String?
+  houseNumber String?  @map("house_number")
+  city        String
+  postalCode  String   @map("postal_code")
+  country     String
+  phone       String?
+  email       String?
+  isDefault   Boolean  @default(false) @map("is_default")
+  createdAt   DateTime @default(now()) @map("created_at")
 
   orders Order[]
 
@@ -267,6 +285,11 @@ model Order {
   // Stripe Checkout Session id; set at /api/checkout time, before the PI exists.
   checkoutSessionId     String?     @unique @map("checkout_session_id")
   stripeTaxAmount       Int?        @map("stripe_tax_amount")
+  // Shipping label & tracking (provider-agnostic)
+  shippingTransactionId  String?  @unique @map("shipping_transaction_id")
+  trackingCode           String?  @map("tracking_code")
+  trackingUrl            String?  @map("tracking_url")
+  labelDocumentLink      String?  @map("label_document_link")
   createdAt             DateTime    @default(now()) @map("created_at")
   updatedAt             DateTime    @updatedAt @map("updated_at")
 

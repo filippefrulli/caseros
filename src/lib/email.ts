@@ -4,6 +4,7 @@ import { OrderConfirmedEmail } from "@/emails/order-confirmed";
 import { NewOrderEmail } from "@/emails/new-order";
 import { PayoutReleasedEmail } from "@/emails/payout-released";
 import { OrderDeliveredEmail } from "@/emails/order-delivered";
+import { OrderShippedEmail } from "@/emails/order-shipped";
 
 const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
@@ -87,6 +88,36 @@ export async function sendNewOrderEmail({
       react: NewOrderEmail({ shopName, orderId, items, appUrl }),
     },
     { idempotencyKey: `new-order/${orderId}/${sellerId}` },
+  );
+}
+
+export async function sendOrderShippedEmail({
+  to,
+  buyerName,
+  orderId,
+  trackingCode,
+  trackingUrl,
+  appUrl,
+}: {
+  to: string;
+  buyerName: string | null;
+  orderId: string;
+  trackingCode: string;
+  trackingUrl: string;
+  appUrl: string;
+}) {
+  if (!resend) {
+    console.warn("[email] RESEND_API_KEY not set — skipping order shipped email");
+    return;
+  }
+  await send(
+    {
+      from: FROM,
+      to,
+      subject: `Your order #${orderId.slice(-8).toUpperCase()} is on its way`,
+      react: OrderShippedEmail({ buyerName, orderId, trackingCode, trackingUrl, appUrl }),
+    },
+    { idempotencyKey: `order-shipped/${orderId}` },
   );
 }
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -84,8 +85,8 @@ export default async function AdminOrderDetailPage({ params }: Props) {
   return (
     <main className="mx-auto max-w-3xl px-4 py-12">
       <div className="mb-6 flex items-center gap-3">
-        <Link href="/admin/orders" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
-          ← Orders
+        <Link href="/admin/orders" className="inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+          <ChevronLeft size={20} />
         </Link>
         <span className="text-gray-300">/</span>
         <span className="font-mono text-sm text-gray-700">#{order.id.slice(-8).toUpperCase()}</span>

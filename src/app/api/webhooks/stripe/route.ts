@@ -68,6 +68,8 @@ export async function POST(req: Request) {
         });
 
         const shippingDetails = session.collected_information?.shipping_details;
+        const phone =
+          (session as unknown as { customer_details?: { phone?: string | null } }).customer_details?.phone ?? null;
         if (order && !order.shippingAddressId && shippingDetails?.address) {
           const addr = shippingDetails.address;
           const address = await prisma.address.create({
@@ -78,6 +80,8 @@ export async function POST(req: Request) {
               city: addr.city ?? "",
               postalCode: addr.postal_code ?? "",
               country: addr.country ?? "",
+              phone: phone,
+              email: session.customer_email ?? null,
             },
           });
           await prisma.order.update({
@@ -115,7 +119,7 @@ export async function POST(req: Request) {
           break;
         }
         // Idempotency guard — webhook may be redelivered or race with
-        // checkout.session.completed.
+        // checkout.session.completed. PENDING is the only valid start state.
         if (order.status !== "PENDING") break;
 
         const chargeId =
@@ -178,7 +182,7 @@ export async function POST(req: Request) {
         await prisma.order.update({
           where: { id: order.id },
           data: {
-            status: "PAID",
+            status: "PROCESSING",
             stripePaymentIntentId: pi.id,
             stripeChargeId: chargeId,
           },
@@ -189,7 +193,7 @@ export async function POST(req: Request) {
         await prisma.notification.create({
           data: {
             userId: order.buyerId,
-            type: "ORDER_PAID",
+            type: "ORDER_PLACED",
             title: "Order confirmed",
             body: "Thanks for your purchase. The seller has been notified.",
             entityType: "order",

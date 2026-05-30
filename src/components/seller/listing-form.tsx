@@ -39,6 +39,11 @@ type ExistingListing = {
   stock: number;
   status: string;
   videoUrl: string | null;
+  isDigital: boolean;
+  weightGrams: number | null;
+  lengthCm: number | null;
+  widthCm: number | null;
+  heightCm: number | null;
   images: { url: string; altText: string | null }[];
 };
 type Props = { userId: string; categories: Category[]; listing?: ExistingListing };
@@ -50,6 +55,7 @@ export function ListingForm({ userId, categories, listing }: Props) {
     null,
   );
   const [uploading, setUploading] = useState(false);
+  const [isDigital, setIsDigital] = useState(listing?.isDigital ?? false);
   const handleBusyChange = useCallback((busy: boolean) => setUploading(busy), []);
 
   return (
@@ -126,7 +132,7 @@ export function ListingForm({ userId, categories, listing }: Props) {
         <FieldError messages={state?.fieldErrors?.description} />
       </div>
 
-      {/* Price + Stock side by side */}
+      {/* Price + Stock */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="priceEuros" required>
@@ -170,6 +176,63 @@ export function ListingForm({ userId, categories, listing }: Props) {
           <FieldError messages={state?.fieldErrors?.stock} />
         </div>
       </div>
+
+      {/* Digital / Physical toggle */}
+      <div className="flex items-center gap-3 rounded-lg border border-gray-200 px-4 py-3">
+        <input
+          id="isDigital"
+          name="isDigital"
+          type="checkbox"
+          value="true"
+          checked={isDigital}
+          onChange={(e) => setIsDigital(e.target.checked)}
+          className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+        />
+        <div>
+          <label htmlFor="isDigital" className="cursor-pointer text-sm font-medium text-gray-700">
+            Digital product
+          </label>
+          <p className="text-xs text-gray-400">No shipping required — buyers receive a download link</p>
+        </div>
+      </div>
+
+      {/* Shipping fields — physical listings only */}
+      {!isDigital && (
+        <div className="rounded-lg border border-gray-200 p-4 space-y-4">
+          <div>
+            <p className="text-sm font-medium text-gray-900">Shipping</p>
+            <p className="mt-0.5 text-xs text-gray-500">
+              Buyers will see real carrier rates at checkout based on their address and this item's weight.
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="weightGrams" required>Weight (g)</Label>
+            <input
+              id="weightGrams"
+              name="weightGrams"
+              type="number"
+              min="1"
+              max="999000"
+              step="1"
+              placeholder="e.g. 500"
+              defaultValue={listing?.weightGrams ?? undefined}
+              className={inputClass}
+            />
+            <FieldError messages={state?.fieldErrors?.weightGrams} />
+          </div>
+
+          <div>
+            <Label htmlFor="lengthCm" required>Dimensions (cm)</Label>
+            <div className="mt-1 grid grid-cols-3 gap-2">
+              <input id="lengthCm" name="lengthCm" type="number" min="1" max="999" step="1" placeholder="L" defaultValue={listing?.lengthCm ?? undefined} className={inputClass} />
+              <input name="widthCm" type="number" min="1" max="999" step="1" placeholder="W" defaultValue={listing?.widthCm ?? undefined} className={inputClass} />
+              <input name="heightCm" type="number" min="1" max="999" step="1" placeholder="H" defaultValue={listing?.heightCm ?? undefined} className={inputClass} />
+            </div>
+            <FieldError messages={state?.fieldErrors?.dimensions} />
+          </div>
+        </div>
+      )}
 
       {/* Publish now — only on create */}
       {!listing && (

@@ -10,11 +10,12 @@ interface BuyNowButtonProps {
   stock: number;
   payable: boolean;
   isLoggedIn: boolean;
+  isDigital: boolean;
 }
 
 const MAX_QTY = 10;
 
-export function BuyNowButton({ listingId, slug, stock, payable, isLoggedIn }: BuyNowButtonProps) {
+export function BuyNowButton({ listingId, slug, stock, payable, isLoggedIn, isDigital }: BuyNowButtonProps) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,14 @@ export function BuyNowButton({ listingId, slug, stock, payable, isLoggedIn }: Bu
     }
 
     setLoading(true);
+
+    // Physical listings go through the pre-checkout page to collect address + shipping rate.
+    if (!isDigital) {
+      window.location.href = `/checkout/${listingId}?quantity=${quantity}`;
+      return;
+    }
+
+    // Digital listings go straight to Stripe.
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",

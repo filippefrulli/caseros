@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { ListingCard } from "@/components/marketplace/listing-card";
 import { FiltersBar } from "@/components/marketplace/filters-bar";
 import { parseFilters, buildPriceWhere, buildOrderBy, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
@@ -61,8 +62,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       <div className="mb-8">
-        <Link href="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors">
-          ← All categories
+        <Link href="/" className="inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+          <ChevronLeft size={20} />
         </Link>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-text-primary">
           {category.name}

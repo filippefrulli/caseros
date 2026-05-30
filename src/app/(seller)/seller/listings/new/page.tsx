@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { ListingForm } from "@/components/seller/listing-form";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 
 export const metadata: Metadata = { title: "New listing" };
 
@@ -22,8 +23,8 @@ export default async function NewListingPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
       <div className="mb-8 flex items-center gap-3">
-        <Link href="/seller/dashboard" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
-          ← Dashboard
+        <Link href="/seller/dashboard" className="inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+          <ChevronLeft size={20} />
         </Link>
         <h1 className="text-2xl font-bold">New listing</h1>
       </div>

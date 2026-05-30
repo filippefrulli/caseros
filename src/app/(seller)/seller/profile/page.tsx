@@ -3,7 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { ProfileForm } from "@/components/seller/profile-form";
+import { PickupAddressForm } from "@/components/seller/pickup-address-form";
 
 export const metadata: Metadata = { title: "Edit profile" };
 
@@ -22,35 +24,39 @@ export default async function SellerProfilePage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-12">
       <div className="mb-8 flex items-center gap-3">
-        <Link href="/seller/dashboard" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
-          ← Dashboard
+        <Link href="/seller/dashboard" className="inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+          <ChevronLeft size={20} />
         </Link>
-        <h1 className="text-2xl font-bold">Edit profile</h1>
+        <div>
+          <h1 className="text-2xl font-bold">{seller.shopName}</h1>
+          <p className="text-sm text-gray-400">{seller.country}</p>
+        </div>
       </div>
 
-      {/* Read-only shop identity */}
-      <section className="mb-8 rounded-xl border border-gray-200 p-6">
-        <h2 className="mb-4 text-sm font-semibold text-gray-900">Shop identity</h2>
-        <dl className="space-y-3">
-          <div className="flex justify-between">
-            <dt className="text-sm text-gray-500">Shop name</dt>
-            <dd className="text-sm font-medium text-gray-900">{seller.shopName}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-sm text-gray-500">Shop URL</dt>
-            <dd className="text-sm font-medium text-gray-900">/shop/{seller.slug}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-sm text-gray-500">Country</dt>
-            <dd className="text-sm font-medium text-gray-900">{seller.country}</dd>
-          </div>
-        </dl>
-      </section>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <section className="rounded-xl border border-gray-200 p-6">
+          <ProfileForm bio={seller.bio} socialLinks={seller.socialLinks} />
+        </section>
 
-      <ProfileForm
-        bio={seller.bio}
-        socialLinks={seller.socialLinks}
-      />
+        <section className="rounded-xl border border-gray-200 p-6">
+          <h2 className="mb-1 text-sm font-semibold text-gray-900">Pickup / return address</h2>
+          <p className="mb-4 text-xs text-gray-500">
+            Used as the sender address on shipping labels. Required before publishing physical listings.
+          </p>
+          <PickupAddressForm
+            initial={{
+              pickupName: seller.pickupName,
+              pickupLine1: seller.pickupLine1,
+              pickupLine2: seller.pickupLine2,
+              pickupHouseNumber: seller.pickupHouseNumber,
+              pickupCity: seller.pickupCity,
+              pickupPostalCode: seller.pickupPostalCode,
+              pickupCountry: seller.pickupCountry,
+              pickupPhone: seller.pickupPhone,
+            }}
+          />
+        </section>
+      </div>
     </main>
   );
 }

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { AvatarUploader } from "@/components/seller/avatar-uploader";
+import { MapPin, ShoppingBag, Heart } from "lucide-react";
 
 export const metadata: Metadata = { title: "My Account" };
 
@@ -49,19 +51,30 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-xl border border-gray-200 p-5">
-          <p className="text-3xl font-bold">{orderCount}</p>
-          <p className="mt-1 text-sm text-gray-500">Orders</p>
-        </div>
-        <div className="rounded-xl border border-gray-200 p-5">
-          <p className="text-3xl font-bold">{favoriteCount}</p>
-          <p className="mt-1 text-sm text-gray-500">Favourites</p>
-        </div>
+      {/* Quick links */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <Link href="/account/orders" className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:border-gray-300 hover:bg-gray-50 transition-colors">
+          <ShoppingBag size={18} className="shrink-0 text-gray-500" />
+          <div>
+            <p className="text-sm font-medium text-gray-900">Orders</p>
+            <p className="text-xs text-gray-400">{orderCount} total</p>
+          </div>
+        </Link>
+        <Link href="/account/favourites" className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:border-gray-300 hover:bg-gray-50 transition-colors">
+          <Heart size={18} className="shrink-0 text-gray-500" />
+          <div>
+            <p className="text-sm font-medium text-gray-900">Favourites</p>
+            <p className="text-xs text-gray-400">{favoriteCount} saved</p>
+          </div>
+        </Link>
+        <Link href="/account/address" className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:border-gray-300 hover:bg-gray-50 transition-colors">
+          <MapPin size={18} className="shrink-0 text-gray-500" />
+          <div>
+            <p className="text-sm font-medium text-gray-900">Shipping address</p>
+            <p className="text-xs text-gray-400">Manage saved address</p>
+          </div>
+        </Link>
       </div>
-
-
     </main>
   );
 }

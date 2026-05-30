@@ -24,13 +24,18 @@ const listingSchema = z.object({
     .int("Stock must be a whole number")
     .min(0, "Stock cannot be negative")
     .max(9_999),
+  isDigital: z.string().optional(),
+  weightGrams: z.coerce.number().int().positive().max(999_000).optional().nullable(),
+  lengthCm: z.coerce.number().int().positive().max(999).optional().nullable(),
+  widthCm: z.coerce.number().int().positive().max(999).optional().nullable(),
+  heightCm: z.coerce.number().int().positive().max(999).optional().nullable(),
   publishNow: z.string().optional(),
 });
 
 export type ListingActionState = {
   error?: string;
   fieldErrors?: Partial<
-    Record<"title" | "description" | "priceEuros" | "stock" | "categoryId", string[]>
+    Record<"title" | "description" | "priceEuros" | "stock" | "categoryId" | "weightGrams" | "dimensions", string[]>
   >;
 } | null;
 
@@ -51,9 +56,7 @@ export async function createListing(
   formData: FormData,
 ): Promise<ListingActionState> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "You must be signed in." };
 
   const parsed = listingSchema.safeParse({
@@ -62,6 +65,11 @@ export async function createListing(
     description: formData.get("description"),
     priceEuros: formData.get("priceEuros"),
     stock: formData.get("stock"),
+    isDigital: formData.get("isDigital") ?? undefined,
+    weightGrams: formData.get("weightGrams") || null,
+    lengthCm: formData.get("lengthCm") || null,
+    widthCm: formData.get("widthCm") || null,
+    heightCm: formData.get("heightCm") || null,
     publishNow: formData.get("publishNow") ?? undefined,
   });
 
@@ -69,7 +77,13 @@ export async function createListing(
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  const { categoryId, title, description, priceEuros, stock, publishNow } = parsed.data;
+  const { categoryId, title, description, priceEuros, stock, isDigital, weightGrams, lengthCm, widthCm, heightCm, publishNow } = parsed.data;
+  const isDigitalListing = isDigital === "true";
+
+  if (!isDigitalListing) {
+    if (!weightGrams) return { fieldErrors: { weightGrams: ["Weight is required for physical listings."] } };
+    if (!lengthCm || !widthCm || !heightCm) return { fieldErrors: { dimensions: ["All three dimensions (L × W × H) are required for physical listings."] } };
+  }
 
   const imageUrls = formData.getAll("imageUrls").map(String).filter(Boolean);
   const videoUrl = formData.get("videoUrl")?.toString() || null;
@@ -87,6 +101,10 @@ export async function createListing(
     return { error: "Connect your Stripe account before publishing a listing." };
   }
 
+  if (publishNow && !isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
+    return { error: "Add your pickup address in your profile before publishing a physical listing." };
+  }
+
   await prisma.listing.create({
     data: {
       sellerId: seller.id,
@@ -97,7 +115,12 @@ export async function createListing(
       priceAmount: Math.round(priceEuros * 100),
       currency: seller.currency,
       stock,
+      isDigital: isDigitalListing,
       videoUrl,
+      weightGrams: weightGrams ?? null,
+      lengthCm: lengthCm ?? null,
+      widthCm: widthCm ?? null,
+      heightCm: heightCm ?? null,
       status: publishNow ? "ACTIVE" : "DRAFT",
       images: {
         create: imageUrls.map((url, position) => ({ url, position })),
@@ -113,9 +136,7 @@ export async function updateListing(
   formData: FormData,
 ): Promise<ListingActionState> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "You must be signed in." };
 
   const listingId = formData.get("listingId")?.toString();
@@ -127,13 +148,24 @@ export async function updateListing(
     description: formData.get("description"),
     priceEuros: formData.get("priceEuros"),
     stock: formData.get("stock"),
+    isDigital: formData.get("isDigital") ?? undefined,
+    weightGrams: formData.get("weightGrams") || null,
+    lengthCm: formData.get("lengthCm") || null,
+    widthCm: formData.get("widthCm") || null,
+    heightCm: formData.get("heightCm") || null,
   });
 
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  const { categoryId, title, description, priceEuros, stock } = parsed.data;
+  const { categoryId, title, description, priceEuros, stock, isDigital, weightGrams, lengthCm, widthCm, heightCm } = parsed.data;
+  const isDigitalListing = isDigital === "true";
+
+  if (!isDigitalListing) {
+    if (!weightGrams) return { fieldErrors: { weightGrams: ["Weight is required for physical listings."] } };
+    if (!lengthCm || !widthCm || !heightCm) return { fieldErrors: { dimensions: ["All three dimensions (L × W × H) are required for physical listings."] } };
+  }
 
   const imageUrls = formData.getAll("imageUrls").map(String).filter(Boolean);
   const videoUrl = formData.get("videoUrl")?.toString() || null;
@@ -158,7 +190,12 @@ export async function updateListing(
         description,
         priceAmount: Math.round(priceEuros * 100),
         stock,
+        isDigital: isDigitalListing,
         videoUrl,
+        weightGrams: weightGrams ?? null,
+        lengthCm: lengthCm ?? null,
+        widthCm: widthCm ?? null,
+        heightCm: heightCm ?? null,
         images: {
           create: imageUrls.map((url, position) => ({ url, position })),
         },

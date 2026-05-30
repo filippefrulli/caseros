@@ -8,6 +8,8 @@ import { CopyShopLink } from "@/components/seller/copy-shop-link";
 import { StripeConnectButton } from "@/components/seller/stripe-connect-button";
 import { formatPrice } from "@/lib/utils";
 import { Clock, XCircle, AlertCircle, Package } from "lucide-react";
+import { GenerateLabelButton } from "@/components/seller/generate-label-button";
+import { isShippoConfigured } from "@/lib/shippo";
 import type { ListingStatus } from "@/generated/prisma/client";
 
 const COUNTRY_FMT = new Intl.DisplayNames(["en"], { type: "region" });
@@ -55,27 +57,35 @@ export default async function SellerDashboardPage() {
     prisma.order.count({
       where: {
         items: { some: { sellerId: seller.id } },
-        status: { in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] },
+        status: { in: ["PROCESSING", "SHIPPED", "DELIVERED"] },
       },
     }),
     prisma.orderItem.aggregate({
       where: {
         sellerId: seller.id,
-        order: { status: { in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] } },
+        order: { status: { in: ["PROCESSING", "SHIPPED", "DELIVERED"] } },
       },
       _sum: { sellerPayout: true },
     }),
     prisma.order.findMany({
       where: {
         items: { some: { sellerId: seller.id } },
-        status: { in: ["PAID", "PROCESSING"] },
+        status: { in: ["PROCESSING"] },
       },
       orderBy: { createdAt: "asc" },
       include: {
         shippingAddress: true,
         items: {
           where: { sellerId: seller.id },
-          select: { listingTitle: true, quantity: true, unitAmount: true, currency: true },
+          select: {
+            listingTitle: true,
+            quantity: true,
+            unitAmount: true,
+            currency: true,
+            listing: {
+              select: { weightGrams: true, lengthCm: true, widthCm: true, heightCm: true },
+            },
+          },
         },
       },
     }),
@@ -96,6 +106,8 @@ export default async function SellerDashboardPage() {
   ]);
 
   const totalRevenue = revenueAgg._sum.sellerPayout ?? 0;
+  const sendcloudConfigured = isShippoConfigured();
+  const sellerPickupReady = !!(seller.pickupLine1 && seller.pickupCity && seller.pickupPostalCode && seller.pickupCountry && seller.pickupPhone);
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12">
@@ -196,10 +208,11 @@ export default async function SellerDashboardPage() {
           <ul className="space-y-4">
             {pendingOrders.map((order) => {
               const addr = order.shippingAddress;
-              const statusLabel = order.status === "PAID" ? "Ready to ship" : "Processing";
-              const statusStyle = order.status === "PAID"
-                ? "bg-green-100 text-green-800"
-                : "bg-blue-100 text-blue-800";
+              const firstItem = order.items[0];
+              const defaultWeight = firstItem?.listing?.weightGrams ?? null;
+              const defaultLength = firstItem?.listing?.lengthCm ?? null;
+              const defaultWidth = firstItem?.listing?.widthCm ?? null;
+              const defaultHeight = firstItem?.listing?.heightCm ?? null;
               return (
                 <li key={order.id} className="rounded-xl border border-gray-200 p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
@@ -207,8 +220,8 @@ export default async function SellerDashboardPage() {
                       <p className="text-xs text-gray-400">{DATE_FMT.format(order.createdAt)}</p>
                       <p className="font-mono text-xs text-gray-500 mt-0.5">#{order.id.slice(-8).toUpperCase()}</p>
                     </div>
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${statusStyle}`}>
-                      {statusLabel}
+                    <span className="rounded-full px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-800">
+                      Ready to ship
                     </span>
                   </div>
 
@@ -237,7 +250,7 @@ export default async function SellerDashboardPage() {
                       {addr ? (
                         <address className="not-italic text-sm text-gray-700 leading-relaxed">
                           {order.shippingName && <p className="font-medium">{order.shippingName}</p>}
-                          <p>{addr.line1}</p>
+                          <p>{addr.line1}{addr.houseNumber ? ` ${addr.houseNumber}` : ""}</p>
                           {addr.line2 && <p>{addr.line2}</p>}
                           <p>{addr.postalCode} {addr.city}</p>
                           <p>{COUNTRY_FMT.of(addr.country) ?? addr.country}</p>
@@ -247,6 +260,19 @@ export default async function SellerDashboardPage() {
                       )}
                     </div>
                   </div>
+
+                  <GenerateLabelButton
+                    orderId={order.id}
+                    status={order.status}
+                    defaultWeightGrams={defaultWeight}
+                    defaultLengthCm={defaultLength}
+                    defaultWidthCm={defaultWidth}
+                    defaultHeightCm={defaultHeight}
+                    trackingCode={order.trackingCode ?? null}
+                    trackingUrl={order.trackingUrl ?? null}
+                    sendcloudConfigured={sendcloudConfigured}
+                    sellerPickupReady={sellerPickupReady}
+                  />
                 </li>
               );
             })}

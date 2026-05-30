@@ -8,6 +8,7 @@ import { ListingImageCarousel } from "@/components/marketplace/listing-image-car
 import { FavoriteButton } from "@/components/marketplace/favorite-button";
 import { BuyNowButton } from "@/components/marketplace/buy-now-button";
 import { StartConversationButton } from "@/components/messages/start-conversation-button";
+import { ChevronLeft } from "lucide-react";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -60,8 +61,8 @@ export default async function ListingPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
-      <Link href="/" className="mb-8 inline-block text-sm text-gray-500 hover:text-gray-900 transition-colors">
-        ← Back to listings
+      <Link href="/" className="mb-8 inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+        <ChevronLeft size={20} />
       </Link>
 
       <div className="grid gap-10 md:grid-cols-2">
@@ -86,7 +87,7 @@ export default async function ListingPage({ params }: Props) {
             {listing.stock > 0 ? `${listing.stock} in stock` : "Out of stock"}
           </p>
 
-          <div className="mt-8 flex gap-3">
+          <div className="mt-8 flex items-end gap-3">
             {isOwner ? (
               <Link
                 href={`/seller/listings/${listing.slug}/edit`}
@@ -102,6 +103,7 @@ export default async function ListingPage({ params }: Props) {
                   stock={listing.stock}
                   payable={listing.seller.stripeOnboardingDone && listing.seller.payoutsEnabled}
                   isLoggedIn={!!user}
+                  isDigital={listing.isDigital}
                 />
                 <FavoriteButton
                   listingId={listing.id}
