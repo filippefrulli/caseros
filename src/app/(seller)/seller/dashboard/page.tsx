@@ -186,7 +186,7 @@ export default async function SellerDashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-10">
+      <div className="grid grid-cols-4 gap-4 mb-10">
         <div className="rounded-xl border border-gray-200 p-5">
           <p className="text-3xl font-bold">{seller._count.listings}</p>
           <p className="mt-1 text-sm text-gray-500">Listings</p>
@@ -198,6 +198,10 @@ export default async function SellerDashboardPage() {
         <div className="rounded-xl border border-gray-200 p-5">
           <p className="text-3xl font-bold">{formatPrice(totalRevenue, "EUR")}</p>
           <p className="mt-1 text-sm text-gray-500">Revenue</p>
+        </div>
+        <div className="rounded-xl border border-gray-200 p-5">
+          <p className="text-3xl font-bold">{Math.round(Number(seller.commissionRate) * 100)}%</p>
+          <p className="mt-1 text-sm text-gray-500">Platform fee</p>
         </div>
       </div>
 

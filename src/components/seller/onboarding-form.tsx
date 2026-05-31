@@ -621,6 +621,11 @@ export function OnboardingForm({ userId }: { userId: string }) {
           </div>
         </div>
 
+        <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500">
+          <span className="font-medium text-gray-900">Platform fee: 5%</span> per sale, deducted from your payout. No listing fees.{" "}
+          <a href="/legal/pricing" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700">See full pricing</a>.
+        </div>
+
         {submitError && (
           <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{submitError}</p>
         )}

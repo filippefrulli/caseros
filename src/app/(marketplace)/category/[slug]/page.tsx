@@ -81,12 +81,13 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
       {listings.length > 0 ? (
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
-          {listings.map((listing) => (
+          {listings.map((listing, i) => (
             <ListingCard
               key={listing.id}
               listing={listing}
               isFavorited={favIds.has(listing.id)}
               isLoggedIn={!!user}
+              priority={i === 0}
             />
           ))}
         </div>

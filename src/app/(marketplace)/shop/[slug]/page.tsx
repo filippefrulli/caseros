@@ -66,7 +66,7 @@ export default async function ShopPage({ params }: Props) {
   // ── Listings tab ───────────────────────────────────────────────────────────
   const listingsContent = seller.listings.length > 0 ? (
     <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
-      {seller.listings.map((listing) => (
+      {seller.listings.map((listing, i) => (
         <ListingCard
           key={listing.id}
           listing={listing}
@@ -74,6 +74,7 @@ export default async function ShopPage({ params }: Props) {
           isLoggedIn={!!user}
           hideShopLink
           hideFavorite={isOwner}
+          priority={i === 0}
         />
       ))}
     </div>

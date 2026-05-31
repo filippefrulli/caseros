@@ -18,9 +18,10 @@ type Props = {
   isLoggedIn?: boolean;
   hideShopLink?: boolean;
   hideFavorite?: boolean;
+  priority?: boolean;
 };
 
-export function ListingCard({ listing, isFavorited = false, isLoggedIn = false, hideShopLink = false, hideFavorite = false }: Props) {
+export function ListingCard({ listing, isFavorited = false, isLoggedIn = false, hideShopLink = false, hideFavorite = false, priority = false }: Props) {
   const image = listing.images[0];
 
   return (
@@ -33,6 +34,7 @@ export function ListingCard({ listing, isFavorited = false, isLoggedIn = false, 
             alt={image.altText ?? listing.title}
             width={400}
             height={400}
+            priority={priority}
             className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-105"
           />
         ) : (

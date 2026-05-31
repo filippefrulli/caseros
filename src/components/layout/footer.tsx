@@ -17,6 +17,9 @@ export function Footer() {
           <Link href="/legal/cookies" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
             Cookie policy
           </Link>
+          <Link href="/legal/pricing" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+            Fees &amp; pricing
+          </Link>
         </div>
       </div>
     </footer>

@@ -89,33 +89,39 @@ export async function POST(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Order has no shipping address." }, { status: 409 });
   }
 
-  const shipment = await createShipment({
-    orderNumber: order.id,
-    weightGrams,
-    lengthCm,
-    widthCm,
-    heightCm,
-    fromAddress: {
-      name: sellerProfile.pickupName ?? sellerProfile.user.email,
-      street1: sellerProfile.pickupLine1,
-      street_no: sellerProfile.pickupHouseNumber ?? undefined,
-      city: sellerProfile.pickupCity,
-      zip: sellerProfile.pickupPostalCode,
-      country: sellerProfile.pickupCountry,
-      phone: sellerProfile.pickupPhone,
-      email: sellerProfile.user.email,
-    },
-    toAddress: {
-      name: order.shippingName ?? order.buyer.email,
-      street1: order.shippingAddress.line1,
-      street_no: order.shippingAddress.houseNumber ?? undefined,
-      city: order.shippingAddress.city,
-      zip: order.shippingAddress.postalCode,
-      country: order.shippingAddress.country,
-      phone: order.shippingAddress.phone ?? undefined,
-      email: order.shippingAddress.email ?? order.buyer.email,
-    },
-  });
+  let shipment: Awaited<ReturnType<typeof createShipment>>;
+  try {
+    shipment = await createShipment({
+      orderNumber: order.id,
+      weightGrams,
+      lengthCm,
+      widthCm,
+      heightCm,
+      fromAddress: {
+        name: sellerProfile.pickupName ?? sellerProfile.user.email,
+        street1: sellerProfile.pickupLine1,
+        street_no: sellerProfile.pickupHouseNumber ?? undefined,
+        city: sellerProfile.pickupCity,
+        zip: sellerProfile.pickupPostalCode,
+        country: sellerProfile.pickupCountry,
+        phone: sellerProfile.pickupPhone,
+        email: sellerProfile.user.email,
+      },
+      toAddress: {
+        name: order.shippingName ?? order.buyer.email,
+        street1: order.shippingAddress.line1,
+        street_no: order.shippingAddress.houseNumber ?? undefined,
+        city: order.shippingAddress.city,
+        zip: order.shippingAddress.postalCode,
+        country: order.shippingAddress.country,
+        phone: order.shippingAddress.phone ?? undefined,
+        email: order.shippingAddress.email ?? order.buyer.email,
+      },
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown Shippo error.";
+    return NextResponse.json({ error: `Label generation failed: ${message}` }, { status: 502 });
+  }
 
   await prisma.order.update({
     where: { id: orderId },

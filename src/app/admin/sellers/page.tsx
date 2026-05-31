@@ -4,6 +4,7 @@ import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { SellerActions } from "@/components/admin/seller-actions";
+import { SetCommissionButton } from "@/components/admin/set-commission-button";
 import { MapPin, CalendarDays, ExternalLink } from "lucide-react";
 import { env } from "@/env";
 
@@ -15,15 +16,28 @@ export default async function AdminSellersPage() {
 
   if (!user || user.email !== env.ADMIN_EMAIL) return notFound();
 
-  const sellers = await prisma.sellerProfile.findMany({
-    where: { status: { in: ["PENDING", "REJECTED"] } },
-    include: {
-      kyc: true,
-      socialLinks: true,
-      user: { select: { email: true } },
-    },
-    orderBy: { createdAt: "asc" },
-  });
+  const [sellers, activeSellers] = await Promise.all([
+    prisma.sellerProfile.findMany({
+      where: { status: { in: ["PENDING", "REJECTED"] } },
+      include: {
+        kyc: true,
+        socialLinks: true,
+        user: { select: { email: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.sellerProfile.findMany({
+      where: { status: "ACTIVE" },
+      select: {
+        id: true,
+        shopName: true,
+        country: true,
+        commissionRate: true,
+        user: { select: { email: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
 
   // Generate signed URLs for all verification videos (1-hour expiry)
   const serviceClient = createServiceClient(
@@ -165,6 +179,40 @@ export default async function AdminSellersPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Active sellers — commission management */}
+      {activeSellers.length > 0 && (
+        <div className="mt-16">
+          <h2 className="mb-4 text-lg font-semibold">Active sellers</h2>
+          <div className="overflow-hidden rounded-xl border border-gray-200">
+            <table className="w-full text-sm">
+              <thead className="border-b border-gray-200 bg-gray-50 text-xs text-gray-500">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Shop</th>
+                  <th className="px-4 py-3 text-left font-medium">Email</th>
+                  <th className="px-4 py-3 text-left font-medium">Country</th>
+                  <th className="px-4 py-3 text-left font-medium">Fee</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {activeSellers.map(s => (
+                  <tr key={s.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-medium text-gray-900">{s.shopName}</td>
+                    <td className="px-4 py-3 text-gray-500">{s.user.email}</td>
+                    <td className="px-4 py-3 text-gray-500">{countryFmt.of(s.country) ?? s.country}</td>
+                    <td className="px-4 py-3">
+                      <SetCommissionButton
+                        sellerId={s.id}
+                        current={Number(s.commissionRate)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </main>

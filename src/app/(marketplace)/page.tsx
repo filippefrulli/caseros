@@ -62,13 +62,14 @@ export default async function HomePage({ searchParams }: Props) {
 
       {listings.length > 0 ? (
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
-          {listings.slice(0, 8).map((listing) => (
+          {listings.slice(0, 8).map((listing, i) => (
             <ListingCard
               key={listing.id}
               listing={listing}
               isFavorited={favIds.has(listing.id)}
               isLoggedIn={!!user}
               hideFavorite={!!sellerProfile && listing.sellerId === sellerProfile.id}
+              priority={i === 0}
             />
           ))}
 
