@@ -112,6 +112,7 @@ model SellerProfile {
   conversations Conversation[] @relation("SellerConversations")
   kyc           SellerKyc?
   socialLinks   SellerSocialLinks?
+  reviews       Review[]
 
   @@map("seller_profiles")
 }
@@ -185,7 +186,6 @@ model Listing {
   variants      ListingVariant[]
   files         ListingFile[]
   orderItems    OrderItem[]
-  reviews       Review[]
   favorites     Favorite[]
   conversations Conversation[]
 
@@ -293,7 +293,8 @@ model Order {
   createdAt             DateTime    @default(now()) @map("created_at")
   updatedAt             DateTime    @updatedAt @map("updated_at")
 
-  items OrderItem[]
+  items  OrderItem[]
+  review Review?
 
   @@index([buyerId])
   @@index([status])
@@ -334,8 +335,6 @@ model OrderItem {
   refundedAmount     Int       @default(0) @map("refunded_amount")
   createdAt          DateTime  @default(now()) @map("created_at")
 
-  review Review?
-
   @@index([orderId])
   @@index([listingId])
   @@index([sellerId])
@@ -345,21 +344,20 @@ model OrderItem {
 // ─── Reviews ──────────────────────────────────────────────────────────────────
 
 model Review {
-  id          String    @id @default(cuid())
-  // Gated to a completed purchase — prevents fake reviews
-  orderItemId String    @unique @map("order_item_id")
-  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-  // Denormalized from orderItem for direct listing queries
-  listingId   String    @map("listing_id")
-  listing     Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  authorId    String    @map("author_id")
-  author      User      @relation(fields: [authorId], references: [id])
-  rating      Int
-  body        String?
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id       String @id @default(cuid())
+  // One review per order — gated to a completed purchase to prevent fake reviews
+  orderId  String        @unique @map("order_id")
+  order    Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sellerId String        @map("seller_id")
+  seller   SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  authorId String        @map("author_id")
+  author   User          @relation(fields: [authorId], references: [id])
+  rating   Int
+  body     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([listingId])
+  @@index([sellerId])
   @@index([authorId])
   @@map("reviews")
 }

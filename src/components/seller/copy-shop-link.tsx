@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Share2, Check } from "lucide-react";
+
 export function CopyShopLink({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -15,8 +17,9 @@ export function CopyShopLink({ slug }: { slug: string }) {
     <>
       <button
         onClick={handleCopy}
-        className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
       >
+        {copied ? <Check size={15} /> : <Share2 size={15} />}
         {copied ? "Copied!" : "Share shop"}
       </button>
 

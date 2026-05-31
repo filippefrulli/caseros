@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { ListingCard } from "@/components/marketplace/listing-card";
 import { ShopTabs } from "@/components/marketplace/shop-tabs";
+import { StarRating } from "@/components/marketplace/star-rating";
+import { ReviewsList } from "@/components/marketplace/reviews-list";
+import { ReviewForm } from "@/components/marketplace/review-form";
 import { MapPin, CalendarDays } from "lucide-react";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -50,6 +53,10 @@ export default async function ShopPage({ params }: Props) {
           },
           orderBy: { createdAt: "desc" },
         },
+        reviews: {
+          orderBy: { createdAt: "desc" },
+          include: { author: { select: { name: true } } },
+        },
       },
     }),
     user
@@ -62,6 +69,30 @@ export default async function ShopPage({ params }: Props) {
   if (!seller) notFound();
 
   const isOwner = !!user && user.id === seller.user.supabaseId;
+
+  // ── Review eligibility ─────────────────────────────────────────────────────
+  let canReview = false;
+  if (user && !isOwner) {
+    const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id }, select: { id: true } });
+    if (dbUser) {
+      const eligibleOrder = await prisma.order.findFirst({
+        where: {
+          buyerId: dbUser.id,
+          status: { in: ["SHIPPED", "DELIVERED"] },
+          items: { some: { sellerId: seller.id } },
+          review: null,
+        },
+        select: { id: true },
+      });
+      canReview = !!eligibleOrder;
+    }
+  }
+
+  // ── Aggregate reviews ──────────────────────────────────────────────────────
+  const reviewCount = seller.reviews.length;
+  const avgRating = reviewCount > 0
+    ? seller.reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+    : null;
 
   // ── Listings tab ───────────────────────────────────────────────────────────
   const listingsContent = seller.listings.length > 0 ? (
@@ -144,16 +175,43 @@ export default async function ShopPage({ params }: Props) {
     </div>
   );
 
+  const reviewsContent = (
+    <div className="max-w-2xl space-y-8">
+      {canReview && (
+        <div className="rounded-xl border border-gray-200 p-6">
+          <h3 className="mb-4 text-sm font-semibold text-gray-900">Leave a review</h3>
+          <ReviewForm sellerId={seller.id} />
+        </div>
+      )}
+      <ReviewsList reviews={seller.reviews} />
+    </div>
+  );
+
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10">
       <div className="mb-10">
         <h1 className="text-3xl font-bold tracking-tight">{seller.shopName}</h1>
-        <p className="mt-1 text-sm text-gray-400">
-          {seller.listings.length} listing{seller.listings.length === 1 ? "" : "s"}
-        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-4">
+          <p className="text-sm text-gray-400">
+            {seller.listings.length} listing{seller.listings.length === 1 ? "" : "s"}
+          </p>
+          {avgRating !== null && (
+            <div className="flex items-center gap-1.5">
+              <StarRating rating={avgRating} size={14} />
+              <span className="text-sm text-gray-500">
+                {avgRating.toFixed(1)} ({reviewCount} review{reviewCount !== 1 ? "s" : ""})
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
-      <ShopTabs listingsContent={listingsContent} aboutContent={aboutContent} />
+      <ShopTabs
+        listingsContent={listingsContent}
+        aboutContent={aboutContent}
+        reviewsContent={reviewsContent}
+        reviewCount={reviewCount}
+      />
     </main>
   );
 }

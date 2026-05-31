@@ -7,7 +7,7 @@ import Image from "next/image";
 import { CopyShopLink } from "@/components/seller/copy-shop-link";
 import { StripeConnectButton } from "@/components/seller/stripe-connect-button";
 import { formatPrice } from "@/lib/utils";
-import { Clock, XCircle, AlertCircle, Package } from "lucide-react";
+import { Clock, XCircle, AlertCircle, Package, UserPen, Plus } from "lucide-react";
 import { GenerateLabelButton } from "@/components/seller/generate-label-button";
 import { isShippoConfigured } from "@/lib/shippo";
 import type { ListingStatus } from "@/generated/prisma/client";
@@ -170,14 +170,16 @@ export default async function SellerDashboardPage() {
             <>
               <Link
                 href="/seller/profile"
-                className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
+                <UserPen size={15} />
                 Edit profile
               </Link>
               <Link
                 href="/seller/listings/new"
-                className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
               >
+                <Plus size={15} />
                 New listing
               </Link>
             </>
