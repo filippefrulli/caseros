@@ -109,7 +109,7 @@ export default async function SearchPage({ searchParams }: Props) {
     : listingsUnordered;
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8">
+    <main className="mx-auto max-w-6xl px-4 pt-4 pb-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-gray-500">
           {listings.length === 0

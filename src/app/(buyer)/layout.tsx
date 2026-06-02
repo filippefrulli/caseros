@@ -5,7 +5,7 @@ export default function BuyerLayout({ children }: { children: React.ReactNode })
   return (
     <>
       <Navbar />
-      {children}
+      <div className="flex-1 w-full">{children}</div>
       <Footer />
     </>
   );

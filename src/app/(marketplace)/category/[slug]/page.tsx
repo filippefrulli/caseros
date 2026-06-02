@@ -60,10 +60,10 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   if (!category) notFound();
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-10">
+    <main className="mx-auto max-w-6xl px-4 pt-5 pb-10">
       <div className="mb-8">
-        <Link href="/" className="inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
-          <ChevronLeft size={20} />
+        <Link href="/" className="inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+          <ChevronLeft size={25} />
         </Link>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-text-primary">
           {category.name}

@@ -34,7 +34,7 @@ export default async function AccountPage() {
     dbUser?.avatarUrl ?? (user.user_metadata?.avatar_url as string | null) ?? null;
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-12">
+    <main className="mx-auto max-w-2xl px-4 pt-6 pb-12">
       {/* Profile header */}
       <div className="mb-8 flex items-center gap-6">
         <AvatarUploader

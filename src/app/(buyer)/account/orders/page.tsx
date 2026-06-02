@@ -67,16 +67,21 @@ export default async function OrdersPage() {
   });
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12">
-      <div className="mb-6 flex items-center gap-3">
-        <Link href="/account" className="inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
-          <ChevronLeft size={20} />
+    <main className="mx-auto max-w-5xl px-4 pt-6 pb-12">
+      <div className="mb-6">
+        <Link href="/account" className="inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+          <ChevronLeft size={25} />
         </Link>
-        <h1 className="text-2xl font-bold">My Orders</h1>
+        <h1 className="mt-4 text-2xl font-bold text-center">My Orders</h1>
       </div>
 
       {orders.length === 0 ? (
-        <p className="text-gray-500">You have no orders yet.</p>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 py-24 text-center">
+          <p className="text-gray-400">You have no orders yet.</p>
+          <Link href="/" className="mt-3 text-sm font-medium text-gray-900 underline underline-offset-4">
+            Browse listings
+          </Link>
+        </div>
       ) : (
         <ul className="space-y-5">
           {orders.map((order) => (
@@ -89,7 +94,7 @@ export default async function OrdersPage() {
                   <p className="text-xs uppercase tracking-wide text-gray-500">
                     {DATE_FMT.format(order.createdAt)}
                   </p>
-                  <p className="mt-0.5 font-mono text-xs text-gray-400">{order.id}</p>
+                  <p className="mt-0.5 font-mono text-xs text-gray-400 truncate max-w-[10rem]">{order.id}</p>
                 </div>
                 <span
                   className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[order.status]}`}

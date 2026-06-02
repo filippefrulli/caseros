@@ -20,7 +20,7 @@ export default async function SellerOnboardingPage() {
   if (dbUser?.seller) redirect("/seller/dashboard");
 
   return (
-    <main className="mx-auto max-w-lg px-4 py-12">
+    <main className="mx-auto max-w-lg px-4 pt-6 pb-12">
       <OnboardingForm userId={user.id} />
     </main>
   );

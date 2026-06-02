@@ -69,9 +69,9 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   );
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-12">
-      <Link href={`/listings/${listing.slug}`} className="mb-6 inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
-        <ChevronLeft size={20} />
+    <main className="mx-auto max-w-2xl px-4 pt-6 pb-12">
+      <Link href={`/listings/${listing.slug}`} className="mb-6 inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+        <ChevronLeft size={25} />
       </Link>
 
       {/* Listing summary */}

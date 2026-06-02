@@ -5,7 +5,7 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
   return (
     <>
     <Navbar />
-    <div className="px-[200px] py-8">
+    <div className="mx-auto w-full max-w-5xl px-4 py-4 sm:px-8 sm:py-8">
       <div className="flex h-[calc(100vh-8rem)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
         {/* Left sidebar — hidden on mobile */}
         <aside className="hidden w-80 shrink-0 flex-col border-r border-gray-100 md:flex">

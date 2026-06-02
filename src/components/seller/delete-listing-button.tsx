@@ -44,7 +44,7 @@ export function DeleteListingButton({ listingId, listingTitle }: Props) {
 
       <dialog
         ref={dialogRef}
-        className="rounded-xl border border-gray-200 p-6 shadow-xl backdrop:bg-black/40 w-full max-w-sm"
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 rounded-xl border border-gray-200 p-6 shadow-xl backdrop:bg-black/40 w-full max-w-sm"
         onClick={(e) => { if (e.target === dialogRef.current) close(); }}
       >
         <h2 className="text-base font-semibold text-gray-900">Delete listing?</h2>

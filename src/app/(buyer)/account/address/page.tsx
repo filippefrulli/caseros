@@ -26,9 +26,9 @@ export default async function AccountAddressPage() {
     : null;
 
   return (
-    <main className="mx-auto max-w-lg px-4 py-12">
-      <Link href="/account" className="mb-6 inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
-        <ChevronLeft size={20} />
+    <main className="mx-auto max-w-lg px-4 pt-6 pb-12">
+      <Link href="/account" className="mb-6 inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+        <ChevronLeft size={25} />
       </Link>
       <h1 className="mb-8 text-2xl font-bold">Shipping address</h1>
       <AddressForm initial={saved} />

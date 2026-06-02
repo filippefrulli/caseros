@@ -65,45 +65,54 @@ export async function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-bg-page/90 backdrop-blur-sm">
-      <div className="mx-auto grid h-14 max-w-6xl grid-cols-3 items-center px-4">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-lg font-bold tracking-tight hover:opacity-75 transition-opacity"
-        >
-          <Home size={18} />
-          Caseros
-        </Link>
+      <div className="mx-auto max-w-6xl px-4">
+        {/* Main row */}
+        <div className="flex h-14 items-center gap-3">
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight hover:opacity-75 transition-opacity"
+          >
+            <Home size={18} />
+            Caseros
+          </Link>
 
-        <div className="flex justify-center">
-          <div className="w-full max-w-lg">
-            <SearchBar />
+          {/* Search bar — hidden on mobile, centered on sm+ */}
+          <div className="hidden flex-1 sm:flex sm:justify-center">
+            <div className="w-full max-w-lg">
+              <SearchBar />
+            </div>
           </div>
+
+          <nav className="ml-auto flex shrink-0 items-center gap-1 sm:ml-0">
+            {user && <ChatIcon unreadCount={unreadCount} />}
+            {user && (
+              <NotificationsBell
+                notifications={notifications}
+                unreadCount={unreadNotificationCount}
+              />
+            )}
+            {user ? (
+              <UserMenu
+                avatarUrl={avatarUrl}
+                name={name}
+                email={user.email}
+                isSeller={isSeller}
+              />
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-md bg-gray-900 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+              >
+                Sign in
+              </Link>
+            )}
+          </nav>
         </div>
 
-        <nav className="flex items-center justify-end gap-1">
-          {user && <ChatIcon unreadCount={unreadCount} />}
-          {user && (
-            <NotificationsBell
-              notifications={notifications}
-              unreadCount={unreadNotificationCount}
-            />
-          )}
-          {user ? (
-            <UserMenu
-              avatarUrl={avatarUrl}
-              name={name}
-              email={user.email}
-              isSeller={isSeller}
-            />
-          ) : (
-            <Link
-              href="/login"
-              className="rounded-md bg-gray-900 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
-            >
-              Sign in
-            </Link>
-          )}
-        </nav>
+        {/* Mobile-only search bar row */}
+        <div className="pb-3 sm:hidden">
+          <SearchBar />
+        </div>
       </div>
     </header>
   );

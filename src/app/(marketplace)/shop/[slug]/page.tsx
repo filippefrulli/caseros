@@ -188,7 +188,7 @@ export default async function ShopPage({ params }: Props) {
   );
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10">
+    <main className="mx-auto w-full max-w-6xl px-4 pt-5 pb-10">
       <div className="mb-10">
         <h1 className="text-3xl font-bold tracking-tight">{seller.shopName}</h1>
         <div className="mt-2 flex flex-wrap items-center gap-4">

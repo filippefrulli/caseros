@@ -41,7 +41,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
   const isPending = order.status === "PENDING";
 
   return (
-    <main className="mx-auto max-w-xl px-4 py-12">
+    <main className="mx-auto max-w-xl px-4 pt-6 pb-12">
       {isPending ? (
         <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5">
           <Clock size={20} className="mt-0.5 shrink-0 text-amber-500" />

@@ -81,7 +81,7 @@ export function EmailSignUpForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-lg bg-accent py-2.5 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover disabled:opacity-60"
+        className="w-full rounded-lg bg-gray-900 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:opacity-60"
       >
         {isPending ? "Creating account…" : "Create account"}
       </button>

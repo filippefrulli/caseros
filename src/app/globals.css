@@ -86,4 +86,11 @@ body {
   button {
     cursor: pointer;
   }
+
+  /* mx-auto on <main> inside a flex-col body overrides align-self:stretch,
+     causing the element to shrink to content width when content is sparse.
+     w-full prevents this. */
+  main {
+    width: 100%;
+  }
 }

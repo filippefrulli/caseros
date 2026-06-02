@@ -7,7 +7,7 @@ import Image from "next/image";
 import { CopyShopLink } from "@/components/seller/copy-shop-link";
 import { StripeConnectButton } from "@/components/seller/stripe-connect-button";
 import { formatPrice } from "@/lib/utils";
-import { Clock, XCircle, AlertCircle, Package, UserPen, Plus } from "lucide-react";
+import { Clock, XCircle, AlertCircle, Package, UserPen, Plus, Pencil } from "lucide-react";
 import { GenerateLabelButton } from "@/components/seller/generate-label-button";
 import { DeleteListingButton } from "@/components/seller/delete-listing-button";
 import { isShippoConfigured } from "@/lib/shippo";
@@ -111,7 +111,7 @@ export default async function SellerDashboardPage() {
   const sellerPickupReady = !!(seller.pickupLine1 && seller.pickupCity && seller.pickupPostalCode && seller.pickupCountry && seller.pickupPhone);
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-12">
+    <main className="mx-auto max-w-4xl px-4 pt-6 pb-12">
       {seller.status === "PENDING" && (
         <div className="mb-8 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5">
           <Clock size={18} className="mt-0.5 shrink-0 text-amber-500" />
@@ -165,7 +165,7 @@ export default async function SellerDashboardPage() {
 
       <div className="mb-8">
         <h1 className="text-2xl font-bold">{seller.shopName}</h1>
-        <div className="mt-4 flex items-center gap-3">
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <CopyShopLink slug={seller.slug} />
           {seller.status === "ACTIVE" && (
             <>
@@ -189,21 +189,21 @@ export default async function SellerDashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-10">
+      <div className="grid grid-cols-2 gap-4 mb-10 sm:grid-cols-4">
         <div className="rounded-xl border border-gray-200 p-5">
-          <p className="text-3xl font-bold">{seller._count.listings}</p>
+          <p className="text-2xl font-bold sm:text-3xl">{seller._count.listings}</p>
           <p className="mt-1 text-sm text-gray-500">Listings</p>
         </div>
         <div className="rounded-xl border border-gray-200 p-5">
-          <p className="text-3xl font-bold">{orderCount}</p>
+          <p className="text-2xl font-bold sm:text-3xl">{orderCount}</p>
           <p className="mt-1 text-sm text-gray-500">Orders</p>
         </div>
         <div className="rounded-xl border border-gray-200 p-5">
-          <p className="text-3xl font-bold">{formatPrice(totalRevenue, "EUR")}</p>
+          <p className="text-2xl font-bold sm:text-3xl">{formatPrice(totalRevenue, "EUR")}</p>
           <p className="mt-1 text-sm text-gray-500">Revenue</p>
         </div>
         <div className="rounded-xl border border-gray-200 p-5">
-          <p className="text-3xl font-bold">{Math.round(Number(seller.commissionRate) * 100)}%</p>
+          <p className="text-2xl font-bold sm:text-3xl">{Math.round(Number(seller.commissionRate) * 100)}%</p>
           <p className="mt-1 text-sm text-gray-500">Platform fee</p>
         </div>
       </div>
@@ -344,6 +344,7 @@ export default async function SellerDashboardPage() {
                       href={`/seller/listings/${l.slug}/edit`}
                       className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors py-2 px-1"
                     >
+                      <Pencil size={13} />
                       Edit
                     </Link>
                     <DeleteListingButton listingId={l.id} listingTitle={l.title} />

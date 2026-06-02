@@ -7,7 +7,7 @@ export default function MarketplaceLayout({ children }: { children: React.ReactN
     <>
       <Navbar />
       <CategoryBar />
-      {children}
+      <div className="flex-1 w-full">{children}</div>
       <Footer />
     </>
   );

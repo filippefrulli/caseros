@@ -27,7 +27,7 @@ export default async function LoginPage({
         </Link>
 
         {/* Card */}
-        <div className="rounded-2xl bg-bg-card p-8 shadow-float">
+        <div className="rounded-2xl border border-border bg-bg-card p-8">
           <h1 className="text-xl font-bold text-text-primary">Welcome back</h1>
           <p className="mt-1 text-sm text-text-secondary">Sign in to your account</p>
 

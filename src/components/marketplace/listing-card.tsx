@@ -27,7 +27,7 @@ export function ListingCard({ listing, isFavorited = false, isLoggedIn = false, 
   return (
     <div className="group/card relative">
       {/* Image → listing */}
-      <Link href={`/listings/${listing.slug}`} className="block aspect-square w-full overflow-hidden rounded-xl bg-gray-100">
+      <Link href={`/listings/${listing.slug}`} className="block aspect-[3/4] w-full overflow-hidden rounded-xl bg-gray-100">
         {image ? (
           <Image
             src={image.url}

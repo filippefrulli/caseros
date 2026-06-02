@@ -27,7 +27,7 @@ export default async function RegisterPage({
         </Link>
 
         {/* Card */}
-        <div className="rounded-2xl bg-bg-card p-8 shadow-float">
+        <div className="rounded-2xl border border-border bg-bg-card p-8">
           <h1 className="text-xl font-bold text-text-primary">Create account</h1>
           <p className="mt-1 text-sm text-text-secondary">Join the Caseros community</p>
 

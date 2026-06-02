@@ -16,7 +16,7 @@ export function ListingImageCarousel({ images, title }: Props) {
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-square w-full items-center justify-center rounded-2xl bg-gray-100 text-gray-300">
+      <div className="flex aspect-[3/4] w-full items-center justify-center rounded-2xl bg-gray-100 text-gray-300">
         <Package size={64} strokeWidth={1} />
       </div>
     );
@@ -53,7 +53,7 @@ export function ListingImageCarousel({ images, title }: Props) {
       )}
 
       {/* Main image */}
-      <div className="relative aspect-square min-w-0 flex-1 overflow-hidden rounded-2xl bg-gray-100">
+      <div className="relative aspect-[3/4] min-w-0 flex-1 overflow-hidden rounded-2xl bg-gray-100">
         <Image
           src={current.url}
           alt={current.altText ?? title}
