@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -202,6 +203,52 @@ export async function updateListing(
       },
     });
   });
+
+  redirect("/seller/dashboard");
+}
+
+function storagePathFromUrl(url: string, bucket: string): string | null {
+  const marker = `/object/public/${bucket}/`;
+  const idx = url.indexOf(marker);
+  if (idx === -1) return null;
+  return url.slice(idx + marker.length);
+}
+
+export async function deleteListing(listingId: string): Promise<{ error: string } | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "You must be signed in." };
+
+  const listing = await prisma.listing.findFirst({
+    where: { id: listingId, seller: { user: { supabaseId: user.id } }, deletedAt: null },
+    select: {
+      id: true,
+      videoUrl: true,
+      images: { select: { url: true } },
+    },
+  });
+  if (!listing) return { error: "Listing not found." };
+
+  const service = createServiceClient();
+
+  const imagePaths = listing.images
+    .map((img) => storagePathFromUrl(img.url, "listing-images"))
+    .filter((p): p is string => p !== null);
+
+  const videoPaths = listing.videoUrl
+    ? [storagePathFromUrl(listing.videoUrl, "listing-videos")].filter((p): p is string => p !== null)
+    : [];
+
+  await Promise.all([
+    imagePaths.length > 0
+      ? service.storage.from("listing-images").remove(imagePaths)
+      : Promise.resolve(),
+    videoPaths.length > 0
+      ? service.storage.from("listing-videos").remove(videoPaths)
+      : Promise.resolve(),
+  ]);
+
+  await prisma.listing.delete({ where: { id: listing.id } });
 
   redirect("/seller/dashboard");
 }

@@ -9,6 +9,7 @@ import { StripeConnectButton } from "@/components/seller/stripe-connect-button";
 import { formatPrice } from "@/lib/utils";
 import { Clock, XCircle, AlertCircle, Package, UserPen, Plus } from "lucide-react";
 import { GenerateLabelButton } from "@/components/seller/generate-label-button";
+import { DeleteListingButton } from "@/components/seller/delete-listing-button";
 import { isShippoConfigured } from "@/lib/shippo";
 import type { ListingStatus } from "@/generated/prisma/client";
 
@@ -309,7 +310,7 @@ export default async function SellerDashboardPage() {
                   key={l.id}
                   className="overflow-hidden rounded-xl border border-gray-200 transition-colors hover:border-gray-300"
                 >
-                  <Link href={`/seller/listings/${l.slug}/edit`} className="block">
+                  <Link href={`/listings/${l.slug}`} className="block">
                     <div className="relative aspect-square w-full bg-gray-50">
                       {thumb ? (
                         <Image
@@ -327,7 +328,7 @@ export default async function SellerDashboardPage() {
                       </span>
                     </div>
                     <div className="p-4">
-                      <p className="line-clamp-2 text-sm font-medium text-gray-900">{l.title}</p>
+                      <p className="line-clamp-2 min-h-10 text-sm font-medium text-gray-900" title={l.title}>{l.title}</p>
                       <div className="mt-2 flex items-center justify-between">
                         <p className="text-sm font-semibold tabular-nums text-gray-900">
                           {formatPrice(l.priceAmount, l.currency)}
@@ -338,6 +339,15 @@ export default async function SellerDashboardPage() {
                       </div>
                     </div>
                   </Link>
+                  <div className="border-t border-gray-100 px-4 py-1 flex items-center justify-between">
+                    <Link
+                      href={`/seller/listings/${l.slug}/edit`}
+                      className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors py-2 px-1"
+                    >
+                      Edit
+                    </Link>
+                    <DeleteListingButton listingId={l.id} listingTitle={l.title} />
+                  </div>
                 </li>
               );
             })}
