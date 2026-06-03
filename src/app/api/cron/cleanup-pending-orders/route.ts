@@ -10,10 +10,7 @@ export const dynamic = "force-dynamic";
 // abandoned Stripe Checkout sessions. No charge exists so no refund is needed
 // and no stock was reserved.
 export async function GET(req: Request) {
-  const authHeader = req.headers.get("authorization");
-  const expectedToken = env.CRON_SECRET ? `Bearer ${env.CRON_SECRET}` : null;
-
-  if (expectedToken && authHeader !== expectedToken) {
+  if (req.headers.get("authorization") !== `Bearer ${env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

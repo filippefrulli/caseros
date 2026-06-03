@@ -52,8 +52,10 @@ export async function signInWithEmail(
     update: { email: user.email! },
   });
 
-  const safeNext = next.startsWith("/") ? next : "/";
-  redirect(safeNext as "/");
+  // Prevent open redirect — protocol-relative URLs would escape our origin.
+  const isSafe =
+    next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\");
+  redirect((isSafe ? next : "/") as "/");
 }
 
 export async function signUpWithEmail(

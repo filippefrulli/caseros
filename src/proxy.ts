@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED_PATHS = ["/account", "/seller"];
+const PROTECTED_PATHS = ["/account", "/seller", "/messages", "/checkout", "/admin"];
+const ADMIN_PATHS = ["/admin"];
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -31,11 +32,18 @@ export async function proxy(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
+  const isAdminPath = ADMIN_PATHS.some((p) => pathname.startsWith(p));
 
   if (isProtected && !user) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Defense-in-depth: admin pages also check ADMIN_EMAIL server-side, but
+  // surface a 404 here too so non-admin users can't enumerate admin routes.
+  if (isAdminPath && user && user.email !== process.env.ADMIN_EMAIL) {
+    return NextResponse.rewrite(new URL("/not-found", request.url));
   }
 
   return supabaseResponse;

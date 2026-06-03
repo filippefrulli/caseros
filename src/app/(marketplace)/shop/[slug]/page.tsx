@@ -37,7 +37,17 @@ export default async function ShopPage({ params }: Props) {
   const [seller, favIds] = await Promise.all([
     prisma.sellerProfile.findUnique({
       where: { slug },
-      include: {
+      // Explicit select — `include` would expose pickup address, stripeAccountId,
+      // commissionRate, and other internal fields to every visitor.
+      select: {
+        id: true,
+        shopName: true,
+        slug: true,
+        bio: true,
+        avatarUrl: true,
+        bannerUrl: true,
+        country: true,
+        createdAt: true,
         user: { select: { supabaseId: true } },
         socialLinks: true,
         listings: {

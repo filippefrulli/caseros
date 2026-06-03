@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { env } from "@/env";
+import { getRates, isShippoConfigured } from "@/lib/shippo";
 
 export const runtime = "nodejs";
 
@@ -78,6 +79,13 @@ async function handleCheckout(req: Request) {
             payoutsEnabled: true,
             commissionRate: true,
             userId: true,
+            pickupName: true,
+            pickupLine1: true,
+            pickupHouseNumber: true,
+            pickupCity: true,
+            pickupPostalCode: true,
+            pickupCountry: true,
+            pickupPhone: true,
           },
         },
       },
@@ -97,14 +105,62 @@ async function handleCheckout(req: Request) {
     return NextResponse.json({ error: "Seller is not ready to accept payments." }, { status: 409 });
   }
 
-  // Physical listings require an address from our pre-checkout page.
-  if (!listing.isDigital && !address) {
-    return NextResponse.json({ error: "Shipping address is required." }, { status: 400 });
-  }
-
   const unitAmount = listing.priceAmount;
   const itemsTotal = unitAmount * quantity;
-  const shippingTotal = listing.isDigital ? 0 : (shippingRate?.amount ?? 0);
+
+  // Re-fetch shipping rates server-side and verify the chosen rate is real.
+  // Never trust the amount from the client — the buyer could submit any value,
+  // including 0, and the seller would eat the carrier cost.
+  let shippingTotal = 0;
+  if (!listing.isDigital) {
+    if (!address || !shippingRate) {
+      return NextResponse.json({ error: "Shipping rate is required." }, { status: 400 });
+    }
+    if (!isShippoConfigured()) {
+      return NextResponse.json({ error: "Shipping not configured." }, { status: 503 });
+    }
+    const s = listing.seller;
+    if (!s.pickupLine1 || !s.pickupCity || !s.pickupPostalCode || !s.pickupCountry || !listing.weightGrams) {
+      return NextResponse.json({ error: "Seller is not ready to ship this listing." }, { status: 409 });
+    }
+    let rates: Awaited<ReturnType<typeof getRates>>;
+    try {
+      rates = await getRates({
+        fromAddress: {
+          name: s.pickupName ?? "Seller",
+          street1: s.pickupLine1,
+          street_no: s.pickupHouseNumber ?? undefined,
+          city: s.pickupCity,
+          zip: s.pickupPostalCode,
+          country: s.pickupCountry,
+          phone: s.pickupPhone ?? undefined,
+        },
+        toAddress: {
+          name: address.name,
+          street1: address.line1,
+          street_no: address.houseNumber ?? undefined,
+          city: address.city,
+          zip: address.postalCode,
+          country: address.country,
+        },
+        weightGrams: listing.weightGrams,
+        lengthCm: listing.lengthCm,
+        widthCm: listing.widthCm,
+        heightCm: listing.heightCm,
+      });
+    } catch (err) {
+      console.error("[checkout] rate verification failed:", err);
+      return NextResponse.json({ error: "Could not verify shipping rate." }, { status: 502 });
+    }
+    const matched = rates.find(
+      (r) => Math.round(parseFloat(r.amount) * 100) === shippingRate.amount,
+    );
+    if (!matched) {
+      return NextResponse.json({ error: "Selected shipping rate is no longer available." }, { status: 409 });
+    }
+    shippingTotal = shippingRate.amount;
+  }
+
   const totalAmount = itemsTotal + shippingTotal;
 
   const rawRate = listing.seller.commissionRate;

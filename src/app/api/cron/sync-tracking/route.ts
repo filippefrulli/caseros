@@ -8,8 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  const auth = req.headers.get("authorization");
-  if (!env.CRON_SECRET || auth !== `Bearer ${env.CRON_SECRET}`) {
+  if (req.headers.get("authorization") !== `Bearer ${env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 

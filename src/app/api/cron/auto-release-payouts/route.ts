@@ -18,10 +18,7 @@ export const dynamic = "force-dynamic";
 // and AUTO_RELEASE_DAYS is decided with legal/ops.
 
 export async function GET(req: Request) {
-  const authHeader = req.headers.get("authorization");
-  const expectedToken = env.CRON_SECRET ? `Bearer ${env.CRON_SECRET}` : null;
-
-  if (expectedToken && authHeader !== expectedToken) {
+  if (req.headers.get("authorization") !== `Bearer ${env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

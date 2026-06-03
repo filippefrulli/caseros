@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { getRates, isShippoConfigured } from "@/lib/shippo";
 
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
+  // Require auth — Shippo costs per request, so unauthenticated callers
+  // could rack up bills or scrape pricing.
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+
   if (!isShippoConfigured()) {
     return NextResponse.json({ error: "Shipping not configured." }, { status: 503 });
   }

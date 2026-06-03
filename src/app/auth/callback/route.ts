@@ -36,7 +36,9 @@ export async function GET(request: Request) {
     },
   });
 
-  // Prevent open redirect — only allow relative paths
-  const safeNext = next.startsWith("/") ? next : "/";
-  return NextResponse.redirect(`${origin}${safeNext}`);
+  // Prevent open redirect — only allow same-origin relative paths.
+  // `//evil.com` and `/\evil.com` are protocol-relative and would escape the origin.
+  const isSafe =
+    next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\");
+  return NextResponse.redirect(`${origin}${isSafe ? next : "/"}`);
 }

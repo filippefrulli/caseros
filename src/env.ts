@@ -10,7 +10,7 @@ export const env = createEnv({
     ADMIN_EMAIL: z.string().email(),
     RESEND_API_KEY: z.string().min(1).optional(),
     RESEND_FROM: z.string().optional(),
-    CRON_SECRET: z.string().min(1).optional(),
+    CRON_SECRET: z.string().min(16),
     MEILISEARCH_HOST: z.string().url().optional(),
     MEILISEARCH_ADMIN_KEY: z.string().optional(),
     SHIPPO_API_KEY: z.string().optional(),
