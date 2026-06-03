@@ -30,7 +30,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
       totalAmount: true,
       currency: true,
       buyer: { select: { email: true, name: true } },
-      items: { select: { listingTitle: true, quantity: true, unitAmount: true, currency: true } },
+      items: { select: { listingTitle: true, quantity: true, unitAmount: true } },
     },
   });
   if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -51,7 +51,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
         title: i.listingTitle,
         quantity: i.quantity,
         unitAmount: i.unitAmount,
-        currency: i.currency,
+        currency: order.currency,
       })),
       totalAmount: order.totalAmount,
       currency: order.currency,

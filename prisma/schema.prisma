@@ -6,7 +6,7 @@ generator client {
 
 datasource db {
   provider   = "postgresql"
-  extensions = [citext, pgcrypto, pg_stat_statements, uuid_ossp(map: "uuid-ossp"), supabase_vault]
+  extensions = [citext(schema: "extensions"), pgcrypto(schema: "extensions"), pg_stat_statements(schema: "extensions"), uuid_ossp(map: "uuid-ossp", schema: "extensions"), supabase_vault(schema: "vault")]
 }
 
 // citext + future CHECK constraints (rating, commission rate) are added in

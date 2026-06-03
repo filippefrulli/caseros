@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     where: { status: "SHIPPED", shippingTransactionId: { not: null } },
     include: {
       buyer: { select: { id: true, email: true, name: true } },
-      items: { select: { listingTitle: true, quantity: true, unitAmount: true, currency: true } },
+      items: { select: { listingTitle: true, quantity: true, unitAmount: true } },
     },
   });
 
@@ -74,10 +74,10 @@ export async function GET(req: Request) {
           title: i.listingTitle,
           quantity: i.quantity,
           unitAmount: i.unitAmount,
-          currency: i.currency,
+          currency: order.currency,
         })),
         totalAmount: order.items.reduce((s, i) => s + i.unitAmount * i.quantity, 0),
-        currency: order.items[0]?.currency ?? "EUR",
+        currency: order.currency,
         appUrl: env.NEXT_PUBLIC_APP_URL,
       });
 
