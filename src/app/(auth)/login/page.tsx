@@ -64,6 +64,12 @@ export default async function LoginPage({
             Create one
           </Link>
         </p>
+        <p className="mt-3 text-center text-xs text-text-muted">
+          Trouble signing in?{" "}
+          <Link href="/legal/support" className="underline hover:text-text-secondary transition-colors">
+            Contact support
+          </Link>
+        </p>
       </div>
     </main>
   );

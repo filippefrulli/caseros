@@ -20,6 +20,9 @@ export function Footer() {
           <Link href="/legal/pricing" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
             Fees &amp; pricing
           </Link>
+          <Link href="/legal/support" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+            Support
+          </Link>
         </div>
       </div>
     </footer>

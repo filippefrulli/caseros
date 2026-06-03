@@ -114,6 +114,13 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
           Keep shopping
         </Link>
       </div>
+
+      <p className="mt-6 text-center text-xs text-gray-400">
+        Something wrong with your order?{" "}
+        <Link href="/legal/support" className="underline hover:text-gray-600 transition-colors">
+          Contact support
+        </Link>
+      </p>
     </main>
   );
 }
