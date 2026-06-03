@@ -49,7 +49,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
 
       const transfer = await stripe.transfers.create({
         amount: item.sellerPayout,
-        currency: item.currency.toLowerCase(),
+        currency: order.currency.toLowerCase(),
         destination: item.sellerStripeAccountId,
         source_transaction: order.stripeChargeId!,
         transfer_group: order.id,
@@ -81,7 +81,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
           orderId: order.id,
           itemId: item.id,
           payoutAmount: item.sellerPayout,
-          currency: item.currency,
+          currency: order.currency,
           appUrl: env.NEXT_PUBLIC_APP_URL,
         });
       }

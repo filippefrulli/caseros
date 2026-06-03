@@ -38,7 +38,6 @@ export async function POST(req: Request, { params }: Params) {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: {
-      shippingAddress: true,
       buyer: { select: { id: true, email: true, name: true } },
       items: {
         select: {
@@ -46,7 +45,6 @@ export async function POST(req: Request, { params }: Params) {
           listingTitle: true,
           quantity: true,
           unitAmount: true,
-          currency: true,
         },
       },
     },
@@ -85,7 +83,7 @@ export async function POST(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Complete your pickup address in your profile before generating a label." }, { status: 409 });
   }
 
-  if (!order.shippingAddress) {
+  if (!order.shippingLine1 || !order.shippingCity || !order.shippingPostalCode || !order.shippingCountry) {
     return NextResponse.json({ error: "Order has no shipping address." }, { status: 409 });
   }
 
@@ -109,13 +107,13 @@ export async function POST(req: Request, { params }: Params) {
       },
       toAddress: {
         name: order.shippingName ?? order.buyer.email,
-        street1: order.shippingAddress.line1,
-        street_no: order.shippingAddress.houseNumber ?? undefined,
-        city: order.shippingAddress.city,
-        zip: order.shippingAddress.postalCode,
-        country: order.shippingAddress.country,
-        phone: order.shippingAddress.phone ?? undefined,
-        email: order.shippingAddress.email ?? order.buyer.email,
+        street1: order.shippingLine1,
+        street_no: order.shippingHouseNumber ?? undefined,
+        city: order.shippingCity,
+        zip: order.shippingPostalCode,
+        country: order.shippingCountry,
+        phone: order.shippingPhone ?? undefined,
+        email: order.buyer.email,
       },
     });
   } catch (err) {

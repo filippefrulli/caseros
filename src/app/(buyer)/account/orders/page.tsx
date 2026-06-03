@@ -135,7 +135,7 @@ export default async function OrdersPage() {
                         <p className="mt-0.5 text-xs text-gray-500">Qty {item.quantity}</p>
                       </div>
                       <p className="shrink-0 text-sm tabular-nums text-gray-700">
-                        {formatPrice(item.unitAmount * item.quantity, item.currency)}
+                        {formatPrice(item.unitAmount * item.quantity, order.currency)}
                       </p>
                     </li>
                   );

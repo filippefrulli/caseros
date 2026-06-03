@@ -1,11 +1,17 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [citext, pgcrypto, pg_stat_statements, uuid_ossp(map: "uuid-ossp"), supabase_vault]
 }
+
+// citext + future CHECK constraints (rating, commission rate) are added in
+// prisma/migrations/*/check_constraints.sql alongside the generated migration.
+// Run `prisma migrate dev` after editing this file.
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -57,21 +63,25 @@ enum NotificationType {
 model User {
   id         String   @id @default(cuid())
   supabaseId String   @unique @map("supabase_id")
-  email      String   @unique
+  // citext → case-insensitive unique, so Foo@bar.com and foo@bar.com collide.
+  email      String   @unique @db.Citext
   name       String?
   avatarUrl  String?  @map("avatar_url")
   locale     String   @default("en")
+  // Soft delete for GDPR — anonymize email/name/avatar on deletion while
+  // keeping the row so historical orders, reviews, and messages stay intact.
+  deletedAt  DateTime? @map("deleted_at")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  seller              SellerProfile?
-  orders              Order[]
-  reviews             Review[]
-  addresses           Address[]
-  favorites           Favorite[]
-  sentMessages        Message[]
-  buyerConversations  Conversation[] @relation("BuyerConversations")
-  notifications       Notification[]
+  seller             SellerProfile?
+  orders             Order[]
+  reviews            Review[]
+  addresses          Address[]
+  favorites          Favorite[]
+  sentMessages       Message[]
+  buyerConversations Conversation[] @relation("BuyerConversations")
+  notifications      Notification[]
 
   @@map("users")
 }
@@ -87,52 +97,34 @@ model SellerProfile {
   bio                  String?
   avatarUrl            String?      @map("avatar_url")
   bannerUrl            String?      @map("banner_url")
-  country              String
+  country              String       @db.Char(2)
   currency             String       @default("EUR")
   status               SellerStatus @default(PENDING)
   stripeAccountId      String?      @unique @map("stripe_account_id")
   stripeOnboardingDone Boolean      @default(false) @map("stripe_onboarding_done")
   payoutsEnabled       Boolean      @default(false) @map("payouts_enabled")
-  // Platform commission taken before paying out to seller (0.05 = 5%)
-  commissionRate       Decimal      @default(0.05) @map("commission_rate") @db.Decimal(5, 4)
-  // Pickup / return address used as Sendcloud from_address on shipping labels
+  // Platform commission taken before paying out to seller (0.0500 = 5%).
+  // Decimal(4,4) caps at 0.9999 — semantically truthful (commission < 100%).
+  commissionRate       Decimal      @default(0.0500) @map("commission_rate") @db.Decimal(4, 4)
+  // Pickup / return address used as from_address on shipping labels
   pickupName        String? @map("pickup_name")
   pickupLine1       String? @map("pickup_line1")
   pickupLine2       String? @map("pickup_line2")
   pickupHouseNumber String? @map("pickup_house_number")
   pickupCity        String? @map("pickup_city")
   pickupPostalCode  String? @map("pickup_postal_code")
-  pickupCountry     String? @map("pickup_country")
+  pickupCountry     String? @map("pickup_country") @db.Char(2)
   pickupPhone       String? @map("pickup_phone")
-  createdAt            DateTime     @default(now()) @map("created_at")
-  updatedAt            DateTime     @updatedAt @map("updated_at")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   listings      Listing[]
-  sections      ShopSection[]
   conversations Conversation[] @relation("SellerConversations")
   kyc           SellerKyc?
   socialLinks   SellerSocialLinks?
   reviews       Review[]
 
   @@map("seller_profiles")
-}
-
-// Sellers group their listings into sections (like Etsy shop sections)
-model ShopSection {
-  id        String        @id @default(cuid())
-  sellerId  String        @map("seller_id")
-  seller    SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  name      String
-  slug      String
-  position  Int           @default(0)
-  createdAt DateTime      @default(now()) @map("created_at")
-  updatedAt DateTime      @updatedAt @map("updated_at")
-
-  listings Listing[]
-
-  @@unique([sellerId, slug])
-  @@index([sellerId])
-  @@map("shop_sections")
 }
 
 // ─── Catalogue ────────────────────────────────────────────────────────────────
@@ -142,12 +134,11 @@ model Category {
   name        String
   slug        String     @unique
   description String?
-  imageUrl    String?    @map("image_url")
   parentId    String?    @map("parent_id")
   parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryTree")
   listings    Listing[]
-  createdAt   DateTime   @default(now()) @map("created_at")
+  createdAt   DateTime   @default(now())  @map("created_at")
 
   @@map("categories")
 }
@@ -158,42 +149,34 @@ model Listing {
   seller      SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   categoryId  String?       @map("category_id")
   category    Category?     @relation(fields: [categoryId], references: [id])
-  sectionId   String?       @map("section_id")
-  section     ShopSection?  @relation(fields: [sectionId], references: [id], onDelete: SetNull)
   title       String
   slug        String        @unique
   description String
-  // Base price used when no variant is selected. Stored in smallest currency unit (cents).
+  // Stored in smallest currency unit (cents).
   priceAmount Int           @map("price_amount")
   currency    String        @default("EUR")
-  // When variants exist, stock is tracked per-variant and this field is ignored.
   stock       Int           @default(1)
   isDigital   Boolean       @default(false) @map("is_digital")
   videoUrl    String?       @map("video_url")
   // Shipping — required for physical listings; ignored when isDigital.
-  weightGrams    Int?  @map("weight_grams")
-  lengthCm       Int?  @map("length_cm")
-  widthCm        Int?  @map("width_cm")
-  heightCm       Int?  @map("height_cm")
+  weightGrams Int? @map("weight_grams")
+  lengthCm    Int? @map("length_cm")
+  widthCm     Int? @map("width_cm")
+  heightCm    Int? @map("height_cm")
   status      ListingStatus @default(DRAFT)
-  tags        String[]
   // Soft delete — preserve FK integrity for historical orders
   deletedAt   DateTime?     @map("deleted_at")
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
   images        ListingImage[]
-  variants      ListingVariant[]
-  files         ListingFile[]
   orderItems    OrderItem[]
   favorites     Favorite[]
   conversations Conversation[]
 
-  @@index([sellerId])
+  // Shop page filters (sellerId, status=ACTIVE, deletedAt IS NULL) — composite covers it.
+  @@index([sellerId, status, deletedAt])
   @@index([categoryId])
-  @@index([sectionId])
-  @@index([status])
-  @@index([deletedAt])
   @@map("listings")
 }
 
@@ -210,40 +193,6 @@ model ListingImage {
   @@map("listing_images")
 }
 
-// e.g. "Color: Red / Size: M". Null priceAmount means inherit from listing.
-model ListingVariant {
-  id          String   @id @default(cuid())
-  listingId   String   @map("listing_id")
-  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  title       String
-  priceAmount Int?     @map("price_amount")
-  stock       Int      @default(1)
-  sku         String?
-  position    Int      @default(0)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  orderItems OrderItem[]
-
-  @@index([listingId])
-  @@map("listing_variants")
-}
-
-// Downloadable files for digital listings. Access gated to buyers post-purchase.
-model ListingFile {
-  id        String   @id @default(cuid())
-  listingId String   @map("listing_id")
-  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  storageUrl String  @map("storage_url")
-  fileName  String   @map("file_name")
-  fileSize  Int      @map("file_size")
-  mimeType  String?  @map("mime_type")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@index([listingId])
-  @@map("listing_files")
-}
-
 // ─── Orders ───────────────────────────────────────────────────────────────────
 
 model Address {
@@ -256,47 +205,58 @@ model Address {
   houseNumber String?  @map("house_number")
   city        String
   postalCode  String   @map("postal_code")
-  country     String
+  country     String   @db.Char(2)
   phone       String?
-  email       String?
   isDefault   Boolean  @default(false) @map("is_default")
   createdAt   DateTime @default(now()) @map("created_at")
-
-  orders Order[]
 
   @@index([userId])
   @@map("addresses")
 }
 
 model Order {
-  id                    String      @id @default(cuid())
-  buyerId               String      @map("buyer_id")
-  buyer                 User        @relation(fields: [buyerId], references: [id])
-  shippingAddressId     String?     @map("shipping_address_id")
-  shippingAddress       Address?    @relation(fields: [shippingAddressId], references: [id])
-  shippingName          String?     @map("shipping_name")
-  status                OrderStatus @default(PENDING)
-  totalAmount           Int         @map("total_amount")
-  shippingAmount        Int         @default(0) @map("shipping_amount")
-  currency              String      @default("EUR")
-  stripePaymentIntentId String?     @unique @map("stripe_payment_intent_id")
+  id      String      @id @default(cuid())
+  buyerId String      @map("buyer_id")
+  buyer   User        @relation(fields: [buyerId], references: [id])
+  status  OrderStatus @default(PENDING)
+
+  // Shipping address — fully snapshotted at order time so later edits or
+  // deletion of the buyer's saved Address don't rewrite past receipts.
+  shippingName        String? @map("shipping_name")
+  shippingLine1       String? @map("shipping_line1")
+  shippingLine2       String? @map("shipping_line2")
+  shippingHouseNumber String? @map("shipping_house_number")
+  shippingCity        String? @map("shipping_city")
+  shippingPostalCode  String? @map("shipping_postal_code")
+  shippingCountry     String? @map("shipping_country") @db.Char(2)
+  shippingPhone       String? @map("shipping_phone")
+
+  totalAmount    Int    @map("total_amount")
+  // INVARIANT: a cart contains items from a single seller. Shipping/tracking
+  // live on Order. If multi-seller carts are introduced, move these to a
+  // Shipment model keyed by (orderId, sellerId).
+  shippingAmount Int    @default(0) @map("shipping_amount")
+  currency       String @default("EUR")
+
+  stripePaymentIntentId String? @unique @map("stripe_payment_intent_id")
   // Captured from payment_intent.latest_charge; used as source_transaction when releasing the seller transfer.
-  stripeChargeId        String?     @unique @map("stripe_charge_id")
+  stripeChargeId        String? @unique @map("stripe_charge_id")
   // Stripe Checkout Session id; set at /api/checkout time, before the PI exists.
-  checkoutSessionId     String?     @unique @map("checkout_session_id")
-  stripeTaxAmount       Int?        @map("stripe_tax_amount")
+  checkoutSessionId     String? @unique @map("checkout_session_id")
+
   // Shipping label & tracking (provider-agnostic)
-  shippingTransactionId  String?  @unique @map("shipping_transaction_id")
-  trackingCode           String?  @map("tracking_code")
-  trackingUrl            String?  @map("tracking_url")
-  labelDocumentLink      String?  @map("label_document_link")
-  createdAt             DateTime    @default(now()) @map("created_at")
-  updatedAt             DateTime    @updatedAt @map("updated_at")
+  shippingTransactionId String? @unique @map("shipping_transaction_id")
+  trackingCode          String? @map("tracking_code")
+  trackingUrl           String? @map("tracking_url")
+  labelDocumentLink     String? @map("label_document_link")
 
-  items  OrderItem[]
-  review Review?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([buyerId])
+  items   OrderItem[]
+  reviews Review[]
+
+  @@index([buyerId, createdAt])
   @@index([status])
   @@map("orders")
 }
@@ -310,11 +270,6 @@ model OrderItem {
   listingId String?  @map("listing_id")
   listing   Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
 
-  // Variant FK set to null if variant removed; variantTitle snapshot preserves it
-  variantId    String?         @map("variant_id")
-  variant      ListingVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
-  variantTitle String?         @map("variant_title")
-
   // Snapshots of listing state at order time — receipt stays accurate after edits/deletion
   listingTitle    String  @map("listing_title")
   listingImageUrl String? @map("listing_image_url")
@@ -323,41 +278,42 @@ model OrderItem {
   sellerId              String  @map("seller_id")
   sellerStripeAccountId String? @map("seller_stripe_account_id")
 
-  quantity     Int      @default(1)
-  unitAmount   Int      @map("unit_amount")
-  currency     String   @default("EUR")
-  sellerPayout Int      @map("seller_payout")
+  quantity     Int @default(1)
+  unitAmount   Int @map("unit_amount")
+  sellerPayout Int @map("seller_payout")
 
   // Set after Stripe transfer is created for this seller's payout
-  stripeTransferId   String?   @unique @map("stripe_transfer_id")
-  payoutReleasedAt   DateTime? @map("payout_released_at")
+  stripeTransferId String?   @unique @map("stripe_transfer_id")
+  payoutReleasedAt DateTime? @map("payout_released_at")
   // Amount refunded so far (cents). Equals unitAmount * quantity when fully refunded.
-  refundedAmount     Int       @default(0) @map("refunded_amount")
-  createdAt          DateTime  @default(now()) @map("created_at")
+  refundedAmount   Int       @default(0) @map("refunded_amount")
+  createdAt        DateTime  @default(now()) @map("created_at")
 
   @@index([orderId])
   @@index([listingId])
-  @@index([sellerId])
+  @@index([sellerId, createdAt])
   @@map("order_items")
 }
 
 // ─── Reviews ──────────────────────────────────────────────────────────────────
 
 model Review {
-  id       String @id @default(cuid())
-  // One review per order — gated to a completed purchase to prevent fake reviews
-  orderId  String        @unique @map("order_id")
+  id       String        @id @default(cuid())
+  orderId  String        @map("order_id")
   order    Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   sellerId String        @map("seller_id")
   seller   SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   authorId String        @map("author_id")
   author   User          @relation(fields: [authorId], references: [id])
+  // CHECK (rating BETWEEN 1 AND 5) — applied via raw SQL migration.
   rating   Int
   body     String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@index([sellerId])
+  // One review per (order, seller) — supports multi-seller orders.
+  @@unique([orderId, sellerId])
+  @@index([sellerId, createdAt])
   @@index([authorId])
   @@map("reviews")
 }
@@ -379,23 +335,29 @@ model Favorite {
 
 // ─── Messaging ────────────────────────────────────────────────────────────────
 
-// One thread per buyer↔seller pair. Optional listingId for initial context.
+// One thread per buyer↔seller pair. Optional listingId for initial context only —
+// the unique constraint enforces one thread per pair regardless of listing.
 model Conversation {
-  id        String        @id @default(cuid())
-  buyerId   String        @map("buyer_id")
-  buyer     User          @relation("BuyerConversations", fields: [buyerId], references: [id])
-  sellerId  String        @map("seller_id")
-  seller    SellerProfile @relation("SellerConversations", fields: [sellerId], references: [id])
-  listingId String?       @map("listing_id")
-  listing   Listing?      @relation(fields: [listingId], references: [id], onDelete: SetNull)
-  createdAt DateTime      @default(now()) @map("created_at")
-  updatedAt DateTime      @updatedAt @map("updated_at")
+  id            String        @id @default(cuid())
+  buyerId       String        @map("buyer_id")
+  buyer         User          @relation("BuyerConversations", fields: [buyerId], references: [id])
+  sellerId      String        @map("seller_id")
+  seller        SellerProfile @relation("SellerConversations", fields: [sellerId], references: [id])
+  listingId     String?       @map("listing_id")
+  listing       Listing?      @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  // Denormalized — bumped whenever a Message is created. Powers inbox sort
+  // and unread checks without a per-row subquery on messages.
+  lastMessageAt   DateTime  @default(now()) @map("last_message_at")
+  buyerLastReadAt  DateTime? @map("buyer_last_read_at")
+  sellerLastReadAt DateTime? @map("seller_last_read_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
 
   messages Message[]
 
   @@unique([buyerId, sellerId])
-  @@index([buyerId])
-  @@index([sellerId])
+  @@index([buyerId, lastMessageAt])
+  @@index([sellerId, lastMessageAt])
   @@map("conversations")
 }
 
@@ -406,10 +368,9 @@ model Message {
   senderId       String       @map("sender_id")
   sender         User         @relation(fields: [senderId], references: [id])
   body           String
-  readAt         DateTime?    @map("read_at")
   createdAt      DateTime     @default(now()) @map("created_at")
 
-  @@index([conversationId])
+  @@index([conversationId, createdAt])
   @@map("messages")
 }
 
@@ -428,7 +389,7 @@ model Notification {
   readAt     DateTime?        @map("read_at")
   createdAt  DateTime         @default(now()) @map("created_at")
 
-  @@index([userId])
+  @@index([userId, createdAt])
   @@index([userId, readAt])
   @@map("notifications")
 }
@@ -463,7 +424,7 @@ model SellerKyc {
 
   sellerType SellerType @map("seller_type")
 
-  // Individual identity fields
+  // Individual identity fields. Country inherits from SellerProfile.country.
   fullName     String?   @map("full_name")
   addressLine1 String?   @map("address_line_1")
   addressLine2 String?   @map("address_line_2")
@@ -492,12 +453,13 @@ model SellerKyc {
 // ─── Stripe ───────────────────────────────────────────────────────────────────
 
 // Dedup table for Stripe webhook events. The primary key IS the Stripe event id;
-// inserting a duplicate (P2002) signals we've already processed this event and
-// should ack with 200 without re-running side effects.
+// inserting a duplicate (P2002) signals we've already processed this event.
+// Prune rows older than ~30 days via cron (Stripe's replay window is shorter).
 model StripeWebhookEvent {
   id         String   @id
   type       String
   receivedAt DateTime @default(now()) @map("received_at")
 
+  @@index([receivedAt])
   @@map("stripe_webhook_events")
 }

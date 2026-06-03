@@ -30,7 +30,7 @@ export default async function ConversationPage({ params }: Props) {
       seller: { select: { id: true, shopName: true, user: { select: { id: true } } } },
       messages: {
         orderBy: { createdAt: "asc" },
-        select: { id: true, body: true, senderId: true, createdAt: true, readAt: true },
+        select: { id: true, body: true, senderId: true, createdAt: true },
       },
     },
   });
@@ -41,9 +41,9 @@ export default async function ConversationPage({ params }: Props) {
   const isSeller = dbUser.seller && conversation.sellerId === dbUser.seller.id;
   if (!isBuyer && !isSeller) notFound();
 
-  await prisma.message.updateMany({
-    where: { conversationId: id, senderId: { not: dbUser.id }, readAt: null },
-    data: { readAt: new Date() },
+  await prisma.conversation.update({
+    where: { id },
+    data: isBuyer ? { buyerLastReadAt: new Date() } : { sellerLastReadAt: new Date() },
   });
 
   const otherPartyName = isBuyer
@@ -54,7 +54,6 @@ export default async function ConversationPage({ params }: Props) {
     messages: conversation.messages.map((m) => ({
       ...m,
       createdAt: m.createdAt.toISOString(),
-      readAt: m.readAt?.toISOString() ?? null,
     })),
     currentUserId: dbUser.id,
   };

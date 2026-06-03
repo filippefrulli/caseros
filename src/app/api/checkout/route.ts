@@ -168,12 +168,11 @@ async function handleCheckout(req: Request) {
   // Commission on item subtotal only; shipping is passed through to cover carrier cost.
   const sellerPayout = Math.floor(itemsTotal * (1 - commissionRate));
 
-  // Create the Address record immediately (before Stripe) so the webhook skips it.
-  // Clear any existing default, then mark this address as the new default.
-  let shippingAddressId: string | null = null;
-  let shippingName: string | null = null;
+  // Snapshot the shipping address onto the Order so it can never be rewritten
+  // by later edits to the buyer's saved Address row.
+  // Also persist/refresh the Address as the buyer's default for next checkout.
   if (!listing.isDigital && address) {
-    const [, addr] = await prisma.$transaction([
+    await prisma.$transaction([
       prisma.address.updateMany({
         where: { userId: dbUser.id, isDefault: true },
         data: { isDefault: false },
@@ -189,13 +188,10 @@ async function handleCheckout(req: Request) {
           postalCode: address.postalCode,
           country: address.country,
           phone: address.phone ?? null,
-          email: user.email,
           isDefault: true,
         },
       }),
     ]);
-    shippingAddressId = addr.id;
-    shippingName = address.name;
   }
 
   const order = await prisma.order.create({
@@ -205,8 +201,18 @@ async function handleCheckout(req: Request) {
       totalAmount,
       shippingAmount: shippingTotal,
       currency: listing.currency,
-      shippingAddressId,
-      shippingName,
+      ...(address
+        ? {
+            shippingName: address.name,
+            shippingLine1: address.line1,
+            shippingLine2: address.line2 ?? null,
+            shippingHouseNumber: address.houseNumber ?? null,
+            shippingCity: address.city,
+            shippingPostalCode: address.postalCode,
+            shippingCountry: address.country,
+            shippingPhone: address.phone ?? null,
+          }
+        : {}),
       items: {
         create: {
           listingId: listing.id,
@@ -215,7 +221,6 @@ async function handleCheckout(req: Request) {
           sellerStripeAccountId: listing.seller.stripeAccountId,
           quantity,
           unitAmount,
-          currency: listing.currency,
           sellerPayout,
         },
       },

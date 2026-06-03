@@ -148,7 +148,7 @@ export default async function AdminOrderDetailPage({ params }: Props) {
                     )}
                   </p>
                   <p className="mt-1 text-xs text-gray-400">
-                    Payout: {formatPrice(item.sellerPayout, item.currency)}
+                    Payout: {formatPrice(item.sellerPayout, order.currency)}
                     {item.stripeTransferId ? (
                       <span className="ml-2 text-emerald-600">
                         ✓ Released{item.payoutReleasedAt ? ` ${DATE_FMT.format(item.payoutReleasedAt)}` : ""}
@@ -157,7 +157,7 @@ export default async function AdminOrderDetailPage({ params }: Props) {
                   </p>
                 </div>
                 <p className="shrink-0 text-sm tabular-nums text-gray-700">
-                  {formatPrice(item.unitAmount * item.quantity, item.currency)}
+                  {formatPrice(item.unitAmount * item.quantity, order.currency)}
                 </p>
               </li>
             );

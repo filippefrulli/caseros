@@ -75,14 +75,12 @@ export default async function SellerDashboardPage() {
       },
       orderBy: { createdAt: "asc" },
       include: {
-        shippingAddress: true,
         items: {
           where: { sellerId: seller.id },
           select: {
             listingTitle: true,
             quantity: true,
             unitAmount: true,
-            currency: true,
             listing: {
               select: { weightGrams: true, lengthCm: true, widthCm: true, heightCm: true },
             },
@@ -214,7 +212,6 @@ export default async function SellerDashboardPage() {
           <h2 className="mb-4 text-lg font-semibold">Orders to fulfil</h2>
           <ul className="space-y-4">
             {pendingOrders.map((order) => {
-              const addr = order.shippingAddress;
               const firstItem = order.items[0];
               const defaultWeight = firstItem?.listing?.weightGrams ?? null;
               const defaultLength = firstItem?.listing?.lengthCm ?? null;
@@ -241,7 +238,7 @@ export default async function SellerDashboardPage() {
                           <li key={i} className="flex items-center justify-between text-sm">
                             <span className="text-gray-700">{item.listingTitle} × {item.quantity}</span>
                             <span className="tabular-nums text-gray-500">
-                              {formatPrice(item.unitAmount * item.quantity, item.currency)}
+                              {formatPrice(item.unitAmount * item.quantity, order.currency)}
                             </span>
                           </li>
                         ))}
@@ -254,13 +251,13 @@ export default async function SellerDashboardPage() {
                         <Package size={11} className="inline mr-1" />
                         Ship to
                       </p>
-                      {addr ? (
+                      {order.shippingLine1 ? (
                         <address className="not-italic text-sm text-gray-700 leading-relaxed">
                           {order.shippingName && <p className="font-medium">{order.shippingName}</p>}
-                          <p>{addr.line1}{addr.houseNumber ? ` ${addr.houseNumber}` : ""}</p>
-                          {addr.line2 && <p>{addr.line2}</p>}
-                          <p>{addr.postalCode} {addr.city}</p>
-                          <p>{COUNTRY_FMT.of(addr.country) ?? addr.country}</p>
+                          <p>{order.shippingLine1}{order.shippingHouseNumber ? ` ${order.shippingHouseNumber}` : ""}</p>
+                          {order.shippingLine2 && <p>{order.shippingLine2}</p>}
+                          <p>{order.shippingPostalCode} {order.shippingCity}</p>
+                          {order.shippingCountry && <p>{COUNTRY_FMT.of(order.shippingCountry) ?? order.shippingCountry}</p>}
                         </address>
                       ) : (
                         <p className="text-sm text-gray-400 italic">Address not available yet</p>

@@ -60,36 +60,30 @@ export async function POST(req: Request) {
             : session.payment_intent?.id;
         if (!orderId || !paymentIntentId) break;
 
-        // Persist shipping address + recipient name from Stripe Checkout.
-        // Only runs once (guard: shippingAddressId IS NULL) — idempotent on retry.
+        // Snapshot the shipping address from Stripe Checkout onto the Order.
+        // Idempotent: the WHERE guard (shippingLine1 IS NULL) means a retry won't
+        // overwrite an existing snapshot from /api/checkout.
         const order = await prisma.order.findUnique({
           where: { id: orderId },
-          select: { id: true, buyerId: true, shippingAddressId: true },
+          select: { id: true, buyerId: true, shippingLine1: true },
         });
 
         const shippingDetails = session.collected_information?.shipping_details;
         const phone =
           (session as unknown as { customer_details?: { phone?: string | null } }).customer_details?.phone ?? null;
-        if (order && !order.shippingAddressId && shippingDetails?.address) {
+        if (order && !order.shippingLine1 && shippingDetails?.address) {
           const addr = shippingDetails.address;
-          const address = await prisma.address.create({
-            data: {
-              userId: order.buyerId,
-              line1: addr.line1 ?? "",
-              line2: addr.line2 ?? null,
-              city: addr.city ?? "",
-              postalCode: addr.postal_code ?? "",
-              country: addr.country ?? "",
-              phone: phone,
-              email: session.customer_email ?? null,
-            },
-          });
           await prisma.order.update({
             where: { id: orderId },
             data: {
               stripePaymentIntentId: paymentIntentId,
-              shippingAddressId: address.id,
               shippingName: shippingDetails.name ?? null,
+              shippingLine1: addr.line1 ?? "",
+              shippingLine2: addr.line2 ?? null,
+              shippingCity: addr.city ?? "",
+              shippingPostalCode: addr.postal_code ?? "",
+              shippingCountry: addr.country ?? null,
+              shippingPhone: phone,
             },
           });
         } else {
@@ -224,7 +218,7 @@ export async function POST(req: Request) {
           title: i.listingTitle,
           quantity: i.quantity,
           unitAmount: i.unitAmount,
-          currency: i.currency,
+          currency: order.currency,
         }));
         await Promise.all([
           sendOrderConfirmedEmail({

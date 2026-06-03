@@ -10,7 +10,6 @@ type Message = {
   body: string;
   senderId: string;
   createdAt: string;
-  readAt: string | null;
 };
 
 type ThreadData = {

@@ -90,7 +90,7 @@ export default async function ShopPage({ params }: Props) {
           buyerId: dbUser.id,
           status: { in: ["SHIPPED", "DELIVERED"] },
           items: { some: { sellerId: seller.id } },
-          review: null,
+          reviews: { none: { sellerId: seller.id } },
         },
         select: { id: true },
       });

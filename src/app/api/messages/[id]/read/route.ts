@@ -23,14 +23,13 @@ export async function PATCH(_request: Request, { params }: Props) {
   });
   if (!conversation) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const isParticipant =
-    conversation.buyerId === dbUser.id ||
-    (dbUser.seller && conversation.sellerId === dbUser.seller.id);
-  if (!isParticipant) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const isBuyer = conversation.buyerId === dbUser.id;
+  const isSeller = dbUser.seller && conversation.sellerId === dbUser.seller.id;
+  if (!isBuyer && !isSeller) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  await prisma.message.updateMany({
-    where: { conversationId: id, senderId: { not: dbUser.id }, readAt: null },
-    data: { readAt: new Date() },
+  await prisma.conversation.update({
+    where: { id },
+    data: isBuyer ? { buyerLastReadAt: new Date() } : { sellerLastReadAt: new Date() },
   });
 
   return NextResponse.json({ ok: true });

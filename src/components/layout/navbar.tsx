@@ -25,17 +25,32 @@ export async function Navbar() {
 
   const isSeller = !!dbUser?.seller;
 
+  // Count conversations where the other side has spoken since I last read.
+  // Bumping the sender's cursor on message-create means my own messages
+  // never count as unread.
   const unreadCount = dbUser
-    ? await prisma.message.count({
+    ? await prisma.conversation.count({
         where: {
-          readAt: null,
-          senderId: { not: dbUser.id },
-          conversation: {
-            OR: [
-              { buyerId: dbUser.id },
-              ...(dbUser.seller ? [{ sellerId: dbUser.seller.id }] : []),
-            ],
-          },
+          OR: [
+            {
+              buyerId: dbUser.id,
+              OR: [
+                { buyerLastReadAt: null },
+                { lastMessageAt: { gt: prisma.conversation.fields.buyerLastReadAt } },
+              ],
+            },
+            ...(dbUser.seller
+              ? [
+                  {
+                    sellerId: dbUser.seller.id,
+                    OR: [
+                      { sellerLastReadAt: null },
+                      { lastMessageAt: { gt: prisma.conversation.fields.sellerLastReadAt } },
+                    ],
+                  },
+                ]
+              : []),
+          ],
         },
       })
     : 0;

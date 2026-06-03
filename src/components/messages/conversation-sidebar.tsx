@@ -20,28 +20,17 @@ export async function ConversationSidebar({ activeId }: { activeId?: string }) {
 
   const conversations = await prisma.conversation.findMany({
     where: { OR: orClauses },
-    orderBy: { updatedAt: "desc" },
+    orderBy: { lastMessageAt: "desc" },
     include: {
       buyer: { select: { id: true, name: true, email: true } },
       seller: { select: { id: true, shopName: true } },
       messages: {
         orderBy: { createdAt: "desc" },
         take: 1,
-        select: { body: true, createdAt: true, senderId: true, readAt: true },
+        select: { body: true, createdAt: true, senderId: true },
       },
     },
   });
-
-  const unreadCounts = await prisma.message.groupBy({
-    by: ["conversationId"],
-    where: {
-      readAt: null,
-      senderId: { not: dbUser.id },
-      conversation: { OR: orClauses },
-    },
-    _count: { id: true },
-  });
-  const unreadMap = new Map(unreadCounts.map((r) => [r.conversationId, r._count.id]));
 
   if (conversations.length === 0) {
     return (
@@ -59,7 +48,15 @@ export async function ConversationSidebar({ activeId }: { activeId?: string }) {
           ? conv.seller.shopName
           : (conv.buyer.name ?? conv.buyer.email);
         const lastMsg = conv.messages[0];
-        const unread = unreadMap.get(conv.id) ?? 0;
+        const myCursor = isBuyer ? conv.buyerLastReadAt : conv.sellerLastReadAt;
+        // Unread if the other side has spoken since I last read. After I send
+        // a message my cursor is bumped, so my own messages never look unread.
+        const unread =
+          lastMsg &&
+          lastMsg.senderId !== dbUser.id &&
+          (!myCursor || lastMsg.createdAt > myCursor)
+            ? 1
+            : 0;
         const isActive = conv.id === activeId;
 
         return (

@@ -28,13 +28,14 @@ export async function submitReview(_prev: ReviewState, formData: FormData): Prom
   if (!parsed.success) return { error: "Invalid review data." };
   const { sellerId, rating, body } = parsed.data;
 
-  // Find a completed, unreviewed order from this buyer that contains items from this seller
+  // Find a completed order from this buyer with items from this seller
+  // that hasn't yet been reviewed for this specific seller.
   const eligibleOrder = await prisma.order.findFirst({
     where: {
       buyerId: dbUser.id,
       status: { in: ["SHIPPED", "DELIVERED"] },
       items: { some: { sellerId } },
-      review: null,
+      reviews: { none: { sellerId } },
     },
     select: { id: true },
   });

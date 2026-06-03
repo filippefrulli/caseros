@@ -86,7 +86,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
                 <p className="mt-0.5 text-xs text-gray-500">Qty {item.quantity}</p>
               </div>
               <p className="text-sm tabular-nums text-gray-700">
-                {formatPrice(item.unitAmount * item.quantity, item.currency)}
+                {formatPrice(item.unitAmount * item.quantity, order.currency)}
               </p>
             </div>
           ))}

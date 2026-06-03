@@ -23,7 +23,7 @@ async function checkAccess(conversationId: string, dbUser: { id: string; seller:
   return isParticipant ? conversation : null;
 }
 
-export async function GET(request: Request, { params }: Props) {
+export async function GET(_request: Request, { params }: Props) {
   const { id } = await params;
 
   const supabase = await createClient();
@@ -44,7 +44,6 @@ export async function GET(request: Request, { params }: Props) {
       body: true,
       senderId: true,
       createdAt: true,
-      readAt: true,
     },
   });
 
@@ -67,14 +66,21 @@ export async function POST(request: Request, { params }: Props) {
   const { body } = await request.json();
   if (!body?.trim()) return NextResponse.json({ error: "Message body required" }, { status: 400 });
 
+  const now = new Date();
+  const isBuyer = conversation.buyerId === dbUser.id;
+  // Bump conversation.lastMessageAt (powers inbox sort + unread checks) and
+  // advance the sender's read cursor — they've obviously read up to "now".
   const message = await prisma.message.create({
     data: { conversationId: id, senderId: dbUser.id, body: body.trim() },
-    select: { id: true, body: true, senderId: true, createdAt: true, readAt: true },
+    select: { id: true, body: true, senderId: true, createdAt: true },
   });
 
   await prisma.conversation.update({
     where: { id },
-    data: { updatedAt: new Date() },
+    data: {
+      lastMessageAt: now,
+      ...(isBuyer ? { buyerLastReadAt: now } : { sellerLastReadAt: now }),
+    },
   });
 
   return NextResponse.json({ message });
