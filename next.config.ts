@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },
   images: {
+    // Skip Vercel's image optimizer for remote sources. Supabase Storage already
+    // serves cached, CDN-fronted assets — passing them through /_next/image burns
+    // the free-plan optimization quota for negligible benefit. Width/height props
+    // still work as layout hints; the browser just fetches the URL directly.
+    unoptimized: true,
     remotePatterns: [
       {
         // Supabase Storage

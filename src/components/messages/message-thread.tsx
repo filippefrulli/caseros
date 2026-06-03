@@ -30,6 +30,9 @@ export function MessageThread({
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
 
+  // 15s polling. Each poll touches Supabase auth + 3 DB queries; 3s polling
+  // burned through the free-tier API budget with a handful of active threads.
+  // TODO: replace with Supabase Realtime subscription to drop polling entirely.
   const { data } = useQuery<ThreadData>({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
@@ -38,7 +41,7 @@ export function MessageThread({
     },
     initialData,
     staleTime: 0,
-    refetchInterval: 3000,
+    refetchInterval: 15000,
     refetchIntervalInBackground: false,
   });
 

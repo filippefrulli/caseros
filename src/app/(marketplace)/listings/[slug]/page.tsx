@@ -24,40 +24,43 @@ export default async function ListingPage({ params }: Props) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const listing = await prisma.listing.findUnique({
-    where: { slug, status: "ACTIVE", deletedAt: null },
-    include: {
-      seller: {
-        select: {
-          id: true,
-          shopName: true,
-          slug: true,
-          stripeOnboardingDone: true,
-          payoutsEnabled: true,
-          user: { select: { supabaseId: true } },
+  // Parallelize: listing and dbUser are independent. We can't fetch the
+  // Favorite row in parallel because it needs the listing id, but the user
+  // lookup no longer blocks the page render.
+  const [listing, dbUser] = await Promise.all([
+    prisma.listing.findUnique({
+      where: { slug, status: "ACTIVE", deletedAt: null },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            shopName: true,
+            slug: true,
+            stripeOnboardingDone: true,
+            payoutsEnabled: true,
+            user: { select: { supabaseId: true } },
+          },
         },
+        images: { orderBy: { position: "asc" } },
       },
-      images: { orderBy: { position: "asc" } },
-    },
-  });
+    }),
+    user
+      ? prisma.user.findUnique({
+          where: { supabaseId: user.id },
+          select: { id: true },
+        })
+      : Promise.resolve(null),
+  ]);
 
   if (!listing) notFound();
 
   const isOwner = !!user && user.id === listing.seller.user.supabaseId;
 
-  let isFavorited = false;
-  if (user) {
-    const dbUser = await prisma.user.findUnique({
-      where: { supabaseId: user.id },
-      select: { id: true },
-    });
-    if (dbUser) {
-      const fav = await prisma.favorite.findUnique({
+  const isFavorited = dbUser
+    ? !!(await prisma.favorite.findUnique({
         where: { userId_listingId: { userId: dbUser.id, listingId: listing.id } },
-      });
-      isFavorited = !!fav;
-    }
-  }
+      }))
+    : false;
 
   return (
     <main className="mx-auto max-w-5xl px-4 pt-5 pb-10">

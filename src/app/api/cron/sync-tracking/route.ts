@@ -16,8 +16,13 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Shippo not configured." }, { status: 503 });
   }
 
+  // Cap per-run. If a backlog of shipped orders builds up the cron will catch
+  // up over consecutive days rather than risking the 10s function timeout in
+  // one giant batch.
   const shippedOrders = await prisma.order.findMany({
     where: { status: "SHIPPED", shippingTransactionId: { not: null } },
+    orderBy: { updatedAt: "asc" },
+    take: 500,
     include: {
       buyer: { select: { id: true, email: true, name: true } },
       items: { select: { listingTitle: true, quantity: true, unitAmount: true } },

@@ -16,6 +16,8 @@ export default async function AdminSellersPage() {
 
   if (!user || user.email !== env.ADMIN_EMAIL) return notFound();
 
+  // Cap unbounded queries — replace with paginated UI when these tables grow.
+  const SELLERS_CAP = 100;
   const [sellers, activeSellers] = await Promise.all([
     prisma.sellerProfile.findMany({
       where: { status: { in: ["PENDING", "REJECTED"] } },
@@ -25,6 +27,7 @@ export default async function AdminSellersPage() {
         user: { select: { email: true } },
       },
       orderBy: { createdAt: "asc" },
+      take: SELLERS_CAP,
     }),
     prisma.sellerProfile.findMany({
       where: { status: "ACTIVE" },
@@ -36,6 +39,7 @@ export default async function AdminSellersPage() {
         user: { select: { email: true } },
       },
       orderBy: { createdAt: "asc" },
+      take: SELLERS_CAP,
     }),
   ]);
 

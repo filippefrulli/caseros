@@ -43,8 +43,13 @@ export default async function AdminOrdersPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || user.email !== env.ADMIN_EMAIL) return notFound();
 
+  // Cap to the 200 most recent orders. Without a limit the function eventually
+  // hits the 10s timeout once the orders table grows. Replace with paginated UI
+  // before this becomes a problem.
+  const ORDERS_CAP = 200;
   const orders = await prisma.order.findMany({
     orderBy: { createdAt: "desc" },
+    take: ORDERS_CAP,
     include: {
       buyer: { select: { email: true, name: true } },
       items: {
@@ -63,7 +68,10 @@ export default async function AdminOrdersPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Orders</h1>
-          <p className="mt-1 text-sm text-gray-500">{orders.length} total</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Showing {orders.length}
+            {orders.length === ORDERS_CAP ? ` (most recent ${ORDERS_CAP})` : ""}
+          </p>
         </div>
         <Link href="/admin/sellers" className="inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
           <ChevronLeft size={20} />

@@ -60,6 +60,9 @@ export default async function HomePage({ searchParams }: Props) {
         status: "ACTIVE",
         listings: { some: { status: "ACTIVE", deletedAt: null } },
       },
+      // Stable order — without orderBy Postgres returns whatever it wants and
+      // visitors see a different "featured" set on every refresh.
+      orderBy: { createdAt: "desc" },
       select: {
         shopName: true,
         slug: true,

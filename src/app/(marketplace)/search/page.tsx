@@ -15,7 +15,8 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
 export default async function SearchPage({ searchParams }: Props) {
   const sp = await searchParams;
-  const q = sp.q?.trim() ?? "";
+  // Cap input length — `to_tsquery` on multi-MB strings is a cheap DoS surface.
+  const q = (sp.q?.trim() ?? "").slice(0, 100);
   const { selectedCountries, minPrice, maxPrice, sort } = parseFilters(sp);
 
   if (!q) {
