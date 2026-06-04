@@ -244,6 +244,11 @@ model Order {
   // Stripe Checkout Session id; set at /api/checkout time, before the PI exists.
   checkoutSessionId     String? @unique @map("checkout_session_id")
 
+  // Selected shipping service — snapshotted from buyer's rate choice at checkout.
+  // Used at label-generation time to pick the same carrier/service the buyer paid for.
+  shippingServiceProvider String? @map("shipping_service_provider")
+  shippingServiceLevel    String? @map("shipping_service_level")
+
   // Shipping label & tracking (provider-agnostic)
   shippingTransactionId String? @unique @map("shipping_transaction_id")
   trackingCode          String? @map("tracking_code")
@@ -448,6 +453,16 @@ model SellerKyc {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("seller_kyc")
+}
+
+// ─── Platform Settings ────────────────────────────────────────────────────────
+
+// Singleton row (id always = 1). Access via upsert to guarantee existence.
+model PlatformSettings {
+  id                   Int     @id @default(1)
+  labelCreationEnabled Boolean @default(false) @map("label_creation_enabled")
+
+  @@map("platform_settings")
 }
 
 // ─── Stripe ───────────────────────────────────────────────────────────────────

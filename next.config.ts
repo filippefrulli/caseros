@@ -1,16 +1,37 @@
 import type { NextConfig } from "next";
 
-// Baseline security headers applied to every response.
-// NOTE: A Content-Security-Policy is intentionally NOT set here yet —
-// Stripe Checkout, Supabase, and Resend tracking pixels all need allow-listed
-// origins, and a misconfigured CSP will silently break payments. Add CSP via
-// a dedicated PR after testing each integration end-to-end.
+// Stripe Checkout is used via redirect (no embedded JS/Elements), so
+// js.stripe.com does not need to appear in script-src or connect-src.
+// Google Fonts are inlined at build time by next/font, so font-src stays 'self'.
+// Supabase Realtime (WebSocket) is not used, so wss:// is omitted from connect-src.
+//
+// Running as Report-Only — flip the key to "Content-Security-Policy" once a
+// week of violation reports confirms there are no legitimate blocked sources.
+const CSP = [
+  "default-src 'self'",
+  // 'unsafe-inline' required for Next.js hydration scripts; remove once nonces are adopted.
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com",
+  "font-src 'self'",
+  // Supabase auth client makes REST calls to the project URL.
+  "connect-src 'self' https://*.supabase.co",
+  "frame-src 'none'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "upgrade-insecure-requests",
+  "report-uri /api/csp-report",
+].join("; ");
+
 const SECURITY_HEADERS = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(self \"https://js.stripe.com\" \"https://checkout.stripe.com\")" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(self)" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+  { key: "Content-Security-Policy-Report-Only", value: CSP },
 ];
 
 const nextConfig: NextConfig = {

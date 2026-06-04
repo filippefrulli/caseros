@@ -24,6 +24,11 @@ export async function POST(req: Request, { params }: Params) {
     return NextResponse.json({ error: "Shipping not configured." }, { status: 503 });
   }
 
+  const platformSettings = await prisma.platformSettings.findUnique({ where: { id: 1 } });
+  if (!platformSettings?.labelCreationEnabled) {
+    return NextResponse.json({ error: "Label creation is currently disabled." }, { status: 503 });
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
@@ -95,6 +100,8 @@ export async function POST(req: Request, { params }: Params) {
       lengthCm,
       widthCm,
       heightCm,
+      preferredProvider: order.shippingServiceProvider,
+      preferredServiceLevel: order.shippingServiceLevel,
       fromAddress: {
         name: sellerProfile.pickupName ?? sellerProfile.user.email,
         street1: sellerProfile.pickupLine1,

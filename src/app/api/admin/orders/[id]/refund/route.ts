@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
+import { cancelShipment, isShippoConfigured } from "@/lib/shippo";
 import { env } from "@/env";
 
 export const runtime = "nodejs";
@@ -38,6 +39,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
   if (order.status === "REFUNDED" || order.status === "CANCELLED") {
     return NextResponse.json({ error: "Order is already refunded or cancelled." }, { status: 409 });
+  }
+
+  // Void the shipping label when the order was already shipped so the carrier
+  // cost is refunded back to the platform account. Non-fatal — log and continue.
+  if (order.status === "SHIPPED" && order.shippingTransactionId && isShippoConfigured()) {
+    try {
+      await cancelShipment(order.shippingTransactionId);
+    } catch (err) {
+      console.error(`[refund] Shippo label void failed for ${order.shippingTransactionId}:`, err);
+    }
   }
 
   // If any item's payout was already transferred, reverse those transfers first.

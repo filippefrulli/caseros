@@ -112,6 +112,7 @@ async function handleCheckout(req: Request) {
   // Never trust the amount from the client — the buyer could submit any value,
   // including 0, and the seller would eat the carrier cost.
   let shippingTotal = 0;
+  let matchedRate: Awaited<ReturnType<typeof getRates>>[number] | undefined;
   if (!listing.isDigital) {
     if (!address || !shippingRate) {
       return NextResponse.json({ error: "Shipping rate is required." }, { status: 400 });
@@ -159,6 +160,7 @@ async function handleCheckout(req: Request) {
       return NextResponse.json({ error: "Selected shipping rate is no longer available." }, { status: 409 });
     }
     shippingTotal = shippingRate.amount;
+    matchedRate = matched;
   }
 
   const totalAmount = itemsTotal + shippingTotal;
@@ -211,6 +213,12 @@ async function handleCheckout(req: Request) {
             shippingPostalCode: address.postalCode,
             shippingCountry: address.country,
             shippingPhone: address.phone ?? null,
+          }
+        : {}),
+      ...(matchedRate
+        ? {
+            shippingServiceProvider: matchedRate.provider,
+            shippingServiceLevel: matchedRate.servicelevel,
           }
         : {}),
       items: {

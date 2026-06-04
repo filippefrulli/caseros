@@ -46,6 +46,10 @@ export type CreateShipmentParams = {
   lengthCm?: number | null;
   widthCm?: number | null;
   heightCm?: number | null;
+  // Preferred carrier/service snapshotted from buyer's rate choice at checkout.
+  // When set, label generation picks this service over the cheapest available.
+  preferredProvider?: string | null;
+  preferredServiceLevel?: string | null;
 };
 
 export type CreatedShipment = {
@@ -85,6 +89,8 @@ export async function createShipment(params: CreateShipmentParams): Promise<Crea
     object_id: string;
     rates: Array<{
       object_id: string;
+      provider: string;
+      servicelevel: { name: string };
       amount: string;
       currency: string;
       estimated_days: number;
@@ -95,16 +101,27 @@ export async function createShipment(params: CreateShipmentParams): Promise<Crea
     throw new Error("Shippo returned no available rates for this shipment.");
   }
 
-  // Pick cheapest available rate.
   const cheapestRate = shipment.rates.reduce((best, r) =>
     parseFloat(r.amount) < parseFloat(best.amount) ? r : best,
   );
+
+  // Honour the buyer's original service choice when possible.
+  const preferredRate =
+    params.preferredProvider && params.preferredServiceLevel
+      ? shipment.rates.find(
+          (r) =>
+            r.provider === params.preferredProvider &&
+            r.servicelevel?.name === params.preferredServiceLevel,
+        )
+      : undefined;
+
+  const chosenRate = preferredRate ?? cheapestRate;
 
   // Step 2 — purchase label.
   const transaction = await shippoFetch("/transactions", {
     method: "POST",
     body: JSON.stringify({
-      rate: cheapestRate.object_id,
+      rate: chosenRate.object_id,
       label_file_type: "PDF",
       async: false,
     }),

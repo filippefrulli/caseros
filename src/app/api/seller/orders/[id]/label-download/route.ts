@@ -39,13 +39,9 @@ export async function GET(_req: Request, { params }: Params) {
   }
 
   // Shippo label URLs are stable signed S3 URLs — fetch directly.
-  let pdfRes = await fetch(order.labelDocumentLink);
+  const pdfRes = await fetch(order.labelDocumentLink);
   if (!pdfRes.ok) {
     return NextResponse.json({ error: "Could not retrieve label — please try again later." }, { status: 502 });
-  }
-
-  if (!pdfRes.ok) {
-    return NextResponse.json({ error: "Could not retrieve label from Sendcloud." }, { status: 502 });
   }
 
   const shortId = orderId.slice(-8).toUpperCase();

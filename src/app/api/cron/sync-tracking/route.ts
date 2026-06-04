@@ -33,7 +33,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ updated: 0 });
   }
 
-  // Batch in chunks of 100 (Sendcloud limit).
+  // Batch in chunks to avoid hammering the API in one shot.
   const BATCH = 100;
   let updated = 0;
 
