@@ -11,6 +11,9 @@ const schema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
+const emailSchema = z.string().email("Enter a valid email address");
+const passwordSchema = z.string().min(8, "Password must be at least 8 characters");
+
 export type AuthActionState = {
   error?: string;
   fieldErrors?: Partial<Record<"email" | "password", string[]>>;
@@ -99,4 +102,48 @@ export async function signUpWithEmail(
   }
 
   return { success: "Check your inbox and click the confirmation link to finish signing up." };
+}
+
+export async function requestPasswordReset(
+  _prev: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const parsed = emailSchema.safeParse(formData.get("email")?.toString().trim());
+
+  if (!parsed.success) {
+    return { fieldErrors: { email: parsed.error.flatten().formErrors } };
+  }
+
+  const headersList = await headers();
+  const origin = headersList.get("origin") ?? "";
+
+  const supabase = await createClient();
+  await supabase.auth.resetPasswordForEmail(parsed.data, {
+    redirectTo: `${origin}/auth/callback?next=/reset-password`,
+  });
+
+  // Always return success to avoid leaking whether the email exists.
+  return {
+    success: "If that email has an account, you'll receive a reset link shortly.",
+  };
+}
+
+export async function updatePassword(
+  _prev: AuthActionState,
+  formData: FormData,
+): Promise<AuthActionState> {
+  const parsed = passwordSchema.safeParse(formData.get("password")?.toString());
+
+  if (!parsed.success) {
+    return { fieldErrors: { password: parsed.error.flatten().formErrors } };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password: parsed.data });
+
+  if (error) {
+    return { error: "Failed to update password. Your reset link may have expired — please request a new one." };
+  }
+
+  redirect("/login");
 }
