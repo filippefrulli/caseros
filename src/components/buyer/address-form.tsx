@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { saveBuyerAddress, type BuyerAddressState } from "@/lib/actions/buyer";
+import { ChevronDown } from "lucide-react";
 
 const EU_COUNTRIES = [
   ["IE", "Ireland"], ["AT", "Austria"], ["BE", "Belgium"], ["BG", "Bulgaria"],
@@ -15,6 +16,7 @@ const EU_COUNTRIES = [
 ] as const;
 
 const inputCls = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+const selectCls = `${inputCls} appearance-none pr-8`;
 
 type InitialAddress = {
   id: string;
@@ -107,11 +109,14 @@ export function AddressForm({ initial }: Props) {
         <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
           Country <span className="text-red-500">*</span>
         </label>
-        <select id="country" name="country" required defaultValue={values?.country ?? "IE"} className={inputCls}>
-          {EU_COUNTRIES.map(([code, name]) => (
-            <option key={code} value={code}>{name}</option>
-          ))}
-        </select>
+        <div className="relative">
+          <select id="country" name="country" required defaultValue={values?.country ?? "IE"} className={selectCls}>
+            {EU_COUNTRIES.map(([code, name]) => (
+              <option key={code} value={code}>{name}</option>
+            ))}
+          </select>
+          <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        </div>
         {state?.fieldErrors?.country && <p className="mt-1 text-xs text-red-600">{state.fieldErrors.country[0]}</p>}
       </div>
 

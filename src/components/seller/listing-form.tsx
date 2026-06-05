@@ -3,6 +3,7 @@
 import { useActionState, useState, useCallback } from "react";
 import { createListing, updateListing, type ListingActionState } from "@/lib/actions/listing";
 import { MediaUploader } from "@/components/seller/media-uploader";
+import { ChevronDown } from "lucide-react";
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
@@ -28,6 +29,7 @@ function Label({
 
 const inputClass =
   "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+const selectClass = `${inputClass} appearance-none pr-8`;
 
 type Category = { id: string; name: string };
 type ExistingListing = {
@@ -81,18 +83,21 @@ export function ListingForm({ userId, categories, listing }: Props) {
         <Label htmlFor="categoryId" required>
           Category
         </Label>
+        <div className="relative">
         <select
           id="categoryId"
           name="categoryId"
           required
           defaultValue={listing?.categoryId ?? ""}
-          className={inputClass}
+          className={selectClass}
         >
           <option value="" disabled>Select a category…</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </select>
+        <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        </div>
         <FieldError messages={state?.fieldErrors?.categoryId} />
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { updatePickupAddress, type PickupAddressState } from "@/lib/actions/seller";
+import { ChevronDown } from "lucide-react";
 
 const EU_COUNTRIES = [
   ["AT", "Austria"], ["BE", "Belgium"], ["BG", "Bulgaria"], ["HR", "Croatia"],
@@ -15,6 +16,7 @@ const EU_COUNTRIES = [
 ] as const;
 
 const inputCls = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+const selectCls = `${inputCls} appearance-none pr-8`;
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
@@ -118,12 +120,15 @@ export function PickupAddressForm({ initial }: Props) {
         <label htmlFor="pickupCountry" className="block text-sm font-medium text-gray-700 mb-1">
           Country <span className="text-red-500">*</span>
         </label>
-        <select id="pickupCountry" name="pickupCountry" required defaultValue={values.pickupCountry ?? ""} className={inputCls}>
-          <option value="" disabled>Select country…</option>
-          {EU_COUNTRIES.map(([code, name]) => (
-            <option key={code} value={code}>{name}</option>
-          ))}
-        </select>
+        <div className="relative">
+          <select id="pickupCountry" name="pickupCountry" required defaultValue={values.pickupCountry ?? ""} className={selectCls}>
+            <option value="" disabled>Select country…</option>
+            {EU_COUNTRIES.map(([code, name]) => (
+              <option key={code} value={code}>{name}</option>
+            ))}
+          </select>
+          <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        </div>
         <FieldError messages={state?.fieldErrors?.pickupCountry} />
       </div>
 

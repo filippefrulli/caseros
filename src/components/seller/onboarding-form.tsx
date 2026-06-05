@@ -91,6 +91,7 @@ function toSlug(value: string) {
 // ─── Shared primitives ────────────────────────────────────────────────────────
 
 const inputCls = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+const selectCls = `${inputCls} appearance-none pr-8`;
 
 function Field({ label, hint, required, children }: {
   label: string; hint?: string; required?: boolean; children: React.ReactNode;
@@ -487,16 +488,19 @@ export function OnboardingForm({ userId }: { userId: string }) {
           </Field>
 
           <Field label="Country" required>
-            <select
-              value={form.country}
-              onChange={e => set({ country: e.target.value })}
-              className={inputCls}
-            >
-              <option value="" disabled>Select your country</option>
-              {EU_COUNTRIES.map(c => (
-                <option key={c.code} value={c.code}>{c.name}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={form.country}
+                onChange={e => set({ country: e.target.value })}
+                className={selectCls}
+              >
+                <option value="" disabled>Select your country</option>
+                {EU_COUNTRIES.map(c => (
+                  <option key={c.code} value={c.code}>{c.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            </div>
           </Field>
         </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { ChevronDown } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import type { ShippoRate } from "@/lib/shippo";
 
@@ -42,6 +43,7 @@ const countryName = (code: string) =>
 
 const inputClass =
   "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+const selectClass = `${inputClass} appearance-none pr-8`;
 
 type Address = {
   name: string;
@@ -347,11 +349,14 @@ export function CheckoutFlow({
 
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Country</label>
-            <select value={address.country} onChange={setField("country")} className={inputClass}>
-              {EU_COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>{c.name}</option>
-              ))}
-            </select>
+            <div className="relative">
+              <select value={address.country} onChange={setField("country")} className={selectClass}>
+                {EU_COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>{c.name}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            </div>
           </div>
 
           <div>
