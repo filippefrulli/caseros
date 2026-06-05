@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createServiceClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/prisma";
@@ -65,14 +64,9 @@ export default async function AdminSellersPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Seller Review</h1>
-          <p className="mt-1 text-sm text-gray-500">{sellers.length} seller{sellers.length === 1 ? "" : "s"} pending review</p>
-        </div>
-        <Link href="/admin/orders" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors">
-          Orders →
-        </Link>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold">Seller Review</h1>
+        <p className="mt-1 text-sm text-gray-500">{sellers.length} seller{sellers.length === 1 ? "" : "s"} pending review</p>
       </div>
 
       {sellers.length === 0 ? (

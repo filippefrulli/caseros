@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
@@ -65,17 +64,12 @@ export default async function AdminOrdersPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-12">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Orders</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Showing {orders.length}
-            {orders.length === ORDERS_CAP ? ` (most recent ${ORDERS_CAP})` : ""}
-          </p>
-        </div>
-        <Link href="/admin/sellers" className="inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
-          <ChevronLeft size={20} />
-        </Link>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold">Orders</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Showing {orders.length}
+          {orders.length === ORDERS_CAP ? ` (most recent ${ORDERS_CAP})` : ""}
+        </p>
       </div>
 
       {orders.length === 0 ? (
