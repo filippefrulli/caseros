@@ -32,7 +32,7 @@ export function AdminNav({ pendingSellers }: { pendingSellers: number }) {
             <Icon size={16} className="shrink-0" />
             <span className="flex-1">{label}</span>
             {label === "Sellers" && pendingSellers > 0 && (
-              <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums ${active ? "bg-white text-gray-900" : "bg-amber-100 text-amber-700"}`}>
+              <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums ${active ? "bg-white text-gray-900" : "bg-warning text-warning-fg"}`}>
                 {pendingSellers}
               </span>
             )}

@@ -29,7 +29,7 @@ export function EmailSignUpForm() {
   return (
     <form action={action} className="space-y-4">
       {state?.error && (
-        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{state.error}</p>
+        <p className="rounded-lg bg-error-subtle px-4 py-3 text-sm text-error">{state.error}</p>
       )}
 
       <div>
@@ -46,7 +46,7 @@ export function EmailSignUpForm() {
           className={inputClass}
         />
         {state?.fieldErrors?.email && (
-          <p className="mt-1 text-xs text-red-600">{state.fieldErrors.email[0]}</p>
+          <p className="mt-1 text-xs text-error">{state.fieldErrors.email[0]}</p>
         )}
       </div>
 
@@ -74,7 +74,7 @@ export function EmailSignUpForm() {
           </button>
         </div>
         {state?.fieldErrors?.password && (
-          <p className="mt-1 text-xs text-red-600">{state.fieldErrors.password[0]}</p>
+          <p className="mt-1 text-xs text-error">{state.fieldErrors.password[0]}</p>
         )}
       </div>
 

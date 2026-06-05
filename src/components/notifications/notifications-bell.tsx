@@ -44,7 +44,7 @@ const TYPE_META: Record<
   ORDER_PAID: { icon: CheckCircle2, tone: "text-green-500" },
   ORDER_SHIPPED: { icon: Truck, tone: "text-blue-500" },
   ORDER_DELIVERED: { icon: PackageCheck, tone: "text-green-600" },
-  ORDER_CANCELLED: { icon: XCircle, tone: "text-red-500" },
+  ORDER_CANCELLED: { icon: XCircle, tone: "text-error" },
   ORDER_REFUNDED: { icon: RotateCcw, tone: "text-amber-500" },
   NEW_MESSAGE: { icon: MessageCircle, tone: "text-blue-500" },
   NEW_REVIEW: { icon: Star, tone: "text-yellow-500" },
@@ -136,7 +136,7 @@ export function NotificationsBell({ notifications, unreadCount }: NotificationsB
       >
         <Bell size={20} />
         {localUnread > 0 && (
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
+          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-error" />
         )}
       </button>
 

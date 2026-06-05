@@ -41,7 +41,7 @@ export function LabelCreationToggle({ enabled }: { enabled: boolean }) {
               ? "Sellers can currently generate shipping labels."
               : "Label creation is disabled. Sellers cannot generate labels until you re-enable this."}
           </p>
-          {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+          {error && <p className="mt-1 text-xs text-error">{error}</p>}
         </div>
       </div>
       <button
@@ -50,7 +50,7 @@ export function LabelCreationToggle({ enabled }: { enabled: boolean }) {
         className={[
           "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50",
           enabled
-            ? "border border-red-200 text-red-600 hover:bg-red-50"
+            ? "border border-error text-error hover:bg-error-subtle"
             : "bg-emerald-600 text-white hover:bg-emerald-700",
         ].join(" ")}
       >

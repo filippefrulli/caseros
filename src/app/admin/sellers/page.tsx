@@ -90,8 +90,8 @@ export default async function AdminSellersPage() {
                       <h2 className="text-lg font-semibold">{seller.shopName}</h2>
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                         seller.status === "REJECTED"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-amber-100 text-amber-700"
+                          ? "bg-error-subtle text-error"
+                          : "bg-warning text-warning-fg"
                       }`}>
                         {seller.status}
                       </span>
@@ -155,7 +155,7 @@ export default async function AdminSellersPage() {
 
                 {/* KYC denial notes */}
                 {kyc?.reviewNotes && (
-                  <div className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
+                  <div className="mt-4 rounded-lg bg-error-subtle px-3 py-2 text-xs text-error">
                     <span className="font-medium">Previous denial note:</span> {kyc.reviewNotes}
                   </div>
                 )}

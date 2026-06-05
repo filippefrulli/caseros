@@ -5,6 +5,8 @@ import { NewOrderEmail } from "@/emails/new-order";
 import { PayoutReleasedEmail } from "@/emails/payout-released";
 import { OrderDeliveredEmail } from "@/emails/order-delivered";
 import { OrderShippedEmail } from "@/emails/order-shipped";
+import { AdminSellerApplicationEmail } from "@/emails/admin-seller-application";
+import { AdminNewOrderEmail } from "@/emails/admin-new-order";
 
 const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
@@ -150,6 +152,62 @@ export async function sendOrderDeliveredEmail({
       react: OrderDeliveredEmail({ buyerName, orderId, items, totalAmount, currency, appUrl }),
     },
     { idempotencyKey: `order-delivered/${orderId}` },
+  );
+}
+
+export async function sendAdminSellerApplicationEmail({
+  shopName,
+  sellerType,
+  appUrl,
+}: {
+  shopName: string;
+  sellerType: string;
+  appUrl: string;
+}) {
+  if (!resend) {
+    console.warn("[email] RESEND_API_KEY not set — skipping admin seller application email");
+    return;
+  }
+  if (!env.ADMIN_EMAIL) return;
+  await send(
+    {
+      from: FROM,
+      to: env.ADMIN_EMAIL,
+      subject: `New seller application: ${shopName}`,
+      react: AdminSellerApplicationEmail({ shopName, sellerType, appUrl }),
+    },
+    { idempotencyKey: `admin-seller-application/${shopName}` },
+  );
+}
+
+export async function sendAdminNewOrderEmail({
+  orderId,
+  buyerEmail,
+  items,
+  totalAmount,
+  currency,
+  appUrl,
+}: {
+  orderId: string;
+  buyerEmail: string;
+  items: OrderItem[];
+  totalAmount: number;
+  currency: string;
+  appUrl: string;
+}) {
+  if (!resend) {
+    console.warn("[email] RESEND_API_KEY not set — skipping admin new order email");
+    return;
+  }
+  if (!env.ADMIN_EMAIL) return;
+  await send(
+    {
+      from: FROM,
+      to: env.ADMIN_EMAIL,
+      subject: `New order #${orderId.slice(-8).toUpperCase()}`,
+      react: AdminNewOrderEmail({ orderId, buyerEmail, items, totalAmount, currency, appUrl }),
+    },
+    { idempotencyKey: `admin-new-order/${orderId}` },
   );
 }
 

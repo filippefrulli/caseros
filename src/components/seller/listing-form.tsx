@@ -3,11 +3,12 @@
 import { useActionState, useState, useCallback } from "react";
 import { createListing, updateListing, type ListingActionState } from "@/lib/actions/listing";
 import { MediaUploader } from "@/components/seller/media-uploader";
+import { StripeConnectButton } from "@/components/seller/stripe-connect-button";
 import { ChevronDown } from "lucide-react";
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
-  return <p className="mt-1 text-sm text-red-600">{messages[0]}</p>;
+  return <p className="mt-1 text-sm text-error">{messages[0]}</p>;
 }
 
 function Label({
@@ -22,7 +23,7 @@ function Label({
   return (
     <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700">
       {children}
-      {required && <span className="ml-0.5 text-red-500"> *</span>}
+      {required && <span className="ml-0.5 text-error"> *</span>}
     </label>
   );
 }
@@ -63,9 +64,21 @@ export function ListingForm({ userId, categories, listing }: Props) {
   return (
     <form action={action} className="space-y-6">
       {state?.error && (
-        <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="rounded-md bg-error-subtle px-4 py-3 text-sm text-error">
           {state.error}
         </p>
+      )}
+
+      {state?.stripeRequired && (
+        <div className="rounded-lg border border-warning bg-warning-subtle px-4 py-4">
+          <p className="text-sm font-medium text-text-primary">Listing saved as a draft</p>
+          <p className="mt-1 text-sm text-warning-fg">
+            Connect your Stripe account to publish it and start receiving payments.
+          </p>
+          <div className="mt-3">
+            <StripeConnectButton />
+          </div>
+        </div>
       )}
 
       {listing && <input type="hidden" name="listingId" value={listing.id} />}
@@ -264,10 +277,26 @@ export function ListingForm({ userId, categories, listing }: Props) {
       )}
 
       <div className="flex gap-3 pt-2">
+        {listing?.status === "DRAFT" && (
+          <button
+            type="submit"
+            name="publishNow"
+            value="true"
+            disabled={isPending || uploading || !!state?.stripeRequired}
+            className="flex-1 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+          >
+            {isPending ? "Saving…" : "Save & publish"}
+          </button>
+        )}
+
         <button
           type="submit"
-          disabled={isPending || uploading}
-          className="flex-1 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+          disabled={isPending || uploading || !!state?.stripeRequired}
+          className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 ${
+            listing?.status === "DRAFT"
+              ? "border border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-900"
+              : "bg-gray-900 text-white hover:bg-gray-700"
+          }`}
         >
           {uploading ? "Uploading media…" : isPending ? "Saving…" : listing ? "Save changes" : "Save listing"}
         </button>

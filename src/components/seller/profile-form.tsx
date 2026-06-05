@@ -31,7 +31,7 @@ const PLATFORMS = [
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
-  return <p className="mt-1 text-xs text-red-600">{messages[0]}</p>;
+  return <p className="mt-1 text-xs text-error">{messages[0]}</p>;
 }
 
 export function ProfileForm({ bio, socialLinks }: Props) {
@@ -57,7 +57,7 @@ export function ProfileForm({ bio, socialLinks }: Props) {
         </div>
       )}
       {state?.error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg bg-error-subtle border border-error px-4 py-3 text-sm text-error">
           {state.error}
         </div>
       )}

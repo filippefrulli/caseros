@@ -12,7 +12,7 @@ export function ChatIcon({ unreadCount }: { unreadCount: number }) {
     >
       <MessageCircle size={20} />
       {unreadCount > 0 && (
-        <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
+        <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-error" />
       )}
     </Link>
   );

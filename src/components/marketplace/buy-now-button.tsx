@@ -108,7 +108,7 @@ export function BuyNowButton({ listingId, slug, stock, payable, isLoggedIn, isDi
               : "Buy now"}
       </button>
 
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-xs text-error">{error}</p>}
     </div>
   );
 }

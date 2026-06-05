@@ -75,8 +75,8 @@ export function GenerateLabelButton({
 
   if (!sellerPickupReady) {
     return (
-      <p className="mt-3 text-xs text-amber-700">
-        <Link href="/seller/profile" className="underline hover:text-amber-900">
+      <p className="mt-3 text-xs text-warning-fg">
+        <Link href="/seller/profile" className="underline hover:text-warning-fg">
           Add your pickup address
         </Link>{" "}
         to generate a shipping label.
@@ -121,7 +121,7 @@ export function GenerateLabelButton({
 
   return (
     <div className="mt-3 rounded-lg border border-gray-200 p-3 space-y-3">
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-error">{error}</p>}
 
       <div className="grid grid-cols-2 gap-2">
         <div>

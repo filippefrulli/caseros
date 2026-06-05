@@ -99,7 +99,7 @@ function Field({ label, hint, required, children }: {
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700">
-        {label}{required && <span className="ml-0.5 text-red-500">*</span>}
+        {label}{required && <span className="ml-0.5 text-error">*</span>}
       </label>
       <div className="mt-1">{children}</div>
       {hint && <p className="mt-1 text-xs text-gray-400">{hint}</p>}
@@ -305,11 +305,11 @@ export function OnboardingForm({ userId }: { userId: string }) {
         </details>
 
         {form.sellerType === "INDIVIDUAL" && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <div className="rounded-xl border border-warning bg-warning-subtle p-4">
             <div className="flex items-start gap-3">
               <AlertTriangle size={15} className="mt-0.5 shrink-0 text-amber-500" />
               <div className="space-y-3">
-                <p className="text-sm text-amber-900">
+                <p className="text-sm text-warning-fg">
                   <strong>Please note:</strong> Consumer rights (14-day returns) will not apply to your sales.
                   Buyers purchasing from private individuals are not entitled to the same protections as when buying from a trader.
                 </p>
@@ -320,7 +320,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
                     onChange={e => set({ disclaimerAcknowledged: e.target.checked })}
                     className="mt-0.5 h-4 w-4 rounded border-amber-300 accent-gray-900"
                   />
-                  <span className="text-sm text-amber-900">I understand and accept this</span>
+                  <span className="text-sm text-warning-fg">I understand and accept this</span>
                 </label>
               </div>
             </div>
@@ -559,7 +559,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
         {/* Video upload */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Workstation video <span className="text-red-500">*</span>
+            Workstation video <span className="text-error">*</span>
           </label>
           <p className="mt-0.5 text-xs text-gray-400">
             Record a short video (15–60 sec) showing your workspace and tools. This helps us confirm you're a genuine maker.
@@ -588,7 +588,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
               </button>
             )}
 
-            {videoError && <p className="mt-1.5 text-xs text-red-600">{videoError}</p>}
+            {videoError && <p className="mt-1.5 text-xs text-error">{videoError}</p>}
 
             <input
               ref={videoInputRef}
@@ -604,7 +604,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
         {/* Social links */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Social media / website <span className="text-red-500">*</span>
+            Social media / website <span className="text-error">*</span>
           </label>
           <p className="mt-0.5 text-xs text-gray-400">
             At least one link required. Share where buyers (and we) can see your work.
@@ -631,7 +631,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
         </div>
 
         {submitError && (
-          <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{submitError}</p>
+          <p className="rounded-lg bg-error-subtle px-4 py-3 text-sm text-error">{submitError}</p>
         )}
 
         <div className="flex gap-3 pt-2">

@@ -54,7 +54,7 @@ export function AddressForm({ initial }: Props) {
         </div>
       )}
       {state?.error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg border border-error bg-error-subtle px-4 py-3 text-sm text-error">
           {state.error}
         </div>
       )}
@@ -63,19 +63,19 @@ export function AddressForm({ initial }: Props) {
 
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-          Full name <span className="text-red-500">*</span>
+          Full name <span className="text-error">*</span>
         </label>
         <input id="name" name="name" type="text" required defaultValue={values?.name ?? ""} placeholder="Jane Smith" className={inputCls} />
-        {state?.fieldErrors?.name && <p className="mt-1 text-xs text-red-600">{state.fieldErrors.name[0]}</p>}
+        {state?.fieldErrors?.name && <p className="mt-1 text-xs text-error">{state.fieldErrors.name[0]}</p>}
       </div>
 
       <div className="grid grid-cols-4 gap-2">
         <div className="col-span-3">
           <label htmlFor="line1" className="block text-sm font-medium text-gray-700 mb-1">
-            Street <span className="text-red-500">*</span>
+            Street <span className="text-error">*</span>
           </label>
           <input id="line1" name="line1" type="text" required defaultValue={values?.line1 ?? ""} placeholder="Main Street" className={inputCls} />
-          {state?.fieldErrors?.line1 && <p className="mt-1 text-xs text-red-600">{state.fieldErrors.line1[0]}</p>}
+          {state?.fieldErrors?.line1 && <p className="mt-1 text-xs text-error">{state.fieldErrors.line1[0]}</p>}
         </div>
         <div>
           <label htmlFor="houseNumber" className="block text-sm font-medium text-gray-700 mb-1">No.</label>
@@ -91,23 +91,23 @@ export function AddressForm({ initial }: Props) {
       <div className="grid grid-cols-2 gap-2">
         <div>
           <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
-            Postal code <span className="text-red-500">*</span>
+            Postal code <span className="text-error">*</span>
           </label>
           <input id="postalCode" name="postalCode" type="text" required defaultValue={values?.postalCode ?? ""} placeholder="D01 F5P2" className={inputCls} />
-          {state?.fieldErrors?.postalCode && <p className="mt-1 text-xs text-red-600">{state.fieldErrors.postalCode[0]}</p>}
+          {state?.fieldErrors?.postalCode && <p className="mt-1 text-xs text-error">{state.fieldErrors.postalCode[0]}</p>}
         </div>
         <div>
           <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-            City <span className="text-red-500">*</span>
+            City <span className="text-error">*</span>
           </label>
           <input id="city" name="city" type="text" required defaultValue={values?.city ?? ""} placeholder="Dublin" className={inputCls} />
-          {state?.fieldErrors?.city && <p className="mt-1 text-xs text-red-600">{state.fieldErrors.city[0]}</p>}
+          {state?.fieldErrors?.city && <p className="mt-1 text-xs text-error">{state.fieldErrors.city[0]}</p>}
         </div>
       </div>
 
       <div>
         <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
-          Country <span className="text-red-500">*</span>
+          Country <span className="text-error">*</span>
         </label>
         <div className="relative">
           <select id="country" name="country" required defaultValue={values?.country ?? "IE"} className={selectCls}>
@@ -117,7 +117,7 @@ export function AddressForm({ initial }: Props) {
           </select>
           <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
         </div>
-        {state?.fieldErrors?.country && <p className="mt-1 text-xs text-red-600">{state.fieldErrors.country[0]}</p>}
+        {state?.fieldErrors?.country && <p className="mt-1 text-xs text-error">{state.fieldErrors.country[0]}</p>}
       </div>
 
       <div>

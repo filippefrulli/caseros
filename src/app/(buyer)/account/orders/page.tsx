@@ -26,8 +26,8 @@ const STATUS_STYLE: Record<OrderStatus, string> = {
   PROCESSING: "bg-blue-100 text-blue-800",
   SHIPPED: "bg-violet-100 text-violet-800",
   DELIVERED: "bg-emerald-100 text-emerald-800",
-  CANCELLED: "bg-red-100 text-red-700",
-  REFUNDED: "bg-amber-100 text-amber-800",
+  CANCELLED: "bg-error-subtle text-error",
+  REFUNDED: "bg-warning text-warning-fg",
 };
 
 const DATE_FMT = new Intl.DateTimeFormat("en-GB", {

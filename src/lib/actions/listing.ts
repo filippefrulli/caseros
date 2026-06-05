@@ -38,6 +38,7 @@ export type ListingActionState = {
   fieldErrors?: Partial<
     Record<"title" | "description" | "priceEuros" | "stock" | "categoryId" | "weightGrams" | "dimensions", string[]>
   >;
+  stripeRequired?: boolean;
 } | null;
 
 function toSlug(title: string): string {
@@ -98,8 +99,31 @@ export async function createListing(
   });
   if (!seller) return { error: "Seller profile not found." };
 
+  // Stripe not connected — save as draft so no work is lost, then prompt to connect.
   if (publishNow && !seller.stripeOnboardingDone) {
-    return { error: "Connect your Stripe account before publishing a listing." };
+    await prisma.listing.create({
+      data: {
+        sellerId: seller.id,
+        categoryId,
+        title,
+        slug: toSlug(title),
+        description,
+        priceAmount: Math.round(priceEuros * 100),
+        currency: seller.currency,
+        stock,
+        isDigital: isDigitalListing,
+        videoUrl,
+        weightGrams: weightGrams ?? null,
+        lengthCm: lengthCm ?? null,
+        widthCm: widthCm ?? null,
+        heightCm: heightCm ?? null,
+        status: "DRAFT",
+        images: {
+          create: imageUrls.map((url, position) => ({ url, position })),
+        },
+      },
+    });
+    return { stripeRequired: true };
   }
 
   if (publishNow && !isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
@@ -154,13 +178,14 @@ export async function updateListing(
     lengthCm: formData.get("lengthCm") || null,
     widthCm: formData.get("widthCm") || null,
     heightCm: formData.get("heightCm") || null,
+    publishNow: formData.get("publishNow") ?? undefined,
   });
 
   if (!parsed.success) {
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
-  const { categoryId, title, description, priceEuros, stock, isDigital, weightGrams, lengthCm, widthCm, heightCm } = parsed.data;
+  const { categoryId, title, description, priceEuros, stock, isDigital, weightGrams, lengthCm, widthCm, heightCm, publishNow } = parsed.data;
   const isDigitalListing = isDigital === "true";
 
   if (!isDigitalListing) {
@@ -181,6 +206,19 @@ export async function updateListing(
   });
   if (!existing) return { error: "Listing not found." };
 
+  if (publishNow) {
+    const seller = await prisma.sellerProfile.findFirst({
+      where: { user: { supabaseId: user.id } },
+    });
+    if (!seller) return { error: "Seller profile not found." };
+
+    if (!seller.stripeOnboardingDone) return { stripeRequired: true };
+
+    if (!isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
+      return { error: "Add your pickup address in your profile before publishing a physical listing." };
+    }
+  }
+
   await prisma.$transaction(async (tx) => {
     await tx.listingImage.deleteMany({ where: { listingId } });
     await tx.listing.update({
@@ -197,6 +235,7 @@ export async function updateListing(
         lengthCm: lengthCm ?? null,
         widthCm: widthCm ?? null,
         heightCm: heightCm ?? null,
+        ...(publishNow ? { status: "ACTIVE" } : {}),
         images: {
           create: imageUrls.map((url, position) => ({ url, position })),
         },
@@ -212,6 +251,38 @@ function storagePathFromUrl(url: string, bucket: string): string | null {
   const idx = url.indexOf(marker);
   if (idx === -1) return null;
   return url.slice(idx + marker.length);
+}
+
+export async function publishListing(listingId: string): Promise<{ error?: string; stripeRequired?: boolean } | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "You must be signed in." };
+
+  const [listing, seller] = await Promise.all([
+    prisma.listing.findFirst({
+      where: { id: listingId, seller: { user: { supabaseId: user.id } }, deletedAt: null },
+      select: { id: true, isDigital: true },
+    }),
+    prisma.sellerProfile.findFirst({
+      where: { user: { supabaseId: user.id } },
+    }),
+  ]);
+
+  if (!listing) return { error: "Listing not found." };
+  if (!seller) return { error: "Seller profile not found." };
+
+  if (!seller.stripeOnboardingDone) return { stripeRequired: true };
+
+  if (!listing.isDigital && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
+    return { error: "Add your pickup address in your profile before publishing." };
+  }
+
+  await prisma.listing.update({
+    where: { id: listing.id },
+    data: { status: "ACTIVE" },
+  });
+
+  redirect("/seller/dashboard");
 }
 
 export async function deleteListing(listingId: string): Promise<{ error: string } | null> {

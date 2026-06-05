@@ -97,7 +97,7 @@ export function AvatarUploader({ userId, currentUrl, displayName }: Props) {
         </div>
       </button>
 
-{error && <p className="text-sm text-red-600">{error}</p>}
+{error && <p className="text-sm text-error">{error}</p>}
 
       <input
         ref={inputRef}

@@ -20,7 +20,7 @@ const selectCls = `${inputCls} appearance-none pr-8`;
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
-  return <p className="mt-1 text-xs text-red-600">{messages[0]}</p>;
+  return <p className="mt-1 text-xs text-error">{messages[0]}</p>;
 }
 
 type Props = {
@@ -63,14 +63,14 @@ export function PickupAddressForm({ initial }: Props) {
         </div>
       )}
       {state?.error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg bg-error-subtle border border-error px-4 py-3 text-sm text-error">
           {state.error}
         </div>
       )}
 
       <div>
         <label htmlFor="pickupName" className="block text-sm font-medium text-gray-700 mb-1">
-          Name <span className="text-red-500">*</span>
+          Name <span className="text-error">*</span>
         </label>
         <input id="pickupName" name="pickupName" type="text" required defaultValue={values.pickupName ?? ""} placeholder="Your name or business name" className={inputCls} />
         <FieldError messages={state?.fieldErrors?.pickupName} />
@@ -79,7 +79,7 @@ export function PickupAddressForm({ initial }: Props) {
       <div className="grid grid-cols-3 gap-3">
         <div className="col-span-2">
           <label htmlFor="pickupLine1" className="block text-sm font-medium text-gray-700 mb-1">
-            Street <span className="text-red-500">*</span>
+            Street <span className="text-error">*</span>
           </label>
           <input id="pickupLine1" name="pickupLine1" type="text" required defaultValue={values.pickupLine1 ?? ""} placeholder="Street name" className={inputCls} />
           <FieldError messages={state?.fieldErrors?.pickupLine1} />
@@ -102,14 +102,14 @@ export function PickupAddressForm({ initial }: Props) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label htmlFor="pickupPostalCode" className="block text-sm font-medium text-gray-700 mb-1">
-            Postal code <span className="text-red-500">*</span>
+            Postal code <span className="text-error">*</span>
           </label>
           <input id="pickupPostalCode" name="pickupPostalCode" type="text" required defaultValue={values.pickupPostalCode ?? ""} placeholder="e.g. 1010" className={inputCls} />
           <FieldError messages={state?.fieldErrors?.pickupPostalCode} />
         </div>
         <div>
           <label htmlFor="pickupCity" className="block text-sm font-medium text-gray-700 mb-1">
-            City <span className="text-red-500">*</span>
+            City <span className="text-error">*</span>
           </label>
           <input id="pickupCity" name="pickupCity" type="text" required defaultValue={values.pickupCity ?? ""} placeholder="e.g. Vienna" className={inputCls} />
           <FieldError messages={state?.fieldErrors?.pickupCity} />
@@ -118,7 +118,7 @@ export function PickupAddressForm({ initial }: Props) {
 
       <div>
         <label htmlFor="pickupCountry" className="block text-sm font-medium text-gray-700 mb-1">
-          Country <span className="text-red-500">*</span>
+          Country <span className="text-error">*</span>
         </label>
         <div className="relative">
           <select id="pickupCountry" name="pickupCountry" required defaultValue={values.pickupCountry ?? ""} className={selectCls}>
@@ -134,7 +134,7 @@ export function PickupAddressForm({ initial }: Props) {
 
       <div>
         <label htmlFor="pickupPhone" className="block text-sm font-medium text-gray-700 mb-1">
-          Phone <span className="text-red-500">*</span>
+          Phone <span className="text-error">*</span>
         </label>
         <input id="pickupPhone" name="pickupPhone" type="tel" required defaultValue={values.pickupPhone ?? ""} placeholder="+43 123 456 789" className={inputCls} />
         <FieldError messages={state?.fieldErrors?.pickupPhone} />

@@ -4,7 +4,7 @@ import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/env";
 import { Prisma } from "@/generated/prisma/client";
-import { sendOrderConfirmedEmail, sendNewOrderEmail } from "@/lib/email";
+import { sendOrderConfirmedEmail, sendNewOrderEmail, sendAdminNewOrderEmail } from "@/lib/email";
 
 // Webhook handlers need Node crypto for signature verification and must always
 // run at request time — never cached, never prerendered, never on Edge.
@@ -240,6 +240,14 @@ export async function POST(req: Request) {
               appUrl: env.NEXT_PUBLIC_APP_URL,
             }),
           ),
+          sendAdminNewOrderEmail({
+            orderId: order.id,
+            buyerEmail: order.buyer.email,
+            items: emailItems,
+            totalAmount: order.totalAmount,
+            currency: order.currency,
+            appUrl: env.NEXT_PUBLIC_APP_URL,
+          }),
         ]);
         break;
       }

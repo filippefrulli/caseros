@@ -10,6 +10,7 @@ import { formatPrice } from "@/lib/utils";
 import { Clock, XCircle, AlertCircle, Package, UserPen, Plus, Pencil } from "lucide-react";
 import { GenerateLabelButton } from "@/components/seller/generate-label-button";
 import { DeleteListingButton } from "@/components/seller/delete-listing-button";
+import { PublishListingButton } from "@/components/seller/publish-listing-button";
 import { isShippoConfigured } from "@/lib/shippo";
 import type { ListingStatus } from "@/generated/prisma/client";
 
@@ -27,8 +28,8 @@ const LISTING_STATUS_LABEL: Record<ListingStatus, string> = {
 const LISTING_STATUS_STYLE: Record<ListingStatus, string> = {
   DRAFT: "bg-gray-100 text-gray-700",
   ACTIVE: "bg-green-100 text-green-800",
-  PAUSED: "bg-amber-100 text-amber-800",
-  SOLD_OUT: "bg-red-100 text-red-700",
+  PAUSED: "bg-warning text-warning-fg",
+  SOLD_OUT: "bg-error-subtle text-error",
   ARCHIVED: "bg-gray-100 text-gray-500",
 };
 
@@ -111,11 +112,11 @@ export default async function SellerDashboardPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 pt-6 pb-12">
       {seller.status === "PENDING" && (
-        <div className="mb-8 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5">
+        <div className="mb-8 flex items-start gap-3 rounded-xl border border-warning bg-warning-subtle p-5">
           <Clock size={18} className="mt-0.5 shrink-0 text-amber-500" />
           <div>
-            <p className="font-semibold text-amber-900">Your shop is pending review</p>
-            <p className="mt-0.5 text-sm text-amber-700">
+            <p className="font-semibold text-warning-fg">Your shop is pending review</p>
+            <p className="mt-0.5 text-sm text-warning-fg">
               We're reviewing your verification materials to confirm you're an EU-based maker.
               This typically takes 1–3 business days. We'll notify you once your shop is approved.
             </p>
@@ -124,11 +125,11 @@ export default async function SellerDashboardPage() {
       )}
 
       {seller.status === "REJECTED" && (
-        <div className="mb-8 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-5">
-          <XCircle size={18} className="mt-0.5 shrink-0 text-red-500" />
+        <div className="mb-8 flex items-start gap-3 rounded-xl border border-error bg-error-subtle p-5">
+          <XCircle size={18} className="mt-0.5 shrink-0 text-error" />
           <div>
-            <p className="font-semibold text-red-900">Your shop application was not approved</p>
-            <p className="mt-0.5 text-sm text-red-700">
+            <p className="font-semibold text-error">Your shop application was not approved</p>
+            <p className="mt-0.5 text-sm text-error">
               Unfortunately we were unable to verify your shop at this time. Please contact us if you have questions.
             </p>
           </div>
@@ -136,11 +137,11 @@ export default async function SellerDashboardPage() {
       )}
 
       {seller.status === "ACTIVE" && !seller.stripeOnboardingDone && (
-        <div className="mb-8 flex items-start gap-3 rounded-xl border border-violet-200 bg-violet-50 p-5">
-          <AlertCircle size={18} className="mt-0.5 shrink-0 text-violet-500" />
+        <div className="mb-8 flex items-start gap-3 rounded-xl border border-warning bg-warning-subtle p-5">
+          <AlertCircle size={18} className="mt-0.5 shrink-0 text-warning-fg" />
           <div className="flex-1">
-            <p className="font-semibold text-violet-900">Connect your Stripe account to get paid</p>
-            <p className="mt-0.5 text-sm text-violet-700">
+            <p className="font-semibold text-text-primary">Connect your Stripe account to get paid</p>
+            <p className="mt-0.5 text-sm text-warning-fg">
               Buyers can only purchase your listings once your payout account is connected. It takes a few minutes via Stripe.
             </p>
           </div>
@@ -149,11 +150,11 @@ export default async function SellerDashboardPage() {
       )}
 
       {seller.status === "ACTIVE" && seller.stripeOnboardingDone && !seller.payoutsEnabled && (
-        <div className="mb-8 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5">
+        <div className="mb-8 flex items-start gap-3 rounded-xl border border-warning bg-warning-subtle p-5">
           <Clock size={18} className="mt-0.5 shrink-0 text-amber-500" />
           <div className="flex-1">
-            <p className="font-semibold text-amber-900">Payout account under review</p>
-            <p className="mt-0.5 text-sm text-amber-700">
+            <p className="font-semibold text-warning-fg">Payout account under review</p>
+            <p className="mt-0.5 text-sm text-warning-fg">
               Stripe is verifying your details. This usually takes a few minutes. Buyers will be able to purchase once verification completes.
             </p>
           </div>
@@ -199,10 +200,6 @@ export default async function SellerDashboardPage() {
         <div className="rounded-xl border border-gray-200 p-5">
           <p className="text-2xl font-bold sm:text-3xl">{formatPrice(totalRevenue, "EUR")}</p>
           <p className="mt-1 text-sm text-gray-500">Revenue</p>
-        </div>
-        <div className="rounded-xl border border-gray-200 p-5">
-          <p className="text-2xl font-bold sm:text-3xl">{Math.round(Number(seller.commissionRate) * 100)}%</p>
-          <p className="mt-1 text-sm text-gray-500">Platform fee</p>
         </div>
       </div>
 
@@ -337,13 +334,18 @@ export default async function SellerDashboardPage() {
                     </div>
                   </Link>
                   <div className="border-t border-gray-100 px-4 py-1 flex items-center justify-between">
-                    <Link
-                      href={`/seller/listings/${l.slug}/edit`}
-                      className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors py-2 px-1"
-                    >
-                      <Pencil size={13} />
-                      Edit
-                    </Link>
+                    <div className="flex items-center gap-1">
+                      <Link
+                        href={`/seller/listings/${l.slug}/edit`}
+                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors py-2 px-1"
+                      >
+                        <Pencil size={13} />
+                        Edit
+                      </Link>
+                      {l.status === "DRAFT" && (
+                        <PublishListingButton listingId={l.id} />
+                      )}
+                    </div>
                     <DeleteListingButton listingId={l.id} listingTitle={l.title} />
                   </div>
                 </li>

@@ -45,7 +45,7 @@ export function SellerActions({ sellerId }: { sellerId: string }) {
         <button
           onClick={() => setShowDenyForm(v => !v)}
           disabled={loading !== null}
-          className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-1.5 rounded-lg border border-error px-3 py-1.5 text-sm font-medium text-error hover:bg-error-subtle disabled:opacity-50 transition-colors"
         >
           <XCircle size={13} />
           Deny
@@ -64,7 +64,7 @@ export function SellerActions({ sellerId }: { sellerId: string }) {
           <button
             onClick={deny}
             disabled={loading !== null}
-            className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-1.5 rounded-lg bg-error px-3 py-1.5 text-sm font-medium text-white hover:bg-error-hover disabled:opacity-50 transition-colors"
           >
             {loading === "deny" ? <Loader2 size={13} className="animate-spin" /> : null}
             Confirm denial

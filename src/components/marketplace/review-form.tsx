@@ -63,7 +63,7 @@ export function ReviewForm({ sellerId }: { sellerId: string }) {
       </div>
 
       {state?.error && (
-        <p className="text-sm text-red-600">{state.error}</p>
+        <p className="text-sm text-error">{state.error}</p>
       )}
 
       <button

@@ -35,7 +35,7 @@ export function DeleteListingButton({ listingId, listingTitle }: Props) {
     <>
       <button
         onClick={open}
-        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-600 transition-colors py-2 px-1"
+        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-error transition-colors py-2 px-1"
         aria-label={`Delete ${listingTitle}`}
       >
         <Trash2 size={13} />
@@ -53,7 +53,7 @@ export function DeleteListingButton({ listingId, listingTitle }: Props) {
         </p>
 
         {error && (
-          <p className="mt-3 text-sm text-red-600">{error}</p>
+          <p className="mt-3 text-sm text-error">{error}</p>
         )}
 
         <div className="mt-5 flex justify-end gap-3">
@@ -69,7 +69,7 @@ export function DeleteListingButton({ listingId, listingTitle }: Props) {
             type="button"
             onClick={confirm}
             disabled={isPending}
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+            className="rounded-lg bg-error px-4 py-2 text-sm font-medium text-white hover:bg-error-hover transition-colors disabled:opacity-50"
           >
             {isPending ? "Deleting…" : "Delete permanently"}
           </button>

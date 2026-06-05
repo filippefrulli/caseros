@@ -43,11 +43,11 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
   return (
     <main className="mx-auto max-w-xl px-4 pt-6 pb-12">
       {isPending ? (
-        <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5">
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-warning bg-warning-subtle p-5">
           <Clock size={20} className="mt-0.5 shrink-0 text-amber-500" />
           <div>
-            <p className="font-semibold text-amber-900">Confirming your payment…</p>
-            <p className="mt-0.5 text-sm text-amber-700">
+            <p className="font-semibold text-warning-fg">Confirming your payment…</p>
+            <p className="mt-0.5 text-sm text-warning-fg">
               Your payment was submitted. We're waiting for Stripe to confirm — refresh this page
               in a moment.
             </p>

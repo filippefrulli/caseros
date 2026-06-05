@@ -86,7 +86,7 @@ export async function ConversationSidebar({ activeId }: { activeId?: string }) {
               )}
             </div>
             {unread > 0 && (
-              <span className="h-2 w-2 shrink-0 rounded-full bg-red-500" />
+              <span className="h-2 w-2 shrink-0 rounded-full bg-error" />
             )}
           </Link>
         );

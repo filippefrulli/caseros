@@ -32,7 +32,7 @@ export function ReleasePayoutButton({ orderId }: { orderId: string }) {
         {loading ? <Loader2 size={13} className="animate-spin" /> : <DollarSign size={13} />}
         Release payout
       </button>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-error">{error}</p>}
     </div>
   );
 }

@@ -152,7 +152,7 @@ export function MediaUploader({ userId, onBusyChange, initialImages, initialVide
       <div>
         <div className="mb-2 flex items-center justify-between">
           <label className="block text-sm font-medium text-gray-700">
-            Photos <span className="text-red-500">*</span>
+            Photos <span className="text-error">*</span>
           </label>
           <span className="text-xs text-gray-400">
             {images.length}/{MAX_IMAGES}
@@ -179,7 +179,7 @@ export function MediaUploader({ userId, onBusyChange, initialImages, initialVide
                 </div>
               )}
               {img.error && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-red-500/80 p-1">
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-error/80 p-1">
                   <AlertCircle className="h-4 w-4 text-white" />
                   <p className="text-center text-[10px] text-white">{img.error}</p>
                 </div>
@@ -245,7 +245,7 @@ export function MediaUploader({ userId, onBusyChange, initialImages, initialVide
                 </div>
               )}
               {video.error && (
-                <p className="text-sm text-red-600">{video.error}</p>
+                <p className="text-sm text-error">{video.error}</p>
               )}
               {video.url && (
                 <>

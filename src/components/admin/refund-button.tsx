@@ -32,7 +32,7 @@ export function RefundButton({ orderId, totalAmount }: { orderId: string; totalA
     return (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+        className="flex items-center gap-1.5 rounded-lg border border-error px-3 py-1.5 text-sm font-medium text-error hover:bg-error-subtle transition-colors"
       >
         <RotateCcw size={13} />
         Refund order
@@ -50,7 +50,7 @@ export function RefundButton({ orderId, totalAmount }: { orderId: string; totalA
         <button
           onClick={submit}
           disabled={loading}
-          className="flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-1.5 rounded-lg bg-error px-3 py-1.5 text-sm font-medium text-white hover:bg-error-hover disabled:opacity-50 transition-colors"
         >
           {loading ? <Loader2 size={13} className="animate-spin" /> : null}
           Confirm full refund
@@ -63,7 +63,7 @@ export function RefundButton({ orderId, totalAmount }: { orderId: string; totalA
           Cancel
         </button>
       </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-error">{error}</p>}
     </div>
   );
 }

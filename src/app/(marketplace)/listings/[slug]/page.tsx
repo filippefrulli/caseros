@@ -29,7 +29,7 @@ export default async function ListingPage({ params }: Props) {
   // lookup no longer blocks the page render.
   const [listing, dbUser] = await Promise.all([
     prisma.listing.findUnique({
-      where: { slug, status: "ACTIVE", deletedAt: null },
+      where: { slug, deletedAt: null },
       include: {
         seller: {
           select: {
@@ -56,6 +56,9 @@ export default async function ListingPage({ params }: Props) {
 
   const isOwner = !!user && user.id === listing.seller.user.supabaseId;
 
+  // Non-active listings are only visible to their owner.
+  if (listing.status !== "ACTIVE" && !isOwner) notFound();
+
   const isFavorited = dbUser
     ? !!(await prisma.favorite.findUnique({
         where: { userId_listingId: { userId: dbUser.id, listingId: listing.id } },
@@ -67,6 +70,12 @@ export default async function ListingPage({ params }: Props) {
       <Link href="/" className="mb-8 inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
         <ChevronLeft size={25} />
       </Link>
+
+      {listing.status === "DRAFT" && (
+        <div className="mb-6 rounded-lg border border-warning bg-warning-subtle px-4 py-3 text-sm text-warning-fg">
+          This listing is a <strong>draft</strong>, only you can see it. Publish it from your dashboard when it&apos;s ready.
+        </div>
+      )}
 
       <div className="grid gap-10 md:grid-cols-2">
         {/* Images */}

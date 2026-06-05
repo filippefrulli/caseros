@@ -93,12 +93,12 @@ function StatCard({
   highlight?: boolean;
 }) {
   return (
-    <div className={`rounded-xl border p-4 ${highlight ? "border-amber-200 bg-amber-50" : "border-gray-200 bg-white"}`}>
+    <div className={`rounded-xl border p-4 ${highlight ? "border-warning bg-warning-subtle" : "border-gray-200 bg-white"}`}>
       <Icon size={16} className={`mb-3 ${highlight ? "text-amber-500" : "text-gray-400"}`} />
-      <p className={`text-2xl font-bold tabular-nums ${highlight ? "text-amber-700" : "text-gray-900"}`}>
+      <p className={`text-2xl font-bold tabular-nums ${highlight ? "text-warning-fg" : "text-gray-900"}`}>
         {value}
       </p>
-      <p className={`mt-0.5 text-xs ${highlight ? "text-amber-600" : "text-gray-500"}`}>{label}</p>
+      <p className={`mt-0.5 text-xs ${highlight ? "text-warning-fg" : "text-gray-500"}`}>{label}</p>
     </div>
   );
 }
@@ -129,7 +129,7 @@ function NavCard({
         </div>
         {badge && (
           <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-            badgeVariant === "warning" ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-600"
+            badgeVariant === "warning" ? "bg-warning text-warning-fg" : "bg-gray-100 text-gray-600"
           }`}>
             {badge}
           </span>

@@ -227,7 +227,7 @@ export function CheckoutFlow({
             <span className="tabular-nums font-medium">{formatPrice(itemsTotal, currency)}</span>
           </div>
         </div>
-        {checkoutError && <p className="text-sm text-red-600">{checkoutError}</p>}
+        {checkoutError && <p className="text-sm text-error">{checkoutError}</p>}
         <button
           onClick={handlePayment}
           disabled={checkoutLoading}
@@ -242,7 +242,7 @@ export function CheckoutFlow({
   // ── Shipping not available ─────────────────────────────────────────────────
   if (!shippoReady || !sellerPickupReady) {
     return (
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800">
+      <div className="rounded-xl border border-warning bg-warning-subtle p-5 text-sm text-warning-fg">
         {!shippoReady
           ? "Shipping is not yet configured for this platform."
           : "The seller has not set up their shipping address yet. Check back soon."}
@@ -373,7 +373,7 @@ export function CheckoutFlow({
             {ratesLoading ? "Fetching shipping options…" : "Check shipping options →"}
           </button>
 
-          {ratesError && <p className="text-xs text-red-600">{ratesError}</p>}
+          {ratesError && <p className="text-xs text-error">{ratesError}</p>}
         </div>
       )}
 
@@ -386,7 +386,7 @@ export function CheckoutFlow({
 
       {/* ── Rate error (saved address mode) ── */}
       {ratesError && !showForm && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="rounded-xl border border-error bg-error-subtle p-4 text-sm text-error">
           {ratesError}
         </div>
       )}
@@ -453,7 +453,7 @@ export function CheckoutFlow({
               <span className="tabular-nums">{formatPrice(grandTotal, currency)}</span>
             </div>
           </div>
-          {checkoutError && <p className="text-sm text-red-600">{checkoutError}</p>}
+          {checkoutError && <p className="text-sm text-error">{checkoutError}</p>}
           <button
             onClick={handlePayment}
             disabled={checkoutLoading}

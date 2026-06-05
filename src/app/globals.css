@@ -24,6 +24,21 @@
   --border:        #E5E1D8;   /* warm-beige default dividers                */
   --border-strong: #D4D0C8;   /* stronger-emphasis borders                  */
 
+  /* ── Error / destructive ── */
+  --error:        #BF4D43;   /* error text, borders, destructive actions   */
+  --error-hover:  #A34038;   /* darker shade for hover states              */
+  --error-subtle: #F5ECE9;   /* very light tint for error backgrounds      */
+
+  /* ── Warning / notice ── */
+  --warning:        #EBDBBC;   /* warning border and background accent     */
+  --warning-subtle: #FAF7F0;   /* very light tint for warning panels       */
+  --warning-fg:     #7A5C24;   /* warm brown text for warning contexts     */
+
+  /* ── Terracotta (warm copper accent) ── */
+  --terracotta:        #D4A27F;   /* warm copper — highlights, tags, accents  */
+  --terracotta-hover:  #C08B64;   /* slightly deeper for hover states         */
+  --terracotta-subtle: #FAF2EC;   /* very light tint for backgrounds          */
+
   /* ── Shadows (softer against cream) ── */
   --shadow-card:  0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.04);
   --shadow-hover: 0 4px 20px 0 rgb(0 0 0 / 0.08);
@@ -59,6 +74,21 @@
   /* Borders */
   --color-border:        var(--border);
   --color-border-strong: var(--border-strong);
+
+  /* Error */
+  --color-error:        var(--error);
+  --color-error-hover:  var(--error-hover);
+  --color-error-subtle: var(--error-subtle);
+
+  /* Warning */
+  --color-warning:        var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-warning-fg:     var(--warning-fg);
+
+  /* Terracotta */
+  --color-terracotta:        var(--terracotta);
+  --color-terracotta-hover:  var(--terracotta-hover);
+  --color-terracotta-subtle: var(--terracotta-subtle);
 
   /* Shadows */
   --shadow-card:  var(--shadow-card);

@@ -33,7 +33,7 @@ export default async function LoginPage({
 
           <div className="mt-6 space-y-5">
             {error && (
-              <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+              <p className="rounded-lg bg-error-subtle px-4 py-3 text-sm text-error">
                 {error === "missing_code"
                   ? "Sign-in failed. Please try again."
                   : error === "auth_failed"
