@@ -5,6 +5,12 @@ const PROTECTED_PATHS = ["/account", "/seller", "/messages", "/checkout", "/admi
 const ADMIN_PATHS = ["/admin"];
 
 export async function proxy(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  if (process.env.MAINTENANCE_MODE === "true" && pathname !== "/maintenance") {
+    return NextResponse.rewrite(new URL("/maintenance", request.url));
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -30,7 +36,6 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
   const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
   const isAdminPath = ADMIN_PATHS.some((p) => pathname.startsWith(p));
 
