@@ -22,40 +22,7 @@ the refund unless you also call `stripe.transfers.createReversal`. The
 admin refund route does this — verify it covers all refund paths (Stripe
 Dashboard refunds also fire the same webhook).
 
----
 
-## 7. Implement GDPR data export + account deletion
-
-`src/app/(legal)/legal/privacy/page.tsx:128` enumerates GDPR rights (access,
-rectification, erasure, portability) but there is no in-app path to exercise
-them. Currently users would have to email you and you'd run SQL by hand —
-acceptable at very low volume, not at scale.
-
-**Minimum acceptable for launch** (manual, but documented):
-
-1. Privacy policy must list an email address that requests go to.
-2. Have an internal runbook (in `docs/` or Notion) describing:
-   - How to assemble an export: union of `User`, `SellerProfile`, `SellerKyc`,
-     `Address`, `Order` (where buyer or seller), `OrderItem`, `Message`,
-     `Review`, `Favorite`, `Notification`.
-   - How to delete: which rows cascade vs. require manual handling. Note that
-     `Order` has financial-record retention obligations — under EU tax law
-     you generally **cannot** delete completed orders for 7–10 years; document
-     this in the privacy policy ("we anonymise rather than delete invoices").
-
-**Better, post-launch:**
-
-- `/account/data-export` server action that produces a JSON download.
-- `/account/delete` server action that:
-  - Anonymises `User.email`, `User.name`, `User.avatarUrl`.
-  - Deletes `Address`, `Favorite`, `Notification`.
-  - Hard-deletes `Message` bodies but keeps conversation rows.
-  - Leaves `Order`/`OrderItem` intact (financial retention) but unlinks
-    personal data.
-  - Soft-deletes `SellerProfile` and `Listing`.
-- Both flows emit an audit log row for legal traceability.
-
----
 
 ## 9. Rate-limit user-facing endpoints
 

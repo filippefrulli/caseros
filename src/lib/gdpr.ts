@@ -95,26 +95,32 @@ export async function anonymiseAccount(supabaseId: string): Promise<void> {
       await tx.sellerKyc.deleteMany({ where: { sellerId } });
       await tx.sellerSocialLinks.deleteMany({ where: { sellerId } });
 
-      // Soft-delete all listings so they disappear from the marketplace.
-      await tx.listing.updateMany({
-        where: { sellerId, deletedAt: null },
-        data: { deletedAt: new Date(), status: "ARCHIVED" },
-      });
+      // Hard-delete all listings. Prisma cascades handle the rest:
+      // ListingImage → Cascade, Favorite (other users') → Cascade,
+      // OrderItem.listingId → SetNull (snapshots preserved), Conversation.listingId → SetNull.
+      await tx.listing.deleteMany({ where: { sellerId } });
     }
   });
 
-  // Best-effort storage cleanup — non-fatal if it fails.
-  try {
-    const supabase = createServiceClient();
-    const { data: files } = await supabase.storage.from("avatars").list(supabaseId);
-    if (files && files.length > 0) {
-      await supabase.storage
-        .from("avatars")
-        .remove(files.map((f) => `${supabaseId}/${f.name}`));
-    }
-  } catch {
-    console.warn("[gdpr] avatar storage cleanup failed (non-fatal)");
-  }
+  // Best-effort storage cleanup — non-fatal if any bucket fails.
+  const supabase = createServiceClient();
+  const buckets = ["avatars", "listing-images", "listing-videos"];
+  await Promise.allSettled(
+    buckets.map(async (bucket) => {
+      const { data: files } = await supabase.storage.from(bucket).list(supabaseId);
+      if (files && files.length > 0) {
+        await supabase.storage
+          .from(bucket)
+          .remove(files.map((f) => `${supabaseId}/${f.name}`));
+      }
+    }),
+  ).then((results) => {
+    results.forEach((r, i) => {
+      if (r.status === "rejected") {
+        console.warn(`[gdpr] storage cleanup failed for bucket "${buckets[i]}" (non-fatal):`, r.reason);
+      }
+    });
+  });
 
   // Delete the Supabase auth user last — after the DB is fully committed.
   // If this fails, the DB is already anonymised; an admin can remove the stale
