@@ -13,16 +13,16 @@ export async function Navbar() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
   const name = user?.user_metadata?.full_name as string | undefined;
 
   const dbUser = user
     ? await prisma.user.findUnique({
         where: { supabaseId: user.id },
-        select: { id: true, seller: { select: { id: true } } },
+        select: { id: true, avatarUrl: true, seller: { select: { id: true } } },
       })
     : null;
 
+  const avatarUrl = dbUser?.avatarUrl ?? (user?.user_metadata?.avatar_url as string | undefined);
   const isSeller = !!dbUser?.seller;
 
   // Count conversations where the other side has spoken since I last read.

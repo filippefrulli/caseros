@@ -75,7 +75,7 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
                 alt={name ?? "Profile"}
                 width={40}
                 height={40}
-                className="rounded-full"
+                className="rounded-full h-10 w-10"
               />
             ) : (
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-700 select-none">
@@ -181,7 +181,7 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
             alt={name ?? "Profile"}
             width={32}
             height={32}
-            className="rounded-full"
+            className="rounded-full h-8 w-8"
           />
         ) : (
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-semibold text-gray-700 select-none">

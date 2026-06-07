@@ -20,7 +20,18 @@ export async function GET(request: Request) {
 
   const { id, email, user_metadata } = data.user;
 
-  // Upsert into our users table — runs on every sign-in to keep profile data fresh
+  // Upsert into our users table — runs on every sign-in to keep profile data fresh.
+  // Guard: if the account was previously deleted, sign out immediately rather than
+  // restoring anonymised fields with fresh OAuth data.
+  const existing = await prisma.user.findUnique({
+    where: { supabaseId: id },
+    select: { deletedAt: true },
+  });
+  if (existing?.deletedAt) {
+    await supabase.auth.signOut();
+    return NextResponse.redirect(`${origin}/login?error=account_deleted`);
+  }
+
   await prisma.user.upsert({
     where: { supabaseId: id },
     create: {

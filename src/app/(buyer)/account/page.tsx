@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AvatarUploader } from "@/components/seller/avatar-uploader";
+import { DeleteAccountDialog } from "@/components/account/delete-account-dialog";
 import { MapPin, ShoppingBag, Heart } from "lucide-react";
 
 export const metadata: Metadata = { title: "My Account" };
@@ -52,7 +53,7 @@ export default async function AccountPage() {
       </div>
 
       {/* Quick links */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 mb-12">
         <Link href="/account/orders" className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:border-gray-300 hover:bg-gray-50 transition-colors">
           <ShoppingBag size={18} className="shrink-0 text-gray-500" />
           <div>
@@ -74,6 +75,14 @@ export default async function AccountPage() {
             <p className="text-xs text-gray-400">Manage saved address</p>
           </div>
         </Link>
+      </div>
+      {/* Danger zone */}
+      <div className="border-t border-border pt-8">
+        <h2 className="text-sm font-semibold text-text-primary mb-1">Danger zone</h2>
+        <p className="text-sm text-text-muted mb-4">
+          Permanently delete your account and erase your personal data.
+        </p>
+        <DeleteAccountDialog />
       </div>
     </main>
   );
