@@ -91,9 +91,17 @@ export async function anonymiseAccount(supabaseId: string): Promise<void> {
         },
       });
 
-      // Hard-delete sensitive data that has no legitimate retention basis.
-      await tx.sellerKyc.deleteMany({ where: { sellerId } });
+      // Social links have no retention basis — delete immediately.
       await tx.sellerSocialLinks.deleteMany({ where: { sellerId } });
+
+      // KYC must be retained under AML law (EU 6AMLD / Irish CJA 2010 s.55)
+      // for 5 years after the business relationship ends. We keep for 6 years
+      // (one-year buffer) and let the purge cron handle the final deletion.
+      const SIX_YEARS_MS = 6 * 365.25 * 24 * 60 * 60 * 1000;
+      await tx.sellerKyc.updateMany({
+        where: { sellerId },
+        data: { retainUntil: new Date(Date.now() + SIX_YEARS_MS) },
+      });
 
       // Hard-delete all listings. Prisma cascades handle the rest:
       // ListingImage → Cascade, Favorite (other users') → Cascade,

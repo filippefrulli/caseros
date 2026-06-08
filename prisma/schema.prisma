@@ -450,9 +450,14 @@ model SellerKyc {
   verifiedAt             DateTime? @map("verified_at")
   reviewNotes            String?   @map("review_notes")
 
+  // AML retention — set when the seller's account is deleted; purged by cron
+  // once the period expires. Null means the record is live (not yet flagged).
+  retainUntil DateTime? @map("retain_until")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@index([retainUntil])
   @@map("seller_kyc")
 }
 
