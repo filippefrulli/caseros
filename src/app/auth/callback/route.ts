@@ -8,20 +8,38 @@ import { track } from "@vercel/analytics/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const token_hash = searchParams.get("token_hash");
+  const type = searchParams.get("type");
   const next = searchParams.get("next") ?? "/";
 
-  if (!code) {
+  const supabase = await createClient();
+  let user: { id: string; email?: string; user_metadata?: Record<string, unknown> } | null = null;
+
+  if (token_hash && type) {
+    // Email confirmation opened in a different browser context (no PKCE cookie).
+    // verifyOtp is stateless — no code verifier required.
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash,
+      type: type as Parameters<typeof supabase.auth.verifyOtp>[0]["type"],
+    });
+    if (error || !data.user) {
+      console.error("[auth/callback] verifyOtp failed:", error?.message);
+      return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+    }
+    user = data.user;
+  } else if (code) {
+    // Standard PKCE flow (OAuth or same-session email confirmation).
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error || !data.user) {
+      console.error("[auth/callback] exchangeCodeForSession failed:", error?.message);
+      return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+    }
+    user = data.user;
+  } else {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
   }
 
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-  if (error || !data.user) {
-    return NextResponse.redirect(`${origin}/login?error=auth_failed`);
-  }
-
-  const { id, email, user_metadata } = data.user;
+  const { id, email, user_metadata } = user as { id: string; email: string; user_metadata: Record<string, unknown> };
 
   // Upsert into our users table — runs on every sign-in to keep profile data fresh.
   // Guard: if the account was previously deleted, sign out immediately rather than
