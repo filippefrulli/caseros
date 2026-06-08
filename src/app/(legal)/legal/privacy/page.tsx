@@ -13,7 +13,7 @@ export default function PrivacyPolicyPage() {
           Caseros is an online marketplace connecting buyers with independent European artisans
           selling handmade and craft goods. References to "Caseros", "we", "us", or "our" in
           this policy refer to the operator of this platform. If you have questions about this
-          policy, contact us at <a href="mailto:privacy@caseros.com" className="underline">privacy@caseros.com</a>.
+          policy, contact us at <a href="mailto:filippe.frulli@caseros.eu" className="underline">filippe.frulli@caseros.eu</a>.
         </p>
       </Section>
 
@@ -137,7 +137,7 @@ export default function PrivacyPolicyPage() {
         </ul>
         <p className="mt-3">
           To exercise any of these rights, email us at{" "}
-          <a href="mailto:privacy@caseros.com" className="underline">privacy@caseros.com</a>. We will
+          <a href="mailto:filippe.frulli@caseros.eu" className="underline">filippe.frulli@caseros.eu</a>. We will
           respond within 30 days. You also have the right to lodge a complaint with your local
           data protection authority.
         </p>

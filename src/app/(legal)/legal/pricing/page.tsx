@@ -117,8 +117,8 @@ export default function PricingPage() {
 
       <div className="mt-12 border-t border-gray-100 pt-8 text-sm text-gray-400">
         Questions? Contact us at{" "}
-        <a href="mailto:hello@caseros.eu" className="underline hover:text-gray-700">
-          hello@caseros.eu
+        <a href="mailto:filippe.frulli@caseros.eu" className="underline hover:text-gray-700">
+          filippe.frulli@caseros.eu
         </a>{" "}
         or read our{" "}
         <Link href="/legal/terms" className="underline hover:text-gray-700">

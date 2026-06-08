@@ -100,7 +100,7 @@ export default function CookiePolicyPage() {
       <Section title="5. Contact">
         <p>
           If you have questions about our use of cookies, contact us at{" "}
-          <a href="mailto:privacy@caseros.com" className="underline">privacy@caseros.com</a>.
+          <a href="mailto:filippe.frulli@caseros.eu" className="underline">filippe.frulli@caseros.eu</a>.
         </p>
       </Section>
     </main>

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Support" };
 
-const SUPPORT_EMAIL = "support@caseros.eu";
+const SUPPORT_EMAIL = "filippe.frulli@caseros.eu";
 
 export default function SupportPage() {
   return (
