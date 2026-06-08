@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { recordConsent } from "@/lib/consent";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -93,11 +94,16 @@ export async function signUpWithEmail(
   // Email confirmation disabled — user is immediately active
   if (data.session && data.user) {
     const u = data.user;
-    await prisma.user.upsert({
+    const dbUser = await prisma.user.upsert({
       where: { supabaseId: u.id },
       create: { supabaseId: u.id, email: u.email!, name: null, avatarUrl: null },
       update: {},
     });
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim()
+      ?? headersList.get("x-real-ip")
+      ?? null;
+    const ua = headersList.get("user-agent") ?? null;
+    await recordConsent(dbUser.id, "email_signup", ip, ua);
     redirect("/");
   }
 

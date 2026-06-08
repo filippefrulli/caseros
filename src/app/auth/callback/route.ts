@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { recordConsent } from "@/lib/consent";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -25,14 +27,16 @@ export async function GET(request: Request) {
   // restoring anonymised fields with fresh OAuth data.
   const existing = await prisma.user.findUnique({
     where: { supabaseId: id },
-    select: { deletedAt: true },
+    select: { id: true, deletedAt: true },
   });
   if (existing?.deletedAt) {
     await supabase.auth.signOut();
     return NextResponse.redirect(`${origin}/login?error=account_deleted`);
   }
 
-  await prisma.user.upsert({
+  const isNewUser = !existing;
+
+  const dbUser = await prisma.user.upsert({
     where: { supabaseId: id },
     create: {
       supabaseId: id,
@@ -46,6 +50,15 @@ export async function GET(request: Request) {
       avatarUrl: (user_metadata?.avatar_url as string) ?? null,
     },
   });
+
+  if (isNewUser) {
+    const headersList = await headers();
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim()
+      ?? headersList.get("x-real-ip")
+      ?? null;
+    const ua = headersList.get("user-agent") ?? null;
+    await recordConsent(dbUser.id, "oauth_implicit", ip, ua);
+  }
 
   // Prevent open redirect — only allow same-origin relative paths.
   // `//evil.com` and `/\evil.com` are protocol-relative and would escape the origin.

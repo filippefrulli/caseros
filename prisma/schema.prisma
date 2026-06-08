@@ -82,6 +82,7 @@ model User {
   sentMessages       Message[]
   buyerConversations Conversation[] @relation("BuyerConversations")
   notifications      Notification[]
+  consents           UserConsent[]
 
   @@map("users")
 }
@@ -477,4 +478,26 @@ model StripeWebhookEvent {
 
   @@index([receivedAt])
   @@map("stripe_webhook_events")
+}
+
+// ─── Consent ──────────────────────────────────────────────────────────────────
+
+// GDPR Article 7 — proof of consent. One row per policy type per sign-up event.
+// No unique constraint on (userId, policyType) so the full history is preserved
+// if policies change and re-consent is collected.
+model UserConsent {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  policyType    String   @map("policy_type")    // "terms_of_service" | "privacy_policy"
+  policyVersion String   @map("policy_version") // e.g. "2025-05"
+  method        String                           // "email_signup" | "oauth_implicit"
+
+  consentedAt   DateTime @default(now()) @map("consented_at")
+  ipAddress     String?  @map("ip_address")
+  userAgent     String?  @map("user_agent")
+
+  @@index([userId])
+  @@map("user_consents")
 }

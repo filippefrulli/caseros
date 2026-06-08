@@ -1,4 +1,24 @@
-## 5. Verify Stripe Connect platform fee model
+#
+2. KYC deletion conflicts with AML law (critical)
+  Your privacy policy says KYC records are retained as required by AML regulations (typically 5–6 years). But the GDPR deletion code
+  hard-deletes SellerKyc immediately. These two are in direct conflict — AML is a legal obligation that overrides the right to erasure
+   under GDPR Article 17(3)(b). KYC should be retained for the required period and only purged by a scheduled job, not on user
+  request.
+
+  3. No deletion audit log (Article 5(2) — accountability)
+  When a user's data is erased, there's no record that it happened. You can't currently prove you honoured an erasure request. You
+  need a minimal log: who was deleted, when, and that the process completed — without storing the PII you just erased.
+  
+  4. No data retention/purge job
+  Your privacy policy promises order data is deleted after 7 years for tax compliance, but nothing actually enforces that. You already
+   have a cron infrastructure in vercel.json — this is just a missing job.
+  
+  5. No DSAR export (Article 20 — data portability)
+  Your privacy policy says users can request their data within 30 days, but there's no /api/account/export endpoint. Currently that
+  request would have to be fulfilled manually.
+
+
+# 5. Verify Stripe Connect platform fee model
 
 `src/app/api/checkout/route.ts` reads `seller.commissionRate` (default 0.05)
 and computes `sellerPayout = floor(itemsTotal * (1 - commissionRate))`. The

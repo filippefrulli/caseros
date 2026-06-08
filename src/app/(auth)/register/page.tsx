@@ -4,6 +4,7 @@ import { Home } from "lucide-react";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { EmailSignUpForm } from "@/components/auth/email-sign-up-form";
 
+
 export const metadata: Metadata = { title: "Create account" };
 
 export default async function RegisterPage({
@@ -41,6 +42,18 @@ export default async function RegisterPage({
             </div>
 
             <GoogleSignInButton />
+
+            <p className="text-center text-xs text-text-muted">
+              By continuing with Google, you agree to our{" "}
+              <Link href="/legal/terms" className="underline hover:text-text-secondary transition-colors">
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link href="/legal/privacy" className="underline hover:text-text-secondary transition-colors">
+                Privacy Policy
+              </Link>
+              .
+            </p>
           </div>
         </div>
 

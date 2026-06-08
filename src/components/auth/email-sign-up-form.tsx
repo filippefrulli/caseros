@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { signUpWithEmail, type AuthActionState } from "@/lib/actions/auth";
 import { Eye, EyeOff, MailCheck } from "lucide-react";
+import Link from "next/link";
 
 const inputClass =
   "mt-1 block w-full rounded-lg border border-border bg-bg-subtle px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
@@ -13,6 +14,7 @@ export function EmailSignUpForm() {
     null,
   );
   const [showPw, setShowPw] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   if (state?.success) {
     return (
@@ -78,9 +80,29 @@ export function EmailSignUpForm() {
         )}
       </div>
 
+      <label className="flex items-start gap-2.5 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={agreed}
+          onChange={(e) => setAgreed(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-accent cursor-pointer"
+          required
+        />
+        <span className="text-xs text-text-secondary">
+          I agree to the{" "}
+          <Link href="/legal/terms" className="underline hover:text-text-primary transition-colors">
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link href="/legal/privacy" className="underline hover:text-text-primary transition-colors">
+            Privacy Policy
+          </Link>
+        </span>
+      </label>
+
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || !agreed}
         className="w-full rounded-lg bg-gray-900 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gray-700 disabled:opacity-60"
       >
         {isPending ? "Creating account…" : "Create account"}
