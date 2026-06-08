@@ -1,10 +1,3 @@
-#
-2. KYC deletion conflicts with AML law (critical)
-  Your privacy policy says KYC records are retained as required by AML regulations (typically 5–6 years). But the GDPR deletion code
-  hard-deletes SellerKyc immediately. These two are in direct conflict — AML is a legal obligation that overrides the right to erasure
-   under GDPR Article 17(3)(b). KYC should be retained for the required period and only purged by a scheduled job, not on user
-  request.
-
   3. No deletion audit log (Article 5(2) — accountability)
   When a user's data is erased, there's no record that it happened. You can't currently prove you honoured an erasure request. You
   need a minimal log: who was deleted, when, and that the process completed — without storing the PII you just erased.
@@ -16,32 +9,6 @@
   5. No DSAR export (Article 20 — data portability)
   Your privacy policy says users can request their data within 30 days, but there's no /api/account/export endpoint. Currently that
   request would have to be fulfilled manually.
-
-
-# 5. Verify Stripe Connect platform fee model
-
-`src/app/api/checkout/route.ts` reads `seller.commissionRate` (default 0.05)
-and computes `sellerPayout = floor(itemsTotal * (1 - commissionRate))`. The
-admin payout-release route then transfers `sellerPayout` to the connected
-account via `stripe.transfers.create`.
-
-Confirm in Stripe Dashboard:
-
-1. Platform → Connect → Settings → **fees collected by platform** matches
-   "application" (since our code sets `responsibilities.fees_collector =
-   "application"` and `losses_collector = "application"`).
-2. Connected accounts are created with `dashboard: "express"` — confirm this
-   is the experience you want sellers to see.
-3. Test mode → run one full flow with a test card, verify the payout amount
-   on the connected account matches `sellerPayout` from the order item.
-
-**Open question for legal/ops:** what happens on a refund after payout? The
-`charge.refunded` webhook updates `OrderItem.refundedAmount` but does **not**
-reverse the transfer. If the transfer already went out, the platform eats
-the refund unless you also call `stripe.transfers.createReversal`. The
-admin refund route does this — verify it covers all refund paths (Stripe
-Dashboard refunds also fire the same webhook).
-
 
 
 ## 9. Rate-limit user-facing endpoints

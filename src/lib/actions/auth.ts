@@ -6,6 +6,7 @@ import { recordConsent } from "@/lib/consent";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { z } from "zod";
+import { track } from "@vercel/analytics/server";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -104,6 +105,7 @@ export async function signUpWithEmail(
       ?? null;
     const ua = headersList.get("user-agent") ?? null;
     await recordConsent(dbUser.id, "email_signup", ip, ua);
+    await track("user_registered", { method: "email" });
     redirect("/");
   }
 

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { sendAdminSellerApplicationEmail } from "@/lib/email";
 import { env } from "@/env";
+import { track } from "@vercel/analytics/server";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -118,6 +119,8 @@ export async function POST(request: Request) {
       },
     },
   });
+
+  track("seller_registered", { sellerType }).catch(() => {});
 
   // Fire-and-forget — don't block the response on email delivery.
   sendAdminSellerApplicationEmail({

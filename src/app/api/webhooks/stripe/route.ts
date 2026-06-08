@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { env } from "@/env";
 import { Prisma } from "@/generated/prisma/client";
 import { sendOrderConfirmedEmail, sendNewOrderEmail, sendAdminNewOrderEmail } from "@/lib/email";
+import { track } from "@vercel/analytics/server";
 
 // Webhook handlers need Node crypto for signature verification and must always
 // run at request time — never cached, never prerendered, never on Edge.
@@ -181,6 +182,11 @@ export async function POST(req: Request) {
             stripeChargeId: chargeId,
           },
         });
+
+        track("purchase_completed", {
+          currency: order.currency,
+          amount: order.totalAmount,
+        }).catch(() => {});
 
         // Notify buyer + each unique seller. M3 always has one item, but the
         // shape is forward-compatible with multi-item orders.

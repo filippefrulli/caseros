@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { recordConsent } from "@/lib/consent";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { track } from "@vercel/analytics/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -58,6 +59,7 @@ export async function GET(request: Request) {
       ?? null;
     const ua = headersList.get("user-agent") ?? null;
     await recordConsent(dbUser.id, "oauth_implicit", ip, ua);
+    await track("user_registered", { method: "oauth" });
   }
 
   // Prevent open redirect — only allow same-origin relative paths.

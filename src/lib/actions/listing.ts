@@ -5,6 +5,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { track } from "@vercel/analytics/server";
 
 const listingSchema = z.object({
   categoryId: z.string().min(1, "Please select a category"),
@@ -123,6 +124,7 @@ export async function createListing(
         },
       },
     });
+    track("listing_created", { status: "draft" }).catch(() => {});
     return { stripeRequired: true };
   }
 
@@ -153,6 +155,7 @@ export async function createListing(
     },
   });
 
+  await track("listing_created", { status: publishNow ? "active" : "draft" });
   redirect("/seller/dashboard");
 }
 

@@ -4,6 +4,7 @@ import { useOptimistic, useTransition } from "react";
 import { toggleFavorite } from "@/lib/actions/user";
 import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
+import { track } from "@vercel/analytics";
 
 type Props = {
   listingId: string;
@@ -35,6 +36,7 @@ export function FavoriteButton({
 
     startTransition(async () => {
       setOptimisticFav(!optimisticFav);
+      if (!optimisticFav) track("listing_saved");
       await toggleFavorite(listingId);
     });
   };

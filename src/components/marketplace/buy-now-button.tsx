@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Minus, Plus } from "lucide-react";
+import { track } from "@vercel/analytics";
 
 interface BuyNowButtonProps {
   listingId: string;
@@ -33,6 +34,7 @@ export function BuyNowButton({ listingId, slug, stock, payable, isLoggedIn, isDi
     }
 
     setLoading(true);
+    track("buy_now_clicked", { isDigital });
 
     // Physical listings go through the pre-checkout page to collect address + shipping rate.
     if (!isDigital) {
