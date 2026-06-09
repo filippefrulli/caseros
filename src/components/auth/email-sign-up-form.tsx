@@ -63,6 +63,7 @@ export function EmailSignUpForm() {
             type={showPw ? "text" : "password"}
             autoComplete="new-password"
             required
+            minLength={8}
             placeholder="Min. 8 characters"
             className="block w-full rounded-lg border border-border bg-bg-subtle px-3 py-2.5 pr-10 text-sm text-text-primary placeholder:text-text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
           />

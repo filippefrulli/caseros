@@ -5,7 +5,14 @@ import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 
 export const metadata: Metadata = { title: "Reset password" };
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
+  const linkExpired = error === "link_expired";
+
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-sm">
@@ -25,6 +32,12 @@ export default function ForgotPasswordPage() {
           <p className="mt-1 text-sm text-text-secondary">
             Enter your email and we&apos;ll send you a reset link.
           </p>
+
+          {linkExpired && (
+            <p className="mt-4 rounded-lg bg-error-subtle px-4 py-3 text-sm text-error">
+              That reset link has expired. Enter your email below to request a new one.
+            </p>
+          )}
 
           <div className="mt-6">
             <ForgotPasswordForm />

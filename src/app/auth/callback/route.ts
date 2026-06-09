@@ -36,7 +36,14 @@ export async function GET(request: Request) {
     }
     user = data.user;
   } else {
-    return NextResponse.redirect(`${origin}/login?error=missing_code`);
+    // No code or token — likely an expired link. If the user was trying to reset
+    // their password, send them back to forgot-password with a clear message.
+    const isReset = next.includes("reset-password");
+    return NextResponse.redirect(
+      isReset
+        ? `${origin}/forgot-password?error=link_expired`
+        : `${origin}/login?error=missing_code`,
+    );
   }
 
   const { id, email, user_metadata } = user as { id: string; email: string; user_metadata: Record<string, unknown> };
