@@ -257,7 +257,7 @@ function storagePathFromUrl(url: string, bucket: string): string | null {
   return url.slice(idx + marker.length);
 }
 
-export async function publishListing(listingId: string): Promise<{ error?: string; stripeRequired?: boolean } | null> {
+export async function publishListing(listingId: string): Promise<ListingActionState> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "You must be signed in." };

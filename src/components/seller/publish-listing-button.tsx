@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { publishListing } from "@/lib/actions/listing";
 import { Upload } from "lucide-react";
@@ -8,7 +9,7 @@ import { Upload } from "lucide-react";
 export function PublishListingButton({ listingId }: { listingId: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<React.ReactNode | null>(null);
 
   async function handlePublish() {
     setLoading(true);
@@ -16,6 +17,17 @@ export function PublishListingButton({ listingId }: { listingId: string }) {
     const result = await publishListing(listingId);
     if (result?.stripeRequired) {
       setError("Connect your Stripe account first.");
+      setLoading(false);
+    } else if (result?.pickupAddressRequired) {
+      setError(
+        <>
+          Add your pickup address in your{" "}
+          <Link href="/seller/profile" className="underline">
+            profile
+          </Link>{" "}
+          before publishing.
+        </>
+      );
       setLoading(false);
     } else if (result?.error) {
       setError(result.error);
