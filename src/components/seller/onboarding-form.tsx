@@ -74,11 +74,11 @@ const EU_COUNTRIES = [
 ];
 
 const SOCIAL_PLATFORMS = [
-  { key: "website",   label: "Website",   placeholder: "https://yourwebsite.com" },
-  { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/yourhandle" },
-  { key: "tiktok",    label: "TikTok",    placeholder: "https://tiktok.com/@yourhandle" },
-  { key: "youtube",   label: "YouTube",   placeholder: "https://youtube.com/@yourchannel" },
-  { key: "facebook",  label: "Facebook",  placeholder: "https://facebook.com/yourpage" },
+  { key: "website",   label: "Website",   prefix: "https://",                placeholder: "yourwebsite.com" },
+  { key: "instagram", label: "Instagram", prefix: "https://instagram.com/",  placeholder: "yourhandle" },
+  { key: "tiktok",    label: "TikTok",    prefix: "https://tiktok.com/@",    placeholder: "yourhandle" },
+  { key: "youtube",   label: "YouTube",   prefix: "https://youtube.com/@",   placeholder: "yourchannel" },
+  { key: "facebook",  label: "Facebook",  prefix: "https://facebook.com/",   placeholder: "yourpage" },
 ] as const;
 
 function toSlug(value: string) {
@@ -520,7 +520,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
 
   // ── Step 4 ─────────────────────────────────────────────────────────────────
 
-  const hasSocialLink = [form.website, form.instagram, form.tiktok, form.youtube, form.facebook].some(v => v.trim());
+  const hasSocialLink = [form.website, form.instagram, form.tiktok, form.youtube, form.facebook].some(v => v.trim().length > 0);
   const step4CanSubmit = Boolean(!videoUploading && form.verificationVideoUrl && hasSocialLink);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -532,7 +532,15 @@ export function OnboardingForm({ userId }: { userId: string }) {
       const res = await fetch("/api/seller/onboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          ...Object.fromEntries(
+            SOCIAL_PLATFORMS.map(({ key, prefix }) => {
+              const handle = form[key as keyof Pick<FormState, "website" | "instagram" | "tiktok" | "youtube" | "facebook">].trim();
+              return [key, handle ? prefix + handle : ""];
+            }),
+          ),
+        }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Submission failed");
@@ -610,18 +618,31 @@ export function OnboardingForm({ userId }: { userId: string }) {
             At least one link required. Share where buyers (and we) can see your work.
           </p>
           <div className="mt-2 space-y-2">
-            {SOCIAL_PLATFORMS.map(({ key, label, placeholder }) => (
-              <div key={key} className="flex items-center gap-2">
-                <span className="w-20 shrink-0 text-xs text-gray-500">{label}</span>
-                <input
-                  type="url"
-                  value={form[key as keyof Pick<FormState, "website" | "instagram" | "tiktok" | "youtube" | "facebook">]}
-                  onChange={e => set({ [key]: e.target.value } as Partial<FormState>)}
-                  placeholder={placeholder}
-                  className={inputCls}
-                />
-              </div>
-            ))}
+            {SOCIAL_PLATFORMS.map(({ key, label, prefix, placeholder }) => {
+              const value = form[key as keyof Pick<FormState, "website" | "instagram" | "tiktok" | "youtube" | "facebook">];
+              return (
+                <div key={key} className="flex items-center gap-2">
+                  <span className="w-20 shrink-0 text-xs text-gray-500">{label}</span>
+                  <div className="flex flex-1 overflow-hidden rounded-lg border border-gray-300 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent">
+                    <span className="flex items-center bg-gray-50 px-2.5 text-xs text-gray-400 whitespace-nowrap border-r border-gray-300 select-none">
+                      {prefix}
+                    </span>
+                    <input
+                      type="text"
+                      value={value}
+                      onChange={e => {
+                        let v = e.target.value;
+                        if (v.startsWith(prefix)) v = v.slice(prefix.length);
+                        else if (v.startsWith("https://") || v.startsWith("http://")) v = v.replace(/^https?:\/\/[^/]*\//, "");
+                        set({ [key]: v } as Partial<FormState>);
+                      }}
+                      placeholder={placeholder}
+                      className="flex-1 bg-white px-3 py-2 text-sm text-text-primary placeholder:text-gray-400 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
