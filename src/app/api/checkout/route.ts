@@ -28,6 +28,8 @@ const shippingRateSchema = z.object({
 const bodySchema = z.object({
   listingId: z.string().min(1),
   quantity: z.coerce.number().int().min(1).max(10),
+  // Physical listings: either a saved addressId OR inline address fields
+  addressId: z.string().optional(),
   address: addressSchema.optional(),
   shippingRate: shippingRateSchema.optional(),
 });
@@ -51,7 +53,7 @@ async function handleCheckout(req: Request) {
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) return NextResponse.json({ error: "Invalid request." }, { status: 400 });
 
-  const { listingId, quantity, address, shippingRate } = parsed.data;
+  const { listingId, quantity, addressId, address: inlineAddress, shippingRate } = parsed.data;
 
   if (!user.email) {
     return NextResponse.json({ error: "Your account is missing an email. Please re-sign in." }, { status: 400 });
@@ -108,15 +110,36 @@ async function handleCheckout(req: Request) {
   const unitAmount = listing.priceAmount;
   const itemsTotal = unitAmount * quantity;
 
-  // Re-fetch shipping rates server-side and verify the chosen rate is real.
-  // Never trust the amount from the client — the buyer could submit any value,
-  // including 0, and the seller would eat the carrier cost.
+  // Resolve the shipping address: either from a saved address (addressId) or inline fields.
+  // Re-fetch shipping rates server-side to verify the chosen rate is real — never trust
+  // the amount from the client.
+  let address: z.infer<typeof addressSchema> | null = null;
+  let shouldSaveAddress = false;
   let shippingTotal = 0;
   let matchedRate: Awaited<ReturnType<typeof getRates>>[number] | undefined;
+
   if (!listing.isDigital) {
-    if (!address || !shippingRate) {
+    if (!shippingRate) {
       return NextResponse.json({ error: "Shipping rate is required." }, { status: 400 });
     }
+
+    if (addressId) {
+      const saved = await prisma.address.findFirst({
+        where: { id: addressId, userId: dbUser.id },
+        select: { name: true, line1: true, houseNumber: true, line2: true, city: true, postalCode: true, country: true, phone: true },
+      });
+      if (!saved) {
+        return NextResponse.json({ error: "Address not found." }, { status: 400 });
+      }
+      address = { ...saved, name: saved.name ?? "" };
+      shouldSaveAddress = false;
+    } else if (inlineAddress) {
+      address = inlineAddress;
+      shouldSaveAddress = true;
+    } else {
+      return NextResponse.json({ error: "Shipping address is required." }, { status: 400 });
+    }
+
     if (!isShippoConfigured()) {
       return NextResponse.json({ error: "Shipping not configured." }, { status: 503 });
     }
@@ -124,6 +147,8 @@ async function handleCheckout(req: Request) {
     if (!s.pickupLine1 || !s.pickupCity || !s.pickupPostalCode || !s.pickupCountry || !listing.weightGrams) {
       return NextResponse.json({ error: "Seller is not ready to ship this listing." }, { status: 409 });
     }
+    // At this point address is guaranteed non-null (early returns cover all null cases above)
+    const resolvedAddress = address!;
     let rates: Awaited<ReturnType<typeof getRates>>;
     try {
       rates = await getRates({
@@ -137,12 +162,12 @@ async function handleCheckout(req: Request) {
           phone: s.pickupPhone ?? undefined,
         },
         toAddress: {
-          name: address.name,
-          street1: address.line1,
-          street_no: address.houseNumber ?? undefined,
-          city: address.city,
-          zip: address.postalCode,
-          country: address.country,
+          name: resolvedAddress.name,
+          street1: resolvedAddress.line1,
+          street_no: resolvedAddress.houseNumber ?? undefined,
+          city: resolvedAddress.city,
+          zip: resolvedAddress.postalCode,
+          country: resolvedAddress.country,
         },
         weightGrams: listing.weightGrams,
         lengthCm: listing.lengthCm,
@@ -170,10 +195,9 @@ async function handleCheckout(req: Request) {
   // Commission on item subtotal only; shipping is passed through to cover carrier cost.
   const sellerPayout = Math.floor(itemsTotal * (1 - commissionRate));
 
-  // Snapshot the shipping address onto the Order so it can never be rewritten
-  // by later edits to the buyer's saved Address row.
-  // Also persist/refresh the Address as the buyer's default for next checkout.
-  if (!listing.isDigital && address) {
+  // For new inline addresses, save as the buyer's new default.
+  // For addressId, the address is already in the book — no change.
+  if (shouldSaveAddress && address) {
     await prisma.$transaction([
       prisma.address.updateMany({
         where: { userId: dbUser.id, isDefault: true },

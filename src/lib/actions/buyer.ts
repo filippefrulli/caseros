@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 
 const addressSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -24,16 +25,20 @@ export type BuyerAddressState = {
   data?: AddressData;
 } | null;
 
+async function resolveDbUser() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { user: null, dbUser: null };
+  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id }, select: { id: true } });
+  return { user, dbUser };
+}
+
 export async function saveBuyerAddress(
   _prev: BuyerAddressState,
   formData: FormData,
 ): Promise<BuyerAddressState> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: "You must be signed in." };
-
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id }, select: { id: true } });
-  if (!dbUser) return { error: "User not found." };
+  const { dbUser } = await resolveDbUser();
+  if (!dbUser) return { error: "You must be signed in." };
 
   const parsed = addressSchema.safeParse({
     name: formData.get("name"),
@@ -50,7 +55,6 @@ export async function saveBuyerAddress(
 
   const existingId = formData.get("addressId")?.toString() ?? null;
 
-  // Upsert: update existing default address in place, or create a new default.
   let savedId: string;
   if (existingId) {
     const existing = await prisma.address.findFirst({
@@ -69,25 +73,22 @@ export async function saveBuyerAddress(
           postalCode: parsed.data.postalCode,
           country: parsed.data.country,
           phone: parsed.data.phone ?? null,
-          isDefault: true,
+          // Do NOT change isDefault — editing an address doesn't promote it
         },
       });
       savedId = existingId;
     } else {
-      existingId; // not theirs — fall through to create
-      savedId = await createDefault(dbUser.id, parsed.data);
+      savedId = await createDefaultAddress(dbUser.id, parsed.data);
     }
   } else {
-    savedId = await createDefault(dbUser.id, parsed.data);
+    savedId = await createDefaultAddress(dbUser.id, parsed.data);
   }
 
-  return {
-    success: true,
-    data: { ...parsed.data, id: savedId },
-  };
+  revalidatePath("/account/address");
+  return { success: true, data: { ...parsed.data, id: savedId } };
 }
 
-async function createDefault(userId: string, data: z.infer<typeof addressSchema>): Promise<string> {
+async function createDefaultAddress(userId: string, data: z.infer<typeof addressSchema>): Promise<string> {
   const [, addr] = await prisma.$transaction([
     prisma.address.updateMany({ where: { userId, isDefault: true }, data: { isDefault: false } }),
     prisma.address.create({
@@ -106,4 +107,50 @@ async function createDefault(userId: string, data: z.infer<typeof addressSchema>
     }),
   ]);
   return addr.id;
+}
+
+export async function deleteBuyerAddress(addressId: string): Promise<{ error?: string }> {
+  const { dbUser } = await resolveDbUser();
+  if (!dbUser) return { error: "You must be signed in." };
+
+  const addr = await prisma.address.findFirst({
+    where: { id: addressId, userId: dbUser.id },
+    select: { id: true, isDefault: true },
+  });
+  if (!addr) return { error: "Address not found." };
+
+  await prisma.address.delete({ where: { id: addressId } });
+
+  // If the deleted address was the default, promote the most recently created survivor
+  if (addr.isDefault) {
+    const next = await prisma.address.findFirst({
+      where: { userId: dbUser.id },
+      orderBy: { createdAt: "desc" },
+    });
+    if (next) {
+      await prisma.address.update({ where: { id: next.id }, data: { isDefault: true } });
+    }
+  }
+
+  revalidatePath("/account/address");
+  return {};
+}
+
+export async function setDefaultBuyerAddress(addressId: string): Promise<{ error?: string }> {
+  const { dbUser } = await resolveDbUser();
+  if (!dbUser) return { error: "You must be signed in." };
+
+  const addr = await prisma.address.findFirst({
+    where: { id: addressId, userId: dbUser.id },
+    select: { id: true },
+  });
+  if (!addr) return { error: "Address not found." };
+
+  await prisma.$transaction([
+    prisma.address.updateMany({ where: { userId: dbUser.id }, data: { isDefault: false } }),
+    prisma.address.update({ where: { id: addressId }, data: { isDefault: true } }),
+  ]);
+
+  revalidatePath("/account/address");
+  return {};
 }

@@ -54,10 +54,13 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   const payable = listing.seller.stripeOnboardingDone && listing.seller.payoutsEnabled;
   if (!payable) redirect(`/listings/${listing.slug}`);
 
-  const savedAddress = await prisma.address.findFirst({
-    where: { userId: dbUser?.id, isDefault: true },
-    select: { name: true, line1: true, houseNumber: true, line2: true, city: true, postalCode: true, country: true, phone: true },
-  });
+  const savedAddresses = dbUser
+    ? await prisma.address.findMany({
+        where: { userId: dbUser.id },
+        orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }],
+        select: { id: true, name: true, line1: true, houseNumber: true, line2: true, city: true, postalCode: true, country: true, phone: true, isDefault: true },
+      })
+    : [];
 
   const thumb = listing.images[0]?.url ?? null;
   const shippoReady = isShippoConfigured();
@@ -109,7 +112,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
         quantity={quantity}
         shippoReady={shippoReady}
         sellerPickupReady={sellerPickupReady}
-        savedAddress={savedAddress}
+        savedAddresses={savedAddresses}
       />
     </main>
   );

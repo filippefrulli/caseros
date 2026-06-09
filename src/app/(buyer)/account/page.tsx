@@ -71,8 +71,8 @@ export default async function AccountPage() {
         <Link href="/account/address" className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:border-gray-300 hover:bg-gray-50 transition-colors">
           <MapPin size={18} className="shrink-0 text-gray-500" />
           <div>
-            <p className="text-sm font-medium text-gray-900">Shipping address</p>
-            <p className="text-xs text-gray-400">Manage saved address</p>
+            <p className="text-sm font-medium text-gray-900">Addresses</p>
+            <p className="text-xs text-gray-400">Manage delivery addresses</p>
           </div>
         </Link>
       </div>

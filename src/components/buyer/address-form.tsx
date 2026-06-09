@@ -18,7 +18,7 @@ const EU_COUNTRIES = [
 const inputCls = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
 const selectCls = `${inputCls} appearance-none pr-8`;
 
-type InitialAddress = {
+export type InitialAddress = {
   id: string;
   name: string | null;
   line1: string;
@@ -30,9 +30,13 @@ type InitialAddress = {
   phone: string | null;
 } | null;
 
-type Props = { initial: InitialAddress };
+type Props = {
+  initial?: InitialAddress;
+  onSuccess?: () => void;
+  onCancel?: () => void;
+};
 
-export function AddressForm({ initial }: Props) {
+export function AddressForm({ initial, onSuccess, onCancel }: Props) {
   const [state, action, isPending] = useActionState<BuyerAddressState, FormData>(
     saveBuyerAddress,
     null,
@@ -42,13 +46,21 @@ export function AddressForm({ initial }: Props) {
   const formKey = JSON.stringify(values);
 
   const bannerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    if (state?.success) bannerRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (state?.success) {
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        bannerRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state?.success]);
 
   return (
     <form key={formKey} action={action} className="space-y-4">
-      {state?.success && (
+      {state?.success && !onSuccess && (
         <div ref={bannerRef} className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
           Address saved.
         </div>
@@ -125,13 +137,24 @@ export function AddressForm({ initial }: Props) {
         <input id="phone" name="phone" type="tel" defaultValue={values?.phone ?? ""} placeholder="+353 1 234 5678" className={inputCls} />
       </div>
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
-      >
-        {isPending ? "Saving…" : "Save address"}
-      </button>
+      <div className="flex gap-3">
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={isPending}
+          className="flex-1 rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+        >
+          {isPending ? "Saving…" : "Save address"}
+        </button>
+      </div>
     </form>
   );
 }

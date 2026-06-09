@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import type { ShippoRate } from "@/lib/shippo";
 
@@ -45,7 +45,7 @@ const inputClass =
   "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
 const selectClass = `${inputClass} appearance-none pr-8`;
 
-type Address = {
+type AddressFields = {
   name: string;
   line1: string;
   houseNumber: string;
@@ -56,7 +56,8 @@ type Address = {
   phone: string;
 };
 
-type SavedAddress = {
+export type SavedAddress = {
+  id: string;
   name: string | null;
   line1: string;
   houseNumber: string | null;
@@ -65,6 +66,7 @@ type SavedAddress = {
   postalCode: string;
   country: string;
   phone: string | null;
+  isDefault: boolean;
 };
 
 type Props = {
@@ -76,8 +78,34 @@ type Props = {
   quantity: number;
   shippoReady: boolean;
   sellerPickupReady: boolean;
-  savedAddress?: SavedAddress | null;
+  savedAddresses?: SavedAddress[];
 };
+
+function toAddressFields(addr: Omit<SavedAddress, "id" | "isDefault">): AddressFields {
+  return {
+    name: addr.name ?? "",
+    line1: addr.line1,
+    houseNumber: addr.houseNumber ?? "",
+    line2: addr.line2 ?? "",
+    city: addr.city,
+    postalCode: addr.postalCode,
+    country: addr.country,
+    phone: addr.phone ?? "",
+  };
+}
+
+function AddressSummary({ address }: { address: AddressFields }) {
+  return (
+    <address className="not-italic text-sm leading-relaxed text-gray-700">
+      {address.name && <p className="font-medium">{address.name}</p>}
+      <p>{address.line1}{address.houseNumber ? ` ${address.houseNumber}` : ""}</p>
+      {address.line2 && <p>{address.line2}</p>}
+      <p>{address.postalCode} {address.city}</p>
+      <p>{countryName(address.country)}</p>
+      {address.phone && <p className="text-gray-400">{address.phone}</p>}
+    </address>
+  );
+}
 
 export function CheckoutFlow({
   listingId,
@@ -88,23 +116,29 @@ export function CheckoutFlow({
   quantity,
   shippoReady,
   sellerPickupReady,
-  savedAddress,
+  savedAddresses = [],
 }: Props) {
-  const hasSaved = !!savedAddress;
+  const defaultAddress = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0] ?? null;
+  const hasSaved = savedAddresses.length > 0;
 
-  const [address, setAddress] = useState<Address>({
-    name: savedAddress?.name ?? "",
-    line1: savedAddress?.line1 ?? "",
-    houseNumber: savedAddress?.houseNumber ?? "",
-    line2: savedAddress?.line2 ?? "",
-    city: savedAddress?.city ?? "",
-    postalCode: savedAddress?.postalCode ?? "",
-    country: savedAddress?.country ?? "IE",
-    phone: savedAddress?.phone ?? "",
-  });
+  // "summary" = showing selected saved address
+  // "picker"  = showing list of all saved addresses to choose from
+  // "form"    = showing the new-address entry form
+  const [mode, setMode] = useState<"summary" | "picker" | "form">(
+    defaultAddress ? "summary" : "form",
+  );
 
-  // When there's a saved address start in "summary" mode; otherwise go straight to the form.
-  const [showForm, setShowForm] = useState(!hasSaved);
+  // ID of the currently-selected saved address (null = new address)
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    defaultAddress?.id ?? null,
+  );
+
+  // Address fields — used for shipping rate fetching and (when no addressId) for checkout
+  const [address, setAddress] = useState<AddressFields>(
+    defaultAddress ? toAddressFields(defaultAddress) : {
+      name: "", line1: "", houseNumber: "", line2: "", city: "", postalCode: "", country: "IE", phone: "",
+    },
+  );
 
   const [rates, setRates] = useState<ShippoRate[] | null>(null);
   const [selectedRate, setSelectedRate] = useState<ShippoRate | null>(null);
@@ -114,7 +148,7 @@ export function CheckoutFlow({
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
-  function setField(field: keyof Address) {
+  function setField(field: keyof AddressFields) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setAddress((prev) => ({ ...prev, [field]: e.target.value }));
       setRates(null);
@@ -131,7 +165,7 @@ export function CheckoutFlow({
     address.country
   );
 
-  const fetchRates = useCallback(async (addr: Address) => {
+  const fetchRates = useCallback(async (addr: AddressFields) => {
     setRatesLoading(true);
     setRatesError(null);
     setRates(null);
@@ -160,13 +194,30 @@ export function CheckoutFlow({
     }
   }, [listingId]);
 
-  // Auto-fetch rates on mount when a saved address is available.
+  // Auto-fetch rates on mount when a default address is available
   useEffect(() => {
-    if (hasSaved && !isDigital && shippoReady && sellerPickupReady) {
-      fetchRates(address);
+    if (defaultAddress && !isDigital && shippoReady && sellerPickupReady) {
+      fetchRates(toAddressFields(defaultAddress));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function selectSavedAddress(addr: SavedAddress) {
+    const fields = toAddressFields(addr);
+    setSelectedAddressId(addr.id);
+    setAddress(fields);
+    setMode("summary");
+    fetchRates(fields);
+  }
+
+  function openNewAddressForm() {
+    setSelectedAddressId(null);
+    setAddress({ name: "", line1: "", houseNumber: "", line2: "", city: "", postalCode: "", country: "IE", phone: "" });
+    setRates(null);
+    setSelectedRate(null);
+    setRatesError(null);
+    setMode("form");
+  }
 
   async function handlePayment() {
     setCheckoutLoading(true);
@@ -175,16 +226,20 @@ export function CheckoutFlow({
     const body: Record<string, unknown> = { listingId, quantity };
 
     if (!isDigital) {
-      body.address = {
-        name: address.name,
-        line1: address.line1,
-        houseNumber: address.houseNumber || null,
-        line2: address.line2 || null,
-        city: address.city,
-        postalCode: address.postalCode,
-        country: address.country,
-        phone: address.phone || null,
-      };
+      if (selectedAddressId) {
+        body.addressId = selectedAddressId;
+      } else {
+        body.address = {
+          name: address.name,
+          line1: address.line1,
+          houseNumber: address.houseNumber || null,
+          line2: address.line2 || null,
+          city: address.city,
+          postalCode: address.postalCode,
+          country: address.country,
+          phone: address.phone || null,
+        };
+      }
       if (selectedRate) {
         body.shippingRate = {
           amount: Math.round(parseFloat(selectedRate.amount) * 100),
@@ -215,8 +270,9 @@ export function CheckoutFlow({
   const itemsTotal = priceAmount * quantity;
   const shippingTotal = selectedRate ? Math.round(parseFloat(selectedRate.amount) * 100) : 0;
   const grandTotal = itemsTotal + shippingTotal;
+  const canProceed = rates !== null && selectedRate !== null;
 
-  // ── Digital listing ────────────────────────────────────────────────────────
+  // ── Digital listing ──────────────────────────────────────────────────────────
   if (isDigital) {
     return (
       <div className="space-y-6">
@@ -239,7 +295,7 @@ export function CheckoutFlow({
     );
   }
 
-  // ── Shipping not available ─────────────────────────────────────────────────
+  // ── Shipping not configured ──────────────────────────────────────────────────
   if (!shippoReady || !sellerPickupReady) {
     return (
       <div className="rounded-xl border border-warning bg-warning-subtle p-5 text-sm text-warning-fg">
@@ -250,43 +306,87 @@ export function CheckoutFlow({
     );
   }
 
-  const canProceed = rates !== null && selectedRate !== null;
-
   return (
     <div className="space-y-6">
 
-      {/* ── Saved address summary ── */}
-      {hasSaved && !showForm && (
-        <div className="rounded-xl border border-gray-200 p-5 space-y-3">
+      {/* ── Summary: selected saved address ── */}
+      {mode === "summary" && selectedAddressId && (
+        <div className="rounded-xl border border-gray-200 p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-gray-700 mb-1">Shipping to</p>
-              <address className="not-italic text-sm text-gray-700 leading-relaxed">
-                {address.name && <p className="font-medium">{address.name}</p>}
-                <p>{address.line1}{address.houseNumber ? ` ${address.houseNumber}` : ""}</p>
-                {address.line2 && <p>{address.line2}</p>}
-                <p>{address.postalCode} {address.city}</p>
-                <p>{countryName(address.country)}</p>
-                {address.phone && <p className="text-gray-500">{address.phone}</p>}
-              </address>
+              <p className="mb-2 text-sm font-semibold text-gray-700">Shipping to</p>
+              <AddressSummary address={address} />
             </div>
             <button
               type="button"
-              onClick={() => {
-                setShowForm(true);
-                setRates(null);
-                setSelectedRate(null);
-              }}
+              onClick={() => setMode("picker")}
               className="shrink-0 text-xs text-gray-500 underline underline-offset-2 hover:text-gray-900 transition-colors"
             >
-              Use a different address
+              Change
             </button>
           </div>
         </div>
       )}
 
-      {/* ── Address form ── */}
-      {showForm && (
+      {/* ── Picker: list of saved addresses ── */}
+      {mode === "picker" && (
+        <div className="rounded-xl border border-gray-200 p-5 space-y-2">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-sm font-semibold text-gray-700">Select address</p>
+            <button
+              type="button"
+              onClick={() => setMode("summary")}
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+
+          {savedAddresses.map((addr) => {
+            const isSelected = selectedAddressId === addr.id;
+            return (
+              <button
+                key={addr.id}
+                type="button"
+                onClick={() => selectSavedAddress(addr)}
+                className={`w-full rounded-lg border px-4 py-3 text-left text-sm transition-colors ${
+                  isSelected
+                    ? "border-gray-900 bg-gray-50"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${
+                    isSelected ? "border-gray-900 bg-gray-900" : "border-gray-300"
+                  }`}>
+                    {isSelected && <Check size={10} strokeWidth={3} className="text-white" />}
+                  </div>
+                  <div>
+                    {addr.name && <p className="font-medium text-gray-900">{addr.name}</p>}
+                    <p className="text-gray-500">
+                      {addr.line1}{addr.houseNumber ? ` ${addr.houseNumber}` : ""},  {addr.city}
+                    </p>
+                    {addr.isDefault && (
+                      <span className="text-xs text-gray-400">Default</span>
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={openNewAddressForm}
+            className="w-full rounded-lg border border-dashed border-gray-300 px-4 py-3 text-left text-sm text-gray-500 transition-colors hover:border-gray-400 hover:text-gray-700"
+          >
+            + Enter a new address
+          </button>
+        </div>
+      )}
+
+      {/* ── Form: new address entry ── */}
+      {mode === "form" && (
         <div className="rounded-xl border border-gray-200 p-5 space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-gray-700">Shipping address</p>
@@ -294,23 +394,11 @@ export function CheckoutFlow({
               <button
                 type="button"
                 onClick={() => {
-                  setShowForm(false);
-                  setAddress({
-                    name: savedAddress.name ?? "",
-                    line1: savedAddress.line1,
-                    houseNumber: savedAddress.houseNumber ?? "",
-                    line2: savedAddress.line2 ?? "",
-                    city: savedAddress.city,
-                    postalCode: savedAddress.postalCode,
-                    country: savedAddress.country,
-                    phone: savedAddress.phone ?? "",
-                  });
-                  setRates(null);
-                  setSelectedRate(null);
+                  setMode("picker");
                 }}
                 className="text-xs text-gray-500 underline underline-offset-2 hover:text-gray-900 transition-colors"
               >
-                ← Use saved address
+                ← Back to saved
               </button>
             )}
           </div>
@@ -377,15 +465,15 @@ export function CheckoutFlow({
         </div>
       )}
 
-      {/* ── Loading indicator for auto-fetch ── */}
-      {ratesLoading && !showForm && (
+      {/* ── Rate loading (summary mode) ── */}
+      {ratesLoading && mode === "summary" && (
         <div className="rounded-xl border border-gray-200 p-5">
           <p className="text-sm text-gray-400">Calculating shipping options…</p>
         </div>
       )}
 
-      {/* ── Rate error (saved address mode) ── */}
-      {ratesError && !showForm && (
+      {/* ── Rate error (summary mode) ── */}
+      {ratesError && mode === "summary" && (
         <div className="rounded-xl border border-error bg-error-subtle p-4 text-sm text-error">
           {ratesError}
         </div>
