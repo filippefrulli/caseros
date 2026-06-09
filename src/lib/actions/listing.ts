@@ -40,6 +40,7 @@ export type ListingActionState = {
     Record<"title" | "description" | "priceEuros" | "stock" | "categoryId" | "weightGrams" | "dimensions", string[]>
   >;
   stripeRequired?: boolean;
+  pickupAddressRequired?: boolean;
 } | null;
 
 function toSlug(title: string): string {
@@ -129,7 +130,7 @@ export async function createListing(
   }
 
   if (publishNow && !isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
-    return { error: "Add your pickup address in your profile before publishing a physical listing." };
+    return { pickupAddressRequired: true };
   }
 
   await prisma.listing.create({
@@ -218,7 +219,7 @@ export async function updateListing(
     if (!seller.stripeOnboardingDone) return { stripeRequired: true };
 
     if (!isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
-      return { error: "Add your pickup address in your profile before publishing a physical listing." };
+      return { pickupAddressRequired: true };
     }
   }
 
@@ -277,7 +278,7 @@ export async function publishListing(listingId: string): Promise<{ error?: strin
   if (!seller.stripeOnboardingDone) return { stripeRequired: true };
 
   if (!listing.isDigital && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
-    return { error: "Add your pickup address in your profile before publishing." };
+    return { pickupAddressRequired: true };
   }
 
   await prisma.listing.update({

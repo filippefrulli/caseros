@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useCallback } from "react";
+import Link from "next/link";
 import { createListing, updateListing, type ListingActionState } from "@/lib/actions/listing";
 import { MediaUploader } from "@/components/seller/media-uploader";
 import { StripeConnectButton } from "@/components/seller/stripe-connect-button";
@@ -63,24 +64,6 @@ export function ListingForm({ userId, categories, listing }: Props) {
 
   return (
     <form action={action} className="space-y-6">
-      {state?.error && (
-        <p className="rounded-md bg-error-subtle px-4 py-3 text-sm text-error">
-          {state.error}
-        </p>
-      )}
-
-      {state?.stripeRequired && (
-        <div className="rounded-lg border border-warning bg-warning-subtle px-4 py-4">
-          <p className="text-sm font-medium text-text-primary">Listing saved as a draft</p>
-          <p className="mt-1 text-sm text-warning-fg">
-            Connect your Stripe account to publish it and start receiving payments.
-          </p>
-          <div className="mt-3">
-            <StripeConnectButton />
-          </div>
-        </div>
-      )}
-
       {listing && <input type="hidden" name="listingId" value={listing.id} />}
 
       {/* Media */}
@@ -272,6 +255,33 @@ export function ListingForm({ userId, categories, listing }: Props) {
             <p className="text-xs text-gray-400">
               Leave unchecked to save as a draft first
             </p>
+          </div>
+        </div>
+      )}
+
+      {state?.error && (
+        <p className="rounded-md bg-error-subtle px-4 py-3 text-sm text-error">
+          {state.error}
+        </p>
+      )}
+
+      {state?.pickupAddressRequired && (
+        <p className="rounded-md bg-error-subtle px-4 py-3 text-sm text-error">
+          Add your pickup address in your profile before publishing a physical listing.{" "}
+          <Link href="/seller/profile" className="underline font-medium">
+            Go to profile
+          </Link>
+        </p>
+      )}
+
+      {state?.stripeRequired && (
+        <div className="rounded-lg border border-warning bg-warning-subtle px-4 py-4">
+          <p className="text-sm font-medium text-text-primary">Listing saved as a draft</p>
+          <p className="mt-1 text-sm text-warning-fg">
+            Connect your Stripe account to publish it and start receiving payments.
+          </p>
+          <div className="mt-3">
+            <StripeConnectButton />
           </div>
         </div>
       )}
