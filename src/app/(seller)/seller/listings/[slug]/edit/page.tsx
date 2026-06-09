@@ -31,7 +31,7 @@ export default async function EditListingPage({ params }: Props) {
   if (!listing) notFound();
   if (listing.seller.user.supabaseId !== user.id) notFound();
 
-  const seller = await prisma.sellerProfile.findFirst({ where: { user: { supabaseId: user.id } }, select: { status: true } });
+  const seller = await prisma.sellerProfile.findFirst({ where: { user: { supabaseId: user.id } }, select: { status: true, stripeOnboardingDone: true } });
   if (seller?.status !== "ACTIVE") redirect("/seller/dashboard");
 
   return (
@@ -45,6 +45,7 @@ export default async function EditListingPage({ params }: Props) {
       <ListingForm
         userId={user.id}
         categories={categories}
+        stripeOnboardingDone={seller?.stripeOnboardingDone ?? false}
         listing={{
           id: listing.id,
           categoryId: listing.categoryId,

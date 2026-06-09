@@ -155,7 +155,7 @@ export default async function SellerDashboardPage() {
           <div className="flex-1">
             <p className="font-semibold text-warning-fg">Payout account under review</p>
             <p className="mt-0.5 text-sm text-warning-fg">
-              Stripe is verifying your details. This usually takes a few minutes. Buyers will be able to purchase once verification completes.
+              Stripe needs to verify your details. Ensure you've completed all required steps in Stripe. Buyers will be able to purchase once verification completes.
             </p>
           </div>
           <StripeConnectButton />

@@ -14,7 +14,7 @@ export default async function NewListingPage() {
   if (!user) redirect("/login?next=/seller/listings/new");
 
   const [seller, categories] = await Promise.all([
-    prisma.sellerProfile.findFirst({ where: { user: { supabaseId: user.id } } }),
+    prisma.sellerProfile.findFirst({ where: { user: { supabaseId: user.id } }, select: { status: true, stripeOnboardingDone: true } }),
     prisma.category.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
   if (!seller) redirect("/seller/onboarding");
@@ -28,7 +28,7 @@ export default async function NewListingPage() {
         </Link>
         <h1 className="text-2xl font-bold">New listing</h1>
       </div>
-      <ListingForm userId={user.id} categories={categories} />
+      <ListingForm userId={user.id} categories={categories} stripeOnboardingDone={seller.stripeOnboardingDone} />
     </main>
   );
 }

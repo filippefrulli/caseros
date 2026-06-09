@@ -50,9 +50,9 @@ type ExistingListing = {
   heightCm: number | null;
   images: { url: string; altText: string | null }[];
 };
-type Props = { userId: string; categories: Category[]; listing?: ExistingListing };
+type Props = { userId: string; categories: Category[]; listing?: ExistingListing; stripeOnboardingDone?: boolean };
 
-export function ListingForm({ userId, categories, listing }: Props) {
+export function ListingForm({ userId, categories, listing, stripeOnboardingDone = false }: Props) {
   const serverAction = listing ? updateListing : createListing;
   const [state, action, isPending] = useActionState<ListingActionState, FormData>(
     serverAction,
@@ -237,23 +237,26 @@ export function ListingForm({ userId, categories, listing }: Props) {
 
       {/* Publish now — only on create */}
       {!listing && (
-        <div className="flex items-center gap-3 rounded-lg border border-gray-200 px-4 py-3">
+        <div className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${!stripeOnboardingDone ? "border-gray-200 opacity-60" : "border-gray-200"}`}>
           <input
             id="publishNow"
             name="publishNow"
             type="checkbox"
             value="true"
-            className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+            disabled={!stripeOnboardingDone}
+            className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900 disabled:cursor-not-allowed"
           />
           <div>
             <label
               htmlFor="publishNow"
-              className="cursor-pointer text-sm font-medium text-gray-700"
+              className={`text-sm font-medium ${!stripeOnboardingDone ? "cursor-not-allowed text-gray-400" : "cursor-pointer text-gray-700"}`}
             >
               Publish immediately
             </label>
             <p className="text-xs text-gray-400">
-              Leave unchecked to save as a draft first
+              {stripeOnboardingDone
+                ? "Leave unchecked to save as a draft first"
+                : "Connect your Stripe account to publish listings"}
             </p>
           </div>
         </div>
@@ -292,7 +295,7 @@ export function ListingForm({ userId, categories, listing }: Props) {
             type="submit"
             name="publishNow"
             value="true"
-            disabled={isPending || uploading || !!state?.stripeRequired}
+            disabled={isPending || uploading || !stripeOnboardingDone}
             className="flex-1 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
           >
             {isPending ? "Saving…" : "Save & publish"}
@@ -301,7 +304,7 @@ export function ListingForm({ userId, categories, listing }: Props) {
 
         <button
           type="submit"
-          disabled={isPending || uploading || !!state?.stripeRequired}
+          disabled={isPending || uploading}
           className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 ${
             listing?.status === "DRAFT"
               ? "border border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-900"

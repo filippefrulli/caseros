@@ -210,18 +210,23 @@ export async function updateListing(
   });
   if (!existing) return { error: "Listing not found." };
 
+  let stripeRequired = false;
+  let pickupAddressRequired = false;
+
   if (publishNow) {
     const seller = await prisma.sellerProfile.findFirst({
       where: { user: { supabaseId: user.id } },
     });
     if (!seller) return { error: "Seller profile not found." };
 
-    if (!seller.stripeOnboardingDone) return { stripeRequired: true };
-
-    if (!isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
-      return { pickupAddressRequired: true };
+    if (!seller.stripeOnboardingDone) {
+      stripeRequired = true;
+    } else if (!isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
+      pickupAddressRequired = true;
     }
   }
+
+  const shouldPublish = publishNow && !stripeRequired && !pickupAddressRequired;
 
   await prisma.$transaction(async (tx) => {
     await tx.listingImage.deleteMany({ where: { listingId } });
@@ -239,13 +244,16 @@ export async function updateListing(
         lengthCm: lengthCm ?? null,
         widthCm: widthCm ?? null,
         heightCm: heightCm ?? null,
-        ...(publishNow ? { status: "ACTIVE" } : {}),
+        ...(shouldPublish ? { status: "ACTIVE" } : {}),
         images: {
           create: imageUrls.map((url, position) => ({ url, position })),
         },
       },
     });
   });
+
+  if (stripeRequired) return { stripeRequired: true };
+  if (pickupAddressRequired) return { pickupAddressRequired: true };
 
   redirect("/seller/dashboard");
 }
