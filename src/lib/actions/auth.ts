@@ -132,7 +132,7 @@ export async function requestPasswordReset(
 
   // Always return success to avoid leaking whether the email exists.
   return {
-    success: "If that email has an account, you'll receive a reset link shortly.",
+    success: "If an account exists for that email, you'll receive a reset link in the next few minutes. Check your spam folder if you don't see it.",
   };
 }
 

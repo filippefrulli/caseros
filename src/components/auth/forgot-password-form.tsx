@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { requestPasswordReset, type AuthActionState } from "@/lib/actions/auth";
 
 const inputClass =
@@ -14,9 +15,17 @@ export function ForgotPasswordForm() {
 
   if (state?.success) {
     return (
-      <p className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
-        {state.success}
-      </p>
+      <div className="text-center">
+        <p className="text-4xl mb-4">📬</p>
+        <h2 className="text-lg font-semibold text-text-primary mb-2">Check your inbox</h2>
+        <p className="text-sm text-text-secondary leading-relaxed mb-6">{state.success}</p>
+        <Link
+          href="/login"
+          className="text-sm font-medium text-accent hover:text-accent-hover transition-colors"
+        >
+          Back to sign in
+        </Link>
+      </div>
     );
   }
 
