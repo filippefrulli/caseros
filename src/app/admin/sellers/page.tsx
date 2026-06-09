@@ -19,7 +19,7 @@ export default async function AdminSellersPage() {
   const SELLERS_CAP = 100;
   const [sellers, activeSellers] = await Promise.all([
     prisma.sellerProfile.findMany({
-      where: { status: { in: ["PENDING", "REJECTED"] } },
+      where: { status: { in: ["PENDING", "REJECTED"] }, user: { deletedAt: null } },
       include: {
         kyc: true,
         socialLinks: true,
@@ -29,7 +29,7 @@ export default async function AdminSellersPage() {
       take: SELLERS_CAP,
     }),
     prisma.sellerProfile.findMany({
-      where: { status: "ACTIVE" },
+      where: { status: "ACTIVE", user: { deletedAt: null } },
       select: {
         id: true,
         shopName: true,

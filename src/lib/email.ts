@@ -10,6 +10,10 @@ import { AdminNewOrderEmail } from "@/emails/admin-new-order";
 
 const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
+if (!resend) {
+  console.warn("[email] RESEND_API_KEY is not set — all emails will be skipped");
+}
+
 // Sandbox default — works without a verified domain, delivers only to the
 // account owner's address. Override with RESEND_FROM once a domain is verified.
 const FROM = env.RESEND_FROM ?? "caseros <onboarding@resend.dev>";
@@ -22,11 +26,16 @@ type OrderItem = {
 };
 
 // The Resend SDK never throws — it returns { data, error }. This helper logs
-// the error and returns so callers don't need to check the tuple themselves.
+// the attempt, outcome, and any error so every send is visible in Vercel logs.
 async function send(...args: Parameters<Resend["emails"]["send"]>) {
+  const [payload] = args;
+  const to = Array.isArray(payload.to) ? payload.to.join(", ") : payload.to;
+  console.info(`[email] sending "${payload.subject}" → ${to}`);
   const { data, error } = await resend!.emails.send(...args);
   if (error) {
-    console.error("[email] Resend API error:", error.message, error);
+    console.error(`[email] failed "${payload.subject}" → ${to}:`, error.message, error);
+  } else {
+    console.info(`[email] sent "${payload.subject}" → ${to} (id: ${data?.id})`);
   }
   return data;
 }
@@ -168,7 +177,10 @@ export async function sendAdminSellerApplicationEmail({
     console.warn("[email] RESEND_API_KEY not set — skipping admin seller application email");
     return;
   }
-  if (!env.ADMIN_EMAIL) return;
+  if (!env.ADMIN_EMAIL) {
+    console.warn("[email] ADMIN_EMAIL not set — skipping admin seller application email");
+    return;
+  }
   await send(
     {
       from: FROM,
@@ -199,7 +211,10 @@ export async function sendAdminNewOrderEmail({
     console.warn("[email] RESEND_API_KEY not set — skipping admin new order email");
     return;
   }
-  if (!env.ADMIN_EMAIL) return;
+  if (!env.ADMIN_EMAIL) {
+    console.warn("[email] ADMIN_EMAIL not set — skipping admin new order email");
+    return;
+  }
   await send(
     {
       from: FROM,
