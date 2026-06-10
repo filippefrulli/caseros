@@ -77,27 +77,27 @@ export function AddressForm({ initial, onSuccess, onCancel }: Props) {
         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
           Full name <span className="text-error">*</span>
         </label>
-        <input id="name" name="name" type="text" required defaultValue={values?.name ?? ""} placeholder="Jane Smith" className={inputCls} />
+        <input id="name" name="name" type="text" required defaultValue={values?.name ?? ""} placeholder="Jane Smith" autoComplete="name" className={inputCls} />
         {state?.fieldErrors?.name && <p className="mt-1 text-xs text-error">{state.fieldErrors.name[0]}</p>}
       </div>
 
-      <div className="grid grid-cols-4 gap-2">
-        <div className="col-span-3">
-          <label htmlFor="line1" className="block text-sm font-medium text-gray-700 mb-1">
-            Street <span className="text-error">*</span>
-          </label>
-          <input id="line1" name="line1" type="text" required defaultValue={values?.line1 ?? ""} placeholder="Main Street" className={inputCls} />
-          {state?.fieldErrors?.line1 && <p className="mt-1 text-xs text-error">{state.fieldErrors.line1[0]}</p>}
-        </div>
-        <div>
-          <label htmlFor="houseNumber" className="block text-sm font-medium text-gray-700 mb-1">No.</label>
-          <input id="houseNumber" name="houseNumber" type="text" defaultValue={values?.houseNumber ?? ""} placeholder="12" className={inputCls} />
-        </div>
+      <div>
+        <label htmlFor="line1" className="block text-sm font-medium text-gray-700 mb-1">
+          Street address <span className="text-error">*</span>
+        </label>
+        <input
+          id="line1" name="line1" type="text" required
+          defaultValue={[values?.line1, values?.houseNumber].filter(Boolean).join(" ") || ""}
+          placeholder="Main Street 12"
+          autoComplete="address-line1"
+          className={inputCls}
+        />
+        {state?.fieldErrors?.line1 && <p className="mt-1 text-xs text-error">{state.fieldErrors.line1[0]}</p>}
       </div>
 
       <div>
         <label htmlFor="line2" className="block text-sm font-medium text-gray-700 mb-1">Apt / suite (optional)</label>
-        <input id="line2" name="line2" type="text" defaultValue={values?.line2 ?? ""} placeholder="Apartment 3B" className={inputCls} />
+        <input id="line2" name="line2" type="text" defaultValue={values?.line2 ?? ""} placeholder="Apartment 3B" autoComplete="address-line3" className={inputCls} />
       </div>
 
       <div className="grid grid-cols-2 gap-2">
@@ -105,14 +105,14 @@ export function AddressForm({ initial, onSuccess, onCancel }: Props) {
           <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
             Postal code <span className="text-error">*</span>
           </label>
-          <input id="postalCode" name="postalCode" type="text" required defaultValue={values?.postalCode ?? ""} placeholder="D01 F5P2" className={inputCls} />
+          <input id="postalCode" name="postalCode" type="text" required defaultValue={values?.postalCode ?? ""} placeholder="D01 F5P2" autoComplete="postal-code" className={inputCls} />
           {state?.fieldErrors?.postalCode && <p className="mt-1 text-xs text-error">{state.fieldErrors.postalCode[0]}</p>}
         </div>
         <div>
           <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
             City <span className="text-error">*</span>
           </label>
-          <input id="city" name="city" type="text" required defaultValue={values?.city ?? ""} placeholder="Dublin" className={inputCls} />
+          <input id="city" name="city" type="text" required defaultValue={values?.city ?? ""} placeholder="Dublin" autoComplete="address-level2" className={inputCls} />
           {state?.fieldErrors?.city && <p className="mt-1 text-xs text-error">{state.fieldErrors.city[0]}</p>}
         </div>
       </div>
@@ -134,7 +134,7 @@ export function AddressForm({ initial, onSuccess, onCancel }: Props) {
 
       <div>
         <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone (optional)</label>
-        <input id="phone" name="phone" type="tel" defaultValue={values?.phone ?? ""} placeholder="+353 1 234 5678" className={inputCls} />
+        <input id="phone" name="phone" type="tel" defaultValue={values?.phone ?? ""} placeholder="+353 1 234 5678" autoComplete="tel" className={inputCls} />
       </div>
 
       <div className="flex gap-3">

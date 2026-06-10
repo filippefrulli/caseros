@@ -166,13 +166,12 @@ export async function updateSellerProfile(
 
 const pickupSchema = z.object({
   pickupName: z.string().min(1, "Name is required").max(100),
-  pickupLine1: z.string().min(1, "Address line 1 is required").max(200),
+  pickupLine1: z.string().min(1, "Street address is required").max(200),
   pickupLine2: z.string().max(200).optional(),
-  pickupHouseNumber: z.string().max(20).optional(),
   pickupCity: z.string().min(1, "City is required").max(100),
   pickupPostalCode: z.string().min(1, "Postal code is required").max(20),
   pickupCountry: z.string().length(2, "Select a country"),
-  pickupPhone: z.string().min(5, "Phone is required").max(30),
+  pickupPhone: z.string().max(30).optional(),
 });
 
 export type PickupAddressState = {
@@ -199,11 +198,10 @@ export async function updatePickupAddress(
     pickupName: formData.get("pickupName") as string,
     pickupLine1: formData.get("pickupLine1") as string,
     pickupLine2: (formData.get("pickupLine2") as string) || undefined,
-    pickupHouseNumber: (formData.get("pickupHouseNumber") as string) || undefined,
     pickupCity: formData.get("pickupCity") as string,
     pickupPostalCode: formData.get("pickupPostalCode") as string,
     pickupCountry: formData.get("pickupCountry") as string,
-    pickupPhone: formData.get("pickupPhone") as string,
+    pickupPhone: (formData.get("pickupPhone") as string) || undefined,
   };
 
   const parsed = pickupSchema.safeParse(raw);
@@ -215,11 +213,10 @@ export async function updatePickupAddress(
     pickupName: parsed.data.pickupName.trim(),
     pickupLine1: parsed.data.pickupLine1.trim(),
     pickupLine2: parsed.data.pickupLine2?.trim() || undefined,
-    pickupHouseNumber: parsed.data.pickupHouseNumber?.trim() || undefined,
     pickupCity: parsed.data.pickupCity.trim(),
     pickupPostalCode: parsed.data.pickupPostalCode.trim(),
     pickupCountry: parsed.data.pickupCountry,
-    pickupPhone: parsed.data.pickupPhone.trim(),
+    pickupPhone: parsed.data.pickupPhone?.trim() || undefined,
   };
 
   await prisma.sellerProfile.update({
@@ -227,7 +224,8 @@ export async function updatePickupAddress(
     data: {
       ...saved,
       pickupLine2: saved.pickupLine2 ?? null,
-      pickupHouseNumber: saved.pickupHouseNumber ?? null,
+      pickupHouseNumber: null,
+      pickupPhone: saved.pickupPhone ?? null,
     },
   });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Send, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -26,6 +26,7 @@ export function MessageThread({
   initialData: ThreadData;
   otherPartyName: string;
 }) {
+  const queryClient = useQueryClient();
   const bottomRef = useRef<HTMLDivElement>(null);
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
@@ -54,15 +55,31 @@ export function MessageThread({
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
-    if (!body.trim() || sending) return;
+    const text = body.trim();
+    if (!text || sending) return;
+
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimistic: Message = { id: optimisticId, body: text, senderId: currentUserId, createdAt: new Date().toISOString() };
+
+    queryClient.setQueryData<ThreadData>(["messages", conversationId], (old) => ({
+      ...old!,
+      messages: [...(old?.messages ?? []), optimistic],
+    }));
+
+    setBody("");
     setSending(true);
     try {
       await fetch(`/api/messages/${conversationId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body }),
+        body: JSON.stringify({ body: text }),
       });
-      setBody("");
+      queryClient.invalidateQueries({ queryKey: ["messages", conversationId] });
+    } catch {
+      queryClient.setQueryData<ThreadData>(["messages", conversationId], (old) => ({
+        ...old!,
+        messages: (old?.messages ?? []).filter((m) => m.id !== optimisticId),
+      }));
     } finally {
       setSending(false);
     }

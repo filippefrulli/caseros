@@ -163,7 +163,7 @@ async function handleCheckout(req: Request) {
         },
         toAddress: {
           name: resolvedAddress.name,
-          street1: resolvedAddress.line1,
+          street1: resolvedAddress.line1.split(",")[0].trim(),
           street_no: resolvedAddress.houseNumber ?? undefined,
           city: resolvedAddress.city,
           zip: resolvedAddress.postalCode,

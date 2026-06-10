@@ -16,11 +16,12 @@ export async function toggleFavorite(listingId: string): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  const dbUser = await prisma.user.findUnique({
+  const dbUser = await prisma.user.upsert({
     where: { supabaseId: user.id },
+    update: {},
+    create: { supabaseId: user.id, email: user.email! },
     select: { id: true },
   });
-  if (!dbUser) throw new Error("User not found");
 
   const existing = await prisma.favorite.findUnique({
     where: { userId_listingId: { userId: dbUser.id, listingId } },
@@ -48,9 +49,10 @@ export async function updateUserAvatar(avatarUrl: string): Promise<void> {
     throw new Error("Invalid avatar URL");
   }
 
-  await prisma.user.update({
+  await prisma.user.upsert({
     where: { supabaseId: user.id },
-    data: { avatarUrl },
+    update: { avatarUrl },
+    create: { supabaseId: user.id, email: user.email!, avatarUrl },
   });
 
   revalidatePath("/account");

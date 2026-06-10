@@ -62,20 +62,35 @@ export async function GET(request: Request) {
 
   const isNewUser = !existing;
 
-  const dbUser = await prisma.user.upsert({
-    where: { supabaseId: id },
-    create: {
-      supabaseId: id,
-      email: email!,
-      name: (user_metadata?.full_name as string) ?? null,
-      avatarUrl: (user_metadata?.avatar_url as string) ?? null,
-    },
-    update: {
-      email: email!,
-      name: (user_metadata?.full_name as string) ?? null,
-      avatarUrl: (user_metadata?.avatar_url as string) ?? null,
-    },
-  });
+  const profileData = {
+    email: email!,
+    name: (user_metadata?.full_name as string) ?? null,
+    avatarUrl: (user_metadata?.avatar_url as string) ?? null,
+  };
+
+  let dbUser;
+  try {
+    dbUser = await prisma.user.upsert({
+      where: { supabaseId: id },
+      create: { supabaseId: id, ...profileData },
+      update: profileData,
+    });
+  } catch (e: unknown) {
+    // Race condition: two concurrent callbacks both saw no existing row and
+    // both tried to INSERT. The second one hits the email unique constraint.
+    // Recover by finding the row the winner created and updating it.
+    if (
+      e instanceof Error &&
+      "code" in e &&
+      (e as { code: string }).code === "P2002"
+    ) {
+      const race = await prisma.user.findUnique({ where: { supabaseId: id } });
+      if (!race) throw e;
+      dbUser = await prisma.user.update({ where: { supabaseId: id }, data: profileData });
+    } else {
+      throw e;
+    }
+  }
 
   if (isNewUser) {
     const headersList = await headers();

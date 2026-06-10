@@ -28,11 +28,12 @@ export async function POST(request: Request) {
     sellerType,
     // Individual KYC
     fullName, dateOfBirth, addressLine1, addressLine2, city, postalCode,
-    disclaimerAcknowledged,
     // Trader KYC
     businessRegNumber, contactPhone, contactEmail, safetyCompliant,
     // Shop
     shopName, slug, bio, country,
+    // Pickup/shipping address
+    pickupName, pickupLine1, pickupLine2, pickupCity, pickupPostalCode, pickupCountry, pickupPhone,
     // Verification
     verificationVideoUrl,
     // Social links
@@ -47,9 +48,10 @@ export async function POST(request: Request) {
     if (!fullName?.trim() || !dateOfBirth || !addressLine1?.trim() || !city?.trim() || !postalCode?.trim()) {
       return NextResponse.json({ error: "Missing identity fields" }, { status: 400 });
     }
-    if (!disclaimerAcknowledged) {
-      return NextResponse.json({ error: "Disclaimer must be acknowledged" }, { status: 400 });
-    }
+  }
+
+  if (!pickupLine1?.trim() || !pickupCity?.trim() || !pickupPostalCode?.trim()) {
+    return NextResponse.json({ error: "Shipping address is required" }, { status: 400 });
   }
 
   if (sellerType === "TRADER") {
@@ -91,6 +93,13 @@ export async function POST(request: Request) {
       bio: bio?.trim() || null,
       country,
       status: "PENDING",
+      pickupName: pickupName?.trim() || null,
+      pickupLine1: pickupLine1.trim(),
+      pickupLine2: pickupLine2?.trim() || null,
+      pickupCity: pickupCity.trim(),
+      pickupPostalCode: pickupPostalCode.trim(),
+      pickupCountry: pickupCountry?.trim() || country,
+      pickupPhone: pickupPhone?.trim() || null,
       kyc: {
         create: {
           sellerType,
@@ -100,7 +109,6 @@ export async function POST(request: Request) {
           addressLine2: addressLine2?.trim() ?? null,
           city: city?.trim() ?? null,
           postalCode: postalCode?.trim() ?? null,
-          disclaimerAcknowledged: disclaimerAcknowledged ?? false,
           businessRegNumber: businessRegNumber?.trim() ?? null,
           contactPhone: contactPhone?.trim() ?? null,
           contactEmail: contactEmail?.trim() ?? null,

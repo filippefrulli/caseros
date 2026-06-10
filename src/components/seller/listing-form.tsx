@@ -237,23 +237,23 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
 
       {/* Publish now — only on create */}
       {!listing && (
-        <div className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${!stripeOnboardingDone ? "border-gray-200 opacity-60" : "border-gray-200"}`}>
+        <div className="flex items-center gap-3 rounded-lg border border-gray-200 px-4 py-3">
           <input
             id="publishNow"
             name="publishNow"
             type="checkbox"
             value="true"
             disabled={!stripeOnboardingDone}
-            className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900 disabled:cursor-not-allowed"
+            className={`h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900 disabled:cursor-not-allowed ${!stripeOnboardingDone ? "opacity-40" : ""}`}
           />
           <div>
             <label
               htmlFor="publishNow"
-              className={`text-sm font-medium ${!stripeOnboardingDone ? "cursor-not-allowed text-gray-400" : "cursor-pointer text-gray-700"}`}
+              className={`text-sm font-medium ${!stripeOnboardingDone ? "cursor-not-allowed text-gray-300" : "cursor-pointer text-gray-700"}`}
             >
               Publish immediately
             </label>
-            <p className="text-xs text-gray-400">
+            <p className={`text-xs ${!stripeOnboardingDone ? "text-gray-600" : "text-gray-400"}`}>
               {stripeOnboardingDone
                 ? "Leave unchecked to save as a draft first"
                 : "Connect your Stripe account to publish listings"}

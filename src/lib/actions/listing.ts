@@ -129,7 +129,7 @@ export async function createListing(
     return { stripeRequired: true };
   }
 
-  if (publishNow && !isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
+  if (publishNow && !isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry)) {
     return { pickupAddressRequired: true };
   }
 
@@ -221,7 +221,7 @@ export async function updateListing(
 
     if (!seller.stripeOnboardingDone) {
       stripeRequired = true;
-    } else if (!isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
+    } else if (!isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry)) {
       pickupAddressRequired = true;
     }
   }
@@ -285,7 +285,7 @@ export async function publishListing(listingId: string): Promise<ListingActionSt
 
   if (!seller.stripeOnboardingDone) return { stripeRequired: true };
 
-  if (!listing.isDigital && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry || !seller.pickupPhone)) {
+  if (!listing.isDigital && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry)) {
     return { pickupAddressRequired: true };
   }
 

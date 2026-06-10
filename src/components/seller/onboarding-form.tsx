@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  User, Store, AlertTriangle, ChevronDown, Loader2, Video, X, CheckCircle,
+  User, Store, ChevronDown, Loader2, Video, X, CheckCircle,
 } from "lucide-react";
 import { uploadPrivate } from "@/lib/upload";
 
@@ -33,6 +33,15 @@ interface FormState {
   slug: string;
   bio: string;
   country: string;
+  // Step 3 — pickup/shipping address
+  sameAsProfileAddress: boolean;
+  pickupName: string;
+  pickupLine1: string;
+  pickupLine2: string;
+  pickupCity: string;
+  pickupPostalCode: string;
+  pickupCountry: string;
+  pickupPhone: string;
   // Step 4 — verification
   verificationVideoUrl: string;
   website: string;
@@ -50,27 +59,28 @@ const EMPTY_FORM: FormState = {
   businessRegNumber: "", contactPhone: "", contactEmail: "",
   safetyCompliant: false,
   shopName: "", slug: "", bio: "", country: "",
+  sameAsProfileAddress: false,
+  pickupName: "", pickupLine1: "", pickupLine2: "", pickupCity: "", pickupPostalCode: "", pickupCountry: "", pickupPhone: "",
   verificationVideoUrl: "",
   website: "", instagram: "", tiktok: "", youtube: "", facebook: "",
 };
 
+// Countries with reliable Shippo default carrier pickup (DPD, GLS, DHL Parcel).
+// Excluded: IE/CY/MT (islands, no default carrier pickup), GB (post-Brexit customs),
+// NO/CH/IS (non-EU, customs complications). Add more as carrier accounts are connected.
 const EU_COUNTRIES = [
   { code: "AT", name: "Austria" }, { code: "BE", name: "Belgium" },
   { code: "BG", name: "Bulgaria" }, { code: "HR", name: "Croatia" },
-  { code: "CY", name: "Cyprus" }, { code: "CZ", name: "Czech Republic" },
-  { code: "DK", name: "Denmark" }, { code: "EE", name: "Estonia" },
-  { code: "FI", name: "Finland" }, { code: "FR", name: "France" },
-  { code: "DE", name: "Germany" }, { code: "GR", name: "Greece" },
-  { code: "HU", name: "Hungary" }, { code: "IE", name: "Ireland" },
+  { code: "CZ", name: "Czech Republic" }, { code: "DK", name: "Denmark" },
+  { code: "EE", name: "Estonia" }, { code: "FI", name: "Finland" },
+  { code: "FR", name: "France" }, { code: "DE", name: "Germany" },
+  { code: "GR", name: "Greece" }, { code: "HU", name: "Hungary" },
   { code: "IT", name: "Italy" }, { code: "LV", name: "Latvia" },
   { code: "LT", name: "Lithuania" }, { code: "LU", name: "Luxembourg" },
-  { code: "MT", name: "Malta" }, { code: "NL", name: "Netherlands" },
-  { code: "PL", name: "Poland" }, { code: "PT", name: "Portugal" },
-  { code: "RO", name: "Romania" }, { code: "SK", name: "Slovakia" },
-  { code: "SI", name: "Slovenia" }, { code: "ES", name: "Spain" },
-  { code: "SE", name: "Sweden" }, { code: "GB", name: "United Kingdom" },
-  { code: "NO", name: "Norway" }, { code: "CH", name: "Switzerland" },
-  { code: "IS", name: "Iceland" },
+  { code: "NL", name: "Netherlands" }, { code: "PL", name: "Poland" },
+  { code: "PT", name: "Portugal" }, { code: "RO", name: "Romania" },
+  { code: "SK", name: "Slovakia" }, { code: "SI", name: "Slovenia" },
+  { code: "ES", name: "Spain" }, { code: "SE", name: "Sweden" },
 ];
 
 const SOCIAL_PLATFORMS = [
@@ -197,7 +207,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.form) setForm(parsed.form);
+        if (parsed.form) setForm({ ...EMPTY_FORM, ...parsed.form });
         if (parsed.step) setStep(parsed.step as Step);
         if (parsed.maxStep) setMaxStep(parsed.maxStep as Step);
         if (parsed.videoName) setVideoName(parsed.videoName);
@@ -260,18 +270,13 @@ export function OnboardingForm({ userId }: { userId: string }) {
 
   // ── Step 1 ─────────────────────────────────────────────────────────────────
 
-  const step1CanContinue =
-    form.sellerType === "TRADER" ||
-    (form.sellerType === "INDIVIDUAL" && form.disclaimerAcknowledged);
+  const step1CanContinue = form.sellerType !== null;
 
   function renderStep1() {
     return (
       <div className="space-y-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">How do you plan to sell?</h1>
-          <p className="mt-1.5 text-sm text-gray-500">
-            EU law requires us to know whether you are selling as a private individual or a commercial trader.
-          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -292,40 +297,23 @@ export function OnboardingForm({ userId }: { userId: string }) {
         </div>
 
         <details className="group rounded-xl border border-gray-200 px-4 py-3">
-          <summary className="flex cursor-pointer select-none items-center justify-between text-sm font-medium text-gray-700 [list-style:none] [&::-webkit-details-marker]:hidden">
+          <summary className="flex cursor-pointer select-none items-center justify-between text-sm font-medium text-gray-600 [list-style:none] [&::-webkit-details-marker]:hidden">
             <span>Not sure which applies to you?</span>
             <ChevronDown size={15} className="shrink-0 text-gray-400 transition-transform duration-150 group-open:rotate-180" />
           </summary>
-          <p className="mt-3 mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">You are likely a Trader if you…</p>
-          <ul className="space-y-2 text-sm text-gray-600">
-            <li className="flex items-start gap-2"><span className="mt-0.5 text-gray-300">•</span>Sell "New with Tags" items in bulk.</li>
-            <li className="flex items-start gap-2"><span className="mt-0.5 text-gray-300">•</span>Regularly manufacture or flip items for profit.</li>
-            <li className="flex items-start gap-2"><span className="mt-0.5 text-gray-300">•</span>Have an existing business licence.</li>
-          </ul>
-        </details>
-
-        {form.sellerType === "INDIVIDUAL" && (
-          <div className="rounded-xl border border-warning bg-warning-subtle p-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle size={15} className="mt-0.5 shrink-0 text-amber-500" />
-              <div className="space-y-3">
-                <p className="text-sm text-warning-fg">
-                  <strong>Please note:</strong> Consumer rights (14-day returns) will not apply to your sales.
-                  Buyers purchasing from private individuals are not entitled to the same protections as when buying from a trader.
-                </p>
-                <label className="flex cursor-pointer items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    checked={form.disclaimerAcknowledged}
-                    onChange={e => set({ disclaimerAcknowledged: e.target.checked })}
-                    className="mt-0.5 h-4 w-4 rounded border-amber-300 accent-gray-900"
-                  />
-                  <span className="text-sm text-warning-fg">I understand and accept this</span>
-                </label>
-              </div>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <p className="text-xs font-semibold text-gray-900">Private individual</p>
+              <p className="mt-1 text-xs text-gray-500">Clearing out items you no longer need — handmade crafts, second-hand clothes, vintage finds. No business registration required.</p>
+            </div>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <p className="text-xs font-semibold text-gray-900">Commercial trader</p>
+              <p className="mt-1 text-xs text-gray-500">Selling regularly for profit, running a business, manufacturing goods, or buying items to resell. EU consumer protection rules apply to your buyers.</p>
             </div>
           </div>
-        )}
+          <p className="mt-3 text-xs text-gray-400">Still unsure? You&apos;re most likely a <strong className="text-gray-600">Trader</strong> if you sell new-with-tags items in bulk, flip items regularly, or hold a business licence.</p>
+        </details>
+
 
         <button
           type="button"
@@ -365,27 +353,27 @@ export function OnboardingForm({ userId }: { userId: string }) {
           <div className="space-y-4">
             <Field label="Full legal name" required>
               <input type="text" value={form.fullName} onChange={e => set({ fullName: e.target.value })}
-                placeholder="As it appears on your ID" className={inputCls} />
+                placeholder="As it appears on your ID" autoComplete="name" className={inputCls} />
             </Field>
             <Field label="Date of birth" required>
               <input type="date" value={form.dateOfBirth} onChange={e => set({ dateOfBirth: e.target.value })}
                 max={new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]}
-                className={inputCls} />
+                autoComplete="bday" className={inputCls} />
             </Field>
             <Field label="Address line 1" required>
               <input type="text" value={form.addressLine1} onChange={e => set({ addressLine1: e.target.value })}
-                placeholder="Street and number" className={inputCls} />
+                placeholder="Street and number" autoComplete="address-line1" className={inputCls} />
             </Field>
             <Field label="Address line 2">
               <input type="text" value={form.addressLine2} onChange={e => set({ addressLine2: e.target.value })}
-                placeholder="Apartment, floor, etc." className={inputCls} />
+                placeholder="Apartment, floor, etc." autoComplete="address-line2" className={inputCls} />
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="City" required>
-                <input type="text" value={form.city} onChange={e => set({ city: e.target.value })} className={inputCls} />
+                <input type="text" value={form.city} onChange={e => set({ city: e.target.value })} autoComplete="address-level2" className={inputCls} />
               </Field>
               <Field label="Postal code" required>
-                <input type="text" value={form.postalCode} onChange={e => set({ postalCode: e.target.value })} className={inputCls} />
+                <input type="text" value={form.postalCode} onChange={e => set({ postalCode: e.target.value })} autoComplete="postal-code" className={inputCls} />
               </Field>
             </div>
           </div>
@@ -397,11 +385,11 @@ export function OnboardingForm({ userId }: { userId: string }) {
             </Field>
             <Field label="Contact phone" required hint="Will be displayed to buyers on your shop page.">
               <input type="tel" value={form.contactPhone} onChange={e => set({ contactPhone: e.target.value })}
-                placeholder="+49 123 456 7890" className={inputCls} />
+                placeholder="+49 123 456 7890" autoComplete="tel" className={inputCls} />
             </Field>
             <Field label="Contact email" required hint="Will be displayed to buyers on your shop page.">
               <input type="email" value={form.contactEmail} onChange={e => set({ contactEmail: e.target.value })}
-                placeholder="contact@mybusiness.com" className={inputCls} />
+                placeholder="contact@mybusiness.com" autoComplete="email" className={inputCls} />
             </Field>
             <div className="rounded-xl border border-gray-200 p-4">
               <label className="flex cursor-pointer items-start gap-3">
@@ -436,7 +424,10 @@ export function OnboardingForm({ userId }: { userId: string }) {
 
   // ── Step 3 ─────────────────────────────────────────────────────────────────
 
-  const step3CanContinue = Boolean(form.shopName.trim() && form.slug.trim() && form.country);
+  const pickupReady = form.sameAsProfileAddress
+    ? Boolean(form.fullName.trim() && form.addressLine1.trim() && form.city.trim() && form.postalCode.trim())
+    : Boolean(form.pickupLine1.trim() && form.pickupCity.trim() && form.pickupPostalCode.trim());
+  const step3CanContinue = Boolean(form.shopName.trim() && form.slug.trim() && form.country) && pickupReady;
 
   function renderStep3() {
     return (
@@ -501,7 +492,73 @@ export function OnboardingForm({ userId }: { userId: string }) {
               </select>
               <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
+            <p className="mt-1.5 text-xs text-gray-400">
+              Not all countries are supported yet — we&apos;re working on expanding coverage.
+            </p>
           </Field>
+
+          <div className="pt-2 space-y-3">
+            <div>
+              <p className="text-sm font-medium text-gray-700">Shipping address <span className="ml-0.5 text-error">*</span></p>
+              <p className="text-xs text-gray-400 mt-0.5">The address packages will be sent from.</p>
+            </div>
+
+            {isIndividual && (
+              <label className="flex cursor-pointer items-center gap-2.5">
+                <input
+                  type="checkbox"
+                  checked={form.sameAsProfileAddress}
+                  onChange={e => set({ sameAsProfileAddress: e.target.checked })}
+                  className="h-4 w-4 rounded border-gray-300 accent-gray-900"
+                />
+                <span className="text-sm text-gray-700">Same as my identity address</span>
+              </label>
+            )}
+
+            {form.sameAsProfileAddress && isIndividual ? (
+              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-600 space-y-0.5">
+                {form.fullName && <p className="font-medium text-gray-900">{form.fullName}</p>}
+                <p>{form.addressLine1}{form.addressLine2 ? `, ${form.addressLine2}` : ""}</p>
+                <p>{form.postalCode} {form.city}</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Field label="Full name">
+                  <input type="text" value={form.pickupName} onChange={e => set({ pickupName: e.target.value })}
+                    placeholder="Name on the label" autoComplete="name" className={inputCls} />
+                </Field>
+                <Field label="Address line 1" required>
+                  <input type="text" value={form.pickupLine1} onChange={e => set({ pickupLine1: e.target.value })}
+                    placeholder="Street and number" autoComplete="address-line1" className={inputCls} />
+                </Field>
+                <Field label="Address line 2">
+                  <input type="text" value={form.pickupLine2} onChange={e => set({ pickupLine2: e.target.value })}
+                    placeholder="Apartment, floor, etc." autoComplete="address-line2" className={inputCls} />
+                </Field>
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="City" required>
+                    <input type="text" value={form.pickupCity} onChange={e => set({ pickupCity: e.target.value })}
+                      autoComplete="address-level2" className={inputCls} />
+                  </Field>
+                  <Field label="Postal code" required>
+                    <input type="text" value={form.pickupPostalCode} onChange={e => set({ pickupPostalCode: e.target.value })}
+                      autoComplete="postal-code" className={inputCls} />
+                  </Field>
+                </div>
+                <Field label="Country">
+                  <div className="relative">
+                    <select value={form.pickupCountry || form.country} onChange={e => set({ pickupCountry: e.target.value })} className={selectCls}>
+                      <option value="" disabled>Select country</option>
+                      {EU_COUNTRIES.map(c => (
+                        <option key={c.code} value={c.code}>{c.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  </div>
+                </Field>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-3 pt-2">
@@ -529,11 +586,15 @@ export function OnboardingForm({ userId }: { userId: string }) {
     setLoading(true);
     setSubmitError(null);
     try {
+      const resolvedPickup = form.sameAsProfileAddress
+        ? { pickupName: form.fullName, pickupLine1: form.addressLine1, pickupLine2: form.addressLine2, pickupCity: form.city, pickupPostalCode: form.postalCode, pickupCountry: form.country, pickupPhone: "" }
+        : { pickupName: form.pickupName, pickupLine1: form.pickupLine1, pickupLine2: form.pickupLine2, pickupCity: form.pickupCity, pickupPostalCode: form.pickupPostalCode, pickupCountry: form.pickupCountry || form.country, pickupPhone: form.pickupPhone };
       const res = await fetch("/api/seller/onboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          ...resolvedPickup,
           ...Object.fromEntries(
             SOCIAL_PLATFORMS.map(({ key, prefix }) => {
               const handle = form[key as keyof Pick<FormState, "website" | "instagram" | "tiktok" | "youtube" | "facebook">].trim();
@@ -616,6 +677,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
           </label>
           <p className="mt-0.5 text-xs text-gray-400">
             At least one link required. Share where buyers (and we) can see your work.
+            The more you add, the easier the verification process
           </p>
           <div className="mt-2 space-y-2">
             {SOCIAL_PLATFORMS.map(({ key, label, prefix, placeholder }) => {
@@ -646,12 +708,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
           </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-500">
-          <span className="font-medium text-gray-900">Platform fee: 5%</span> per sale, deducted from your payout. No listing fees.{" "}
-          <a href="/legal/pricing" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-700">See full pricing</a>.
-        </div>
-
-        {submitError && (
+{submitError && (
           <p className="rounded-lg bg-error-subtle px-4 py-3 text-sm text-error">{submitError}</p>
         )}
 
@@ -700,7 +757,9 @@ function TypeCard({ active, onClick, icon, title, description }: {
       type="button"
       onClick={onClick}
       className={`flex flex-col items-start rounded-xl border-2 p-5 text-left transition-colors ${
-        active ? "border-gray-900 bg-gray-50" : "border-gray-200 hover:border-gray-300"
+        active
+          ? "border-gray-900 bg-gray-50"
+          : "border-gray-200 hover:border-gray-300"
       }`}
     >
       <span className={active ? "text-gray-900" : "text-gray-400"}>{icon}</span>

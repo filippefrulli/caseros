@@ -84,8 +84,8 @@ type Props = {
 function toAddressFields(addr: Omit<SavedAddress, "id" | "isDefault">): AddressFields {
   return {
     name: addr.name ?? "",
-    line1: addr.line1,
-    houseNumber: addr.houseNumber ?? "",
+    line1: [addr.line1, addr.houseNumber].filter(Boolean).join(" "),
+    houseNumber: "",
     line2: addr.line2 ?? "",
     city: addr.city,
     postalCode: addr.postalCode,
@@ -405,40 +405,34 @@ export function CheckoutFlow({
 
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Full name</label>
-            <input type="text" placeholder="Jane Smith" value={address.name} onChange={setField("name")} className={inputClass} />
+            <input type="text" placeholder="Jane Smith" value={address.name} onChange={setField("name")} autoComplete="name" className={inputClass} />
           </div>
 
-          <div className="grid grid-cols-4 gap-2">
-            <div className="col-span-3">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Street address</label>
-              <input type="text" placeholder="Main Street" value={address.line1} onChange={setField("line1")} className={inputClass} />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">No.</label>
-              <input type="text" placeholder="12" value={address.houseNumber} onChange={setField("houseNumber")} className={inputClass} />
-            </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Street address</label>
+            <input type="text" placeholder="Main Street 12" value={address.line1} onChange={setField("line1")} autoComplete="address-line1" className={inputClass} />
           </div>
 
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Apt / suite (optional)</label>
-            <input type="text" placeholder="Apartment 3B" value={address.line2} onChange={setField("line2")} className={inputClass} />
+            <input type="text" placeholder="Apartment 3B" value={address.line2} onChange={setField("line2")} autoComplete="address-line2" className={inputClass} />
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Postal code</label>
-              <input type="text" placeholder="D01 F5P2" value={address.postalCode} onChange={setField("postalCode")} className={inputClass} />
+              <input type="text" placeholder="D01 F5P2" value={address.postalCode} onChange={setField("postalCode")} autoComplete="postal-code" className={inputClass} />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">City</label>
-              <input type="text" placeholder="Dublin" value={address.city} onChange={setField("city")} className={inputClass} />
+              <input type="text" placeholder="Dublin" value={address.city} onChange={setField("city")} autoComplete="address-level2" className={inputClass} />
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Country</label>
             <div className="relative">
-              <select value={address.country} onChange={setField("country")} className={selectClass}>
+              <select value={address.country} onChange={setField("country")} autoComplete="country" className={selectClass}>
                 {EU_COUNTRIES.map((c) => (
                   <option key={c.code} value={c.code}>{c.name}</option>
                 ))}
@@ -449,7 +443,7 @@ export function CheckoutFlow({
 
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Phone (optional)</label>
-            <input type="tel" placeholder="+353 1 234 5678" value={address.phone} onChange={setField("phone")} className={inputClass} />
+            <input type="tel" placeholder="+353 1 234 5678" value={address.phone} onChange={setField("phone")} autoComplete="tel" className={inputClass} />
           </div>
 
           <button

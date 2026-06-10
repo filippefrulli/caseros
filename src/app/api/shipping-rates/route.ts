@@ -62,6 +62,9 @@ export async function GET(req: Request) {
   }
 
   const houseNumber = searchParams.get("houseNumber") ?? undefined;
+  // Chrome sometimes autofills the full formatted address ("Street 12, City, Country")
+  // into the street field. Shippo only accepts the street portion — strip from first comma.
+  const street1 = line1.split(",")[0].trim();
 
   try {
     const rates = await getRates({
@@ -76,7 +79,7 @@ export async function GET(req: Request) {
       },
       toAddress: {
         name: "Buyer",
-        street1: line1,
+        street1,
         street_no: houseNumber,
         city,
         zip: postalCode,
@@ -87,9 +90,15 @@ export async function GET(req: Request) {
       widthCm: listing.widthCm,
       heightCm: listing.heightCm,
     });
+
+    if (rates.length === 0) {
+      console.warn("[shipping-rates] Shippo returned 0 rates. From:", s.pickupCity, s.pickupCountry, "→ To:", city, country, "Street:", street1, "Weight:", listing.weightGrams, "g");
+    }
+
     return NextResponse.json({ rates });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Failed to fetch rates.";
+    console.error("[shipping-rates] Shippo error:", msg);
     return NextResponse.json({ error: msg }, { status: 502 });
   }
 }
