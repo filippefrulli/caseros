@@ -8,6 +8,9 @@ import { z } from "zod";
 import { track } from "@vercel/analytics/server";
 import { isIntegratedShippingEnabled } from "@/lib/platform-settings";
 
+// Keep in sync with MAX_IMAGES in media-uploader.tsx.
+const MAX_IMAGES = 10;
+
 const listingSchema = z.object({
   categoryId: z.string().min(1, "Please select a category"),
   title: z
@@ -87,7 +90,8 @@ export async function createListing(
 
   // Weight/dimensions are only needed for integrated carrier rates. In
   // self-managed shipping mode sellers can list without them.
-  if (!isDigitalListing && (await isIntegratedShippingEnabled())) {
+  const integratedShipping = await isIntegratedShippingEnabled();
+  if (!isDigitalListing && integratedShipping) {
     if (!weightGrams) return { fieldErrors: { weightGrams: ["Weight is required for physical listings."] } };
     if (!lengthCm || !widthCm || !heightCm) return { fieldErrors: { dimensions: ["All three dimensions (L × W × H) are required for physical listings."] } };
   }
@@ -97,6 +101,9 @@ export async function createListing(
 
   if (imageUrls.length === 0) {
     return { error: "Add at least one photo before saving." };
+  }
+  if (imageUrls.length > MAX_IMAGES) {
+    return { error: `You can add at most ${MAX_IMAGES} photos.` };
   }
 
   const seller = await prisma.sellerProfile.findFirst({
@@ -132,7 +139,9 @@ export async function createListing(
     return { stripeRequired: true };
   }
 
-  if (publishNow && !isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry)) {
+  // A pickup address is only needed when carriers collect from the seller
+  // (integrated shipping). Self-managed sellers arrange their own delivery.
+  if (publishNow && !isDigitalListing && integratedShipping && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry)) {
     return { pickupAddressRequired: true };
   }
 
@@ -197,7 +206,8 @@ export async function updateListing(
 
   // Weight/dimensions are only needed for integrated carrier rates. In
   // self-managed shipping mode sellers can list without them.
-  if (!isDigitalListing && (await isIntegratedShippingEnabled())) {
+  const integratedShipping = await isIntegratedShippingEnabled();
+  if (!isDigitalListing && integratedShipping) {
     if (!weightGrams) return { fieldErrors: { weightGrams: ["Weight is required for physical listings."] } };
     if (!lengthCm || !widthCm || !heightCm) return { fieldErrors: { dimensions: ["All three dimensions (L × W × H) are required for physical listings."] } };
   }
@@ -207,6 +217,9 @@ export async function updateListing(
 
   if (imageUrls.length === 0) {
     return { error: "Add at least one photo before saving." };
+  }
+  if (imageUrls.length > MAX_IMAGES) {
+    return { error: `You can add at most ${MAX_IMAGES} photos.` };
   }
 
   const existing = await prisma.listing.findFirst({
@@ -226,7 +239,7 @@ export async function updateListing(
 
     if (!seller.stripeOnboardingDone) {
       stripeRequired = true;
-    } else if (!isDigitalListing && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry)) {
+    } else if (!isDigitalListing && integratedShipping && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry)) {
       pickupAddressRequired = true;
     }
   }
@@ -290,7 +303,8 @@ export async function publishListing(listingId: string): Promise<ListingActionSt
 
   if (!seller.stripeOnboardingDone) return { stripeRequired: true };
 
-  if (!listing.isDigital && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry)) {
+  // Pickup address only matters when carriers collect from the seller.
+  if (!listing.isDigital && (await isIntegratedShippingEnabled()) && (!seller.pickupLine1 || !seller.pickupCity || !seller.pickupPostalCode || !seller.pickupCountry)) {
     return { pickupAddressRequired: true };
   }
 
