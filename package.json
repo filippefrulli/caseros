@@ -7,13 +7,15 @@
     "build": "prisma migrate deploy && NODE_OPTIONS='--max-http-header-size=16384' next build",
     "start": "NODE_OPTIONS='--max-http-header-size=16384' next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "build:check": "NODE_OPTIONS='--max-http-header-size=16384' next build",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "clean": "rm -rf .next",
     "db:seed": "prisma db seed",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && (git config core.hooksPath .githooks || true)"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

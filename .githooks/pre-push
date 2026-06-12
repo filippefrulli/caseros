@@ -1,0 +1,14 @@
+#!/bin/sh
+# Pre-push guard: run the full production build — the same `next build` Vercel
+# runs (minus `prisma migrate deploy`, which must never run from a git hook).
+# This catches everything the pipeline would, before it reaches Vercel.
+# Bypass in a pinch with:  git push --no-verify
+
+echo "🏗  pre-push: running production build (replicates Vercel)…"
+if ! npm run --silent build:check; then
+  echo ""
+  echo "❌ Build failed — this would fail on Vercel too."
+  echo "   Fix it, or bypass with: git push --no-verify"
+  exit 1
+fi
+echo "✅ Build OK."

@@ -1,0 +1,14 @@
+#!/bin/sh
+# Fast pre-commit guard: TypeScript type-check.
+# This is the step that fails the Vercel build first (it runs `tsc` inside
+# `next build`). Catching type errors here keeps red builds out of the pipeline.
+# Bypass in a pinch with:  git commit --no-verify
+
+echo "🔎 pre-commit: type-checking (tsc --noEmit)…"
+if ! npm run --silent typecheck; then
+  echo ""
+  echo "❌ TypeScript errors above — these will fail the Vercel build."
+  echo "   Fix them, or bypass with: git commit --no-verify"
+  exit 1
+fi
+echo "✅ Types OK."

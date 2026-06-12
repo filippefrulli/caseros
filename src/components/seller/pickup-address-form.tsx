@@ -46,6 +46,10 @@ export function PickupAddressForm({ initial }: Props) {
   // We derive what to show from that, falling back to the server-rendered initial prop.
   const values = state?.data ?? initial;
 
+  // The saved `state.data` folds the house number into line1, so the field only
+  // exists on the server-rendered `initial` prop.
+  const houseNumber = "pickupHouseNumber" in values ? values.pickupHouseNumber : null;
+
   const bannerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (state?.success) bannerRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -82,7 +86,7 @@ export function PickupAddressForm({ initial }: Props) {
         </label>
         <input
           id="pickupLine1" name="pickupLine1" type="text" required
-          defaultValue={[values.pickupLine1, values.pickupHouseNumber].filter(Boolean).join(" ")}
+          defaultValue={[values.pickupLine1, houseNumber].filter(Boolean).join(" ")}
           placeholder="Main Street 12"
           autoComplete="address-line1"
           className={inputCls}
