@@ -3,12 +3,13 @@
 import Link from "next/link";
 import type { Route } from "next";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ShoppingBag, Users, Settings } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Users, Settings, Mail } from "lucide-react";
 
 const links: { href: Route; label: string; icon: React.ElementType; exact: boolean }[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag, exact: false },
   { href: "/admin/sellers", label: "Sellers", icon: Users, exact: false },
+  { href: "/admin/emails", label: "Email tester", icon: Mail, exact: false },
   { href: "/admin/settings", label: "Settings", icon: Settings, exact: false },
 ];
 
