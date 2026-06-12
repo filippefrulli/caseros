@@ -206,10 +206,7 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
       {!isDigital && (
         <div className="rounded-lg border border-gray-200 p-4 space-y-4">
           <div>
-            <p className="text-sm font-medium text-gray-900">Shipping</p>
-            <p className="mt-0.5 text-xs text-gray-500">
-              Buyers will see real carrier rates at checkout based on their address and this item's weight.
-            </p>
+            <p className="text-sm font-medium text-gray-900">Dimensions</p>
           </div>
 
           <div>
@@ -236,33 +233,6 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
               <input name="heightCm" type="number" min="1" max="999" step="1" placeholder="H" defaultValue={listing?.heightCm ?? undefined} className={inputClass} />
             </div>
             <FieldError messages={state?.fieldErrors?.dimensions} />
-          </div>
-        </div>
-      )}
-
-      {/* Publish now — only on create */}
-      {!listing && (
-        <div className="flex items-center gap-3 rounded-lg border border-gray-200 px-4 py-3">
-          <input
-            id="publishNow"
-            name="publishNow"
-            type="checkbox"
-            value="true"
-            disabled={!stripeOnboardingDone}
-            className={`h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900 disabled:cursor-not-allowed ${!stripeOnboardingDone ? "opacity-40" : ""}`}
-          />
-          <div>
-            <label
-              htmlFor="publishNow"
-              className={`text-sm font-medium ${!stripeOnboardingDone ? "cursor-not-allowed text-gray-300" : "cursor-pointer text-gray-700"}`}
-            >
-              Publish immediately
-            </label>
-            <p className={`text-xs ${!stripeOnboardingDone ? "text-gray-600" : "text-gray-400"}`}>
-              {stripeOnboardingDone
-                ? "Leave unchecked to save as a draft first"
-                : "Connect your Stripe account to publish listings"}
-            </p>
           </div>
         </div>
       )}
@@ -294,30 +264,48 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
         </div>
       )}
 
-      <div className="flex gap-3 pt-2">
-        {listing?.status === "DRAFT" && (
+      <div className="space-y-2 pt-2">
+        <div className="flex gap-3">
+          {/* Publish is the primary action when creating or editing a draft.
+              An already-active listing only needs "Save changes". */}
+          {(!listing || listing.status === "DRAFT") && (
+            <button
+              type="submit"
+              name="publishNow"
+              value="true"
+              disabled={isPending || uploading || !stripeOnboardingDone}
+              className="flex-1 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+            >
+              {uploading ? "Uploading media…" : isPending ? "Publishing…" : "Publish"}
+            </button>
+          )}
+
           <button
             type="submit"
-            name="publishNow"
-            value="true"
-            disabled={isPending || uploading || !stripeOnboardingDone}
-            className="flex-1 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+            disabled={isPending || uploading}
+            className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 ${
+              !listing || listing.status === "DRAFT"
+                ? "border border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-900"
+                : "bg-gray-900 text-white hover:bg-gray-700"
+            }`}
           >
-            {isPending ? "Saving…" : "Save & publish"}
+            {uploading
+              ? "Uploading media…"
+              : isPending
+                ? "Saving…"
+                : listing
+                  ? listing.status === "DRAFT"
+                    ? "Save as draft"
+                    : "Save changes"
+                  : "Save as draft"}
           </button>
-        )}
+        </div>
 
-        <button
-          type="submit"
-          disabled={isPending || uploading}
-          className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 ${
-            listing?.status === "DRAFT"
-              ? "border border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-900"
-              : "bg-gray-900 text-white hover:bg-gray-700"
-          }`}
-        >
-          {uploading ? "Uploading media…" : isPending ? "Saving…" : listing ? "Save changes" : "Save listing"}
-        </button>
+        {(!listing || listing.status === "DRAFT") && !stripeOnboardingDone && (
+          <p className="text-xs text-gray-400">
+            Connect your Stripe account to publish — you can save as a draft for now.
+          </p>
+        )}
       </div>
     </form>
   );
