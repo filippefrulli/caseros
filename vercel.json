@@ -9,6 +9,10 @@
       "schedule": "0 6 * * *"
     },
     {
+      "path": "/api/cron/auto-release-payouts",
+      "schedule": "0 5 * * *"
+    },
+    {
       "path": "/api/cron/purge-expired-kyc",
       "schedule": "0 4 1 * *"
     }

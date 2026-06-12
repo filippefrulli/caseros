@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
-import { cancelShipment, isShippoConfigured } from "@/lib/shippo";
+import { cancelShipment } from "@/lib/shipping";
 import { env } from "@/env";
 
 export const runtime = "nodejs";
@@ -43,11 +43,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
   // Void the shipping label when the order was already shipped so the carrier
   // cost is refunded back to the platform account. Non-fatal — log and continue.
-  if (order.status === "SHIPPED" && order.shippingTransactionId && isShippoConfigured()) {
+  if (order.status === "SHIPPED" && order.shippingTransactionId) {
     try {
-      await cancelShipment(order.shippingTransactionId);
+      await cancelShipment(order.shippingProvider, order.shippingTransactionId);
     } catch (err) {
-      console.error(`[refund] Shippo label void failed for ${order.shippingTransactionId}:`, err);
+      console.error(`[refund] label void failed for ${order.shippingTransactionId}:`, err);
     }
   }
 

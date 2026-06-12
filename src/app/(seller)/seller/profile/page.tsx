@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { ProfileForm } from "@/components/seller/profile-form";
 import { PickupAddressForm } from "@/components/seller/pickup-address-form";
+import { ShipsToForm } from "@/components/seller/ships-to-form";
 
 export const metadata: Metadata = { title: "Edit profile" };
 
@@ -55,6 +56,15 @@ export default async function SellerProfilePage() {
               pickupPhone: seller.pickupPhone,
             }}
           />
+        </section>
+
+        <section className="rounded-xl border border-gray-200 p-6 lg:col-span-2">
+          <h2 className="mb-1 text-sm font-semibold text-gray-900">Ships to</h2>
+          <p className="mb-4 text-xs text-gray-500">
+            You cover delivery costs, so choose which countries you&apos;ll ship to. Buyers in
+            other countries won&apos;t see your listings.
+          </p>
+          <ShipsToForm initial={seller.shipsToCountries} />
         </section>
       </div>
     </main>

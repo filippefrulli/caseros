@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { ListingCard } from "@/components/marketplace/listing-card";
 import { SellerCarousel, type SellerCarouselItem } from "@/components/marketplace/seller-carousel";
 import { FiltersBar } from "@/components/marketplace/filters-bar";
-import { parseFilters, buildPriceWhere, buildOrderBy, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
+import { parseFilters, buildPriceWhere, buildShipsToWhere, buildOrderBy, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
+import { getVisitorCountry } from "@/lib/visitor-country";
 
 export const metadata: Metadata = { title: "Home" };
 
@@ -18,6 +19,7 @@ export default async function HomePage({ searchParams }: Props) {
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const visitorCountry = await getVisitorCountry();
 
   const [listings, favIds, sellerProfile, availableCountries, featuredSellers] = await Promise.all([
     prisma.listing.findMany({
@@ -26,6 +28,7 @@ export default async function HomePage({ searchParams }: Props) {
         deletedAt: null,
         ...(selectedCountries.length ? { seller: { country: { in: selectedCountries } } } : {}),
         ...buildPriceWhere(minPrice, maxPrice),
+        ...buildShipsToWhere(visitorCountry),
       },
       select: {
         id: true,

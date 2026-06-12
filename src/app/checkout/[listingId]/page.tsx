@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 import { isShippoConfigured } from "@/lib/shippo";
+import { isIntegratedShippingEnabled } from "@/lib/platform-settings";
 import { CheckoutFlow } from "@/components/checkout/checkout-flow";
 
 type Props = { params: Promise<{ listingId: string }>; searchParams: Promise<{ quantity?: string }> };
@@ -34,6 +35,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
           pickupCity: true,
           pickupPostalCode: true,
           pickupCountry: true,
+          shipsToCountries: true,
         },
       },
     },
@@ -63,6 +65,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
     : [];
 
   const thumb = listing.images[0]?.url ?? null;
+  const selfManagedShipping = !(await isIntegratedShippingEnabled());
   const shippoReady = isShippoConfigured();
   const sellerPickupReady = !!(
     listing.seller.pickupLine1 &&
@@ -113,6 +116,8 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
         shippoReady={shippoReady}
         sellerPickupReady={sellerPickupReady}
         savedAddresses={savedAddresses}
+        selfManagedShipping={selfManagedShipping}
+        shipsToCountries={listing.seller.shipsToCountries}
       />
     </main>
   );

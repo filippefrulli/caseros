@@ -50,9 +50,9 @@ type ExistingListing = {
   heightCm: number | null;
   images: { url: string; altText: string | null }[];
 };
-type Props = { userId: string; categories: Category[]; listing?: ExistingListing; stripeOnboardingDone?: boolean };
+type Props = { userId: string; categories: Category[]; listing?: ExistingListing; stripeOnboardingDone?: boolean; selfManagedShipping?: boolean };
 
-export function ListingForm({ userId, categories, listing, stripeOnboardingDone = false }: Props) {
+export function ListingForm({ userId, categories, listing, stripeOnboardingDone = false, selfManagedShipping = false }: Props) {
   const serverAction = listing ? updateListing : createListing;
   const [state, action, isPending] = useActionState<ListingActionState, FormData>(
     serverAction,
@@ -157,6 +157,11 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
             />
           </div>
           <FieldError messages={state?.fieldErrors?.priceEuros} />
+          {selfManagedShipping && !isDigital && (
+            <p className="mt-1 text-xs text-gray-400">
+              You cover delivery, so factor shipping costs into your price.
+            </p>
+          )}
         </div>
 
         <div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { ListingForm } from "@/components/seller/listing-form";
+import { isIntegratedShippingEnabled } from "@/lib/platform-settings";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -46,6 +47,7 @@ export default async function EditListingPage({ params }: Props) {
         userId={user.id}
         categories={categories}
         stripeOnboardingDone={seller?.stripeOnboardingDone ?? false}
+        selfManagedShipping={!(await isIntegratedShippingEnabled())}
         listing={{
           id: listing.id,
           categoryId: listing.categoryId,

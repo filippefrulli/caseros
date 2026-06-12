@@ -65,9 +65,11 @@ const EMPTY_FORM: FormState = {
   website: "", instagram: "", tiktok: "", youtube: "", facebook: "",
 };
 
-// Countries with reliable Shippo default carrier pickup (DPD, GLS, DHL Parcel).
-// Excluded: IE/CY/MT (islands, no default carrier pickup), GB (post-Brexit customs),
-// NO/CH/IS (non-EU, customs complications). Add more as carrier accounts are connected.
+// Countries with reliable default carrier pickup from the active shipping
+// provider (DPD, GLS, DHL Parcel). Excluded: IE/CY/MT (islands, no default
+// carrier pickup), GB (post-Brexit customs), NO/CH/IS (non-EU, customs
+// complications). IE is pending the Sendcloud origin validation — add it here
+// once confirmed. Add more as carrier accounts are connected.
 const EU_COUNTRIES = [
   { code: "AT", name: "Austria" }, { code: "BE", name: "Belgium" },
   { code: "BG", name: "Bulgaria" }, { code: "HR", name: "Croatia" },

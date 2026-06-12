@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { track } from "@vercel/analytics/server";
+import { isIntegratedShippingEnabled } from "@/lib/platform-settings";
 
 const listingSchema = z.object({
   categoryId: z.string().min(1, "Please select a category"),
@@ -84,7 +85,9 @@ export async function createListing(
   const { categoryId, title, description, priceEuros, stock, isDigital, weightGrams, lengthCm, widthCm, heightCm, publishNow } = parsed.data;
   const isDigitalListing = isDigital === "true";
 
-  if (!isDigitalListing) {
+  // Weight/dimensions are only needed for integrated carrier rates. In
+  // self-managed shipping mode sellers can list without them.
+  if (!isDigitalListing && (await isIntegratedShippingEnabled())) {
     if (!weightGrams) return { fieldErrors: { weightGrams: ["Weight is required for physical listings."] } };
     if (!lengthCm || !widthCm || !heightCm) return { fieldErrors: { dimensions: ["All three dimensions (L × W × H) are required for physical listings."] } };
   }
@@ -192,7 +195,9 @@ export async function updateListing(
   const { categoryId, title, description, priceEuros, stock, isDigital, weightGrams, lengthCm, widthCm, heightCm, publishNow } = parsed.data;
   const isDigitalListing = isDigital === "true";
 
-  if (!isDigitalListing) {
+  // Weight/dimensions are only needed for integrated carrier rates. In
+  // self-managed shipping mode sellers can list without them.
+  if (!isDigitalListing && (await isIntegratedShippingEnabled())) {
     if (!weightGrams) return { fieldErrors: { weightGrams: ["Weight is required for physical listings."] } };
     if (!lengthCm || !widthCm || !heightCm) return { fieldErrors: { dimensions: ["All three dimensions (L × W × H) are required for physical listings."] } };
   }

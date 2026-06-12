@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { createShipment, isShippoConfigured } from "@/lib/shippo";
+import { createShipment, isShippingConfigured } from "@/lib/shipping";
+import { isIntegratedShippingEnabled } from "@/lib/platform-settings";
 import { sendOrderShippedEmail } from "@/lib/email";
 import { env } from "@/env";
 
@@ -20,7 +21,11 @@ type Params = { params: Promise<{ id: string }> };
 export async function POST(req: Request, { params }: Params) {
   const { id: orderId } = await params;
 
-  if (!isShippoConfigured()) {
+  if (!(await isIntegratedShippingEnabled())) {
+    return NextResponse.json({ error: "Label generation is not available." }, { status: 503 });
+  }
+
+  if (!isShippingConfigured()) {
     return NextResponse.json({ error: "Shipping not configured." }, { status: 503 });
   }
 
@@ -124,7 +129,7 @@ export async function POST(req: Request, { params }: Params) {
       },
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown Shippo error.";
+    const message = err instanceof Error ? err.message : "Unknown shipping error.";
     return NextResponse.json({ error: `Label generation failed: ${message}` }, { status: 502 });
   }
 
@@ -132,6 +137,10 @@ export async function POST(req: Request, { params }: Params) {
     where: { id: orderId },
     data: {
       status: "SHIPPED",
+      shippedAt: new Date(),
+      // Record which provider created the label so tracking/download/void route
+      // correctly even if the active provider is later switched.
+      shippingProvider: shipment.provider,
       shippingTransactionId: shipment.id,
       trackingCode: shipment.trackingNumber,
       trackingUrl: shipment.trackingUrl,

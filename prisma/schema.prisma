@@ -107,6 +107,10 @@ model SellerProfile {
   // Platform commission taken before paying out to seller (0.0500 = 5%).
   // Decimal(4,4) caps at 0.9999 — semantically truthful (commission < 100%).
   commissionRate       Decimal      @default(0.0500) @map("commission_rate") @db.Decimal(4, 4)
+  // Destination countries (ISO-2) the seller is willing to ship to. Since the
+  // seller covers delivery in self-managed mode, they control reachable markets.
+  // Used to filter listings to buyers and to gate checkout.
+  shipsToCountries  String[] @default(["AT", "BE", "DE", "ES", "FR", "IE", "IT", "NL", "PT"]) @map("ships_to_countries")
   // Pickup / return address used as from_address on shipping labels
   pickupName        String? @map("pickup_name")
   pickupLine1       String? @map("pickup_line1")
@@ -251,10 +255,17 @@ model Order {
   shippingServiceLevel    String? @map("shipping_service_level")
 
   // Shipping label & tracking (provider-agnostic)
+  // Which integration created the label ("shippo" | "sendcloud"). Null = legacy
+  // Shippo. Drives tracking sync, label download, and label void per-order so
+  // switching the active provider never strands in-flight orders.
+  shippingProvider      String? @map("shipping_provider")
   shippingTransactionId String? @unique @map("shipping_transaction_id")
   trackingCode          String? @map("tracking_code")
   trackingUrl           String? @map("tracking_url")
   labelDocumentLink     String? @map("label_document_link")
+  // Set when the order transitions to SHIPPED (label generated or seller marked
+  // as sent). Drives the auto-release-payouts fallback in self-managed mode.
+  shippedAt             DateTime? @map("shipped_at")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -467,6 +478,10 @@ model SellerKyc {
 model PlatformSettings {
   id                   Int     @id @default(1)
   labelCreationEnabled Boolean @default(false) @map("label_creation_enabled")
+  // Master switch: when false (default), the marketplace runs in self-managed
+  // shipping mode (no rates/labels/tracking — sellers arrange delivery). When
+  // true, the integrated Shippo/Sendcloud flow is active.
+  integratedShippingEnabled Boolean @default(false) @map("integrated_shipping_enabled")
 
   @@map("platform_settings")
 }

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { getRates, isShippoConfigured } from "@/lib/shippo";
+import { getRates, isShippingConfigured } from "@/lib/shipping";
+import { isIntegratedShippingEnabled } from "@/lib/platform-settings";
 
 export const runtime = "nodejs";
 
@@ -12,7 +13,11 @@ export async function GET(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
 
-  if (!isShippoConfigured()) {
+  if (!(await isIntegratedShippingEnabled())) {
+    return NextResponse.json({ error: "Shipping rates not available." }, { status: 503 });
+  }
+
+  if (!isShippingConfigured()) {
     return NextResponse.json({ error: "Shipping not configured." }, { status: 503 });
   }
 

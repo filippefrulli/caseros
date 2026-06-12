@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/env";
 import { LabelCreationToggle } from "@/components/admin/label-creation-toggle";
+import { IntegratedShippingToggle } from "@/components/admin/integrated-shipping-toggle";
 
 export const metadata: Metadata = { title: "Admin — Settings" };
 
@@ -24,7 +25,10 @@ export default async function AdminSettingsPage() {
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Shipping</h2>
-        <LabelCreationToggle enabled={settings.labelCreationEnabled} />
+        <IntegratedShippingToggle enabled={settings.integratedShippingEnabled} />
+        {settings.integratedShippingEnabled && (
+          <LabelCreationToggle enabled={settings.labelCreationEnabled} />
+        )}
       </section>
     </main>
   );

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils";
 import type { OrderStatus } from "@/generated/prisma/client";
+import { ConfirmReceivedButton } from "@/components/buyer/confirm-received-button";
 
 export const metadata: Metadata = { title: "My Orders" };
 
@@ -59,6 +60,7 @@ export default async function OrdersPage() {
             select: {
               slug: true,
               images: { orderBy: { position: "asc" }, take: 1, select: { url: true } },
+              seller: { select: { shopName: true, slug: true } },
             },
           },
         },
@@ -148,6 +150,15 @@ export default async function OrdersPage() {
                   {formatPrice(order.totalAmount, order.currency)}
                 </p>
               </div>
+
+              {order.status === "SHIPPED" && (
+                <div className="mt-4 flex items-center justify-between gap-4 border-t border-gray-100 pt-4">
+                  <p className="text-xs text-gray-500">
+                    Received your order? Confirm to complete it.
+                  </p>
+                  <ConfirmReceivedButton orderId={order.id} />
+                </div>
+              )}
             </li>
           ))}
         </ul>

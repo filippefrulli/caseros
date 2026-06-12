@@ -4,7 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { ListingCard } from "@/components/marketplace/listing-card";
 import { FiltersBar } from "@/components/marketplace/filters-bar";
 import { buildSearchQuery } from "@/lib/search-synonyms";
-import { parseFilters, buildPriceWhere, buildOrderBy, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
+import { parseFilters, buildPriceWhere, buildShipsToWhere, buildOrderBy, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
+import { getVisitorCountry } from "@/lib/visitor-country";
 
 type Props = { searchParams: Promise<{ q?: string } & FilterParams> };
 
@@ -29,6 +30,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const visitorCountry = await getVisitorCountry();
 
   const expandedQuery = buildSearchQuery(q);
 
@@ -75,6 +77,7 @@ export default async function SearchPage({ searchParams }: Props) {
             id: { in: ids },
             ...(selectedCountries.length ? { seller: { country: { in: selectedCountries } } } : {}),
             ...buildPriceWhere(minPrice, maxPrice),
+            ...buildShipsToWhere(visitorCountry),
           },
           select: {
             id: true,

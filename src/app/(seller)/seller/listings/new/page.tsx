@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { ListingForm } from "@/components/seller/listing-form";
+import { isIntegratedShippingEnabled } from "@/lib/platform-settings";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -28,7 +29,7 @@ export default async function NewListingPage() {
         </Link>
         <h1 className="text-2xl font-bold">New listing</h1>
       </div>
-      <ListingForm userId={user.id} categories={categories} stripeOnboardingDone={seller.stripeOnboardingDone} />
+      <ListingForm userId={user.id} categories={categories} stripeOnboardingDone={seller.stripeOnboardingDone} selfManagedShipping={!(await isIntegratedShippingEnabled())} />
     </main>
   );
 }

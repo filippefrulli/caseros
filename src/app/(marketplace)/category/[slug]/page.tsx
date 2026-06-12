@@ -6,7 +6,8 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { ListingCard } from "@/components/marketplace/listing-card";
 import { FiltersBar } from "@/components/marketplace/filters-bar";
-import { parseFilters, buildPriceWhere, buildOrderBy, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
+import { parseFilters, buildPriceWhere, buildShipsToWhere, buildOrderBy, fetchAvailableCountries, type FilterParams } from "@/lib/listing-filters";
+import { getVisitorCountry } from "@/lib/visitor-country";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<FilterParams> };
 
@@ -23,6 +24,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const visitorCountry = await getVisitorCountry();
 
   const [category, listings, favIds, availableCountries] = await Promise.all([
     prisma.category.findUnique({ where: { slug } }),
@@ -33,6 +35,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         category: { slug },
         ...(selectedCountries.length ? { seller: { country: { in: selectedCountries } } } : {}),
         ...buildPriceWhere(minPrice, maxPrice),
+        ...buildShipsToWhere(visitorCountry),
       },
       select: {
         id: true,

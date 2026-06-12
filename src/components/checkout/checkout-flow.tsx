@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronDown, Check } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import type { ShippoRate } from "@/lib/shippo";
+import type { Rate } from "@/lib/shipping";
 
 const EU_COUNTRIES = [
   { code: "IE", name: "Ireland" },
@@ -79,6 +79,10 @@ type Props = {
   shippoReady: boolean;
   sellerPickupReady: boolean;
   savedAddresses?: SavedAddress[];
+  // Self-managed shipping: no rates/labels — seller covers delivery and the
+  // buyer just provides an address. shipsToCountries limits destinations.
+  selfManagedShipping: boolean;
+  shipsToCountries: string[];
 };
 
 function toAddressFields(addr: Omit<SavedAddress, "id" | "isDefault">): AddressFields {
@@ -117,9 +121,19 @@ export function CheckoutFlow({
   shippoReady,
   sellerPickupReady,
   savedAddresses = [],
+  selfManagedShipping,
+  shipsToCountries,
 }: Props) {
   const defaultAddress = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0] ?? null;
   const hasSaved = savedAddresses.length > 0;
+
+  // Destinations the seller ships to (fall back to all if unset).
+  const allowedCountries = shipsToCountries.length
+    ? EU_COUNTRIES.filter((c) => shipsToCountries.includes(c.code))
+    : EU_COUNTRIES;
+  const isAllowedCountry = (code: string) =>
+    shipsToCountries.length === 0 || shipsToCountries.includes(code);
+  const defaultCountry = allowedCountries[0]?.code ?? "IE";
 
   // "summary" = showing selected saved address
   // "picker"  = showing list of all saved addresses to choose from
@@ -136,12 +150,12 @@ export function CheckoutFlow({
   // Address fields — used for shipping rate fetching and (when no addressId) for checkout
   const [address, setAddress] = useState<AddressFields>(
     defaultAddress ? toAddressFields(defaultAddress) : {
-      name: "", line1: "", houseNumber: "", line2: "", city: "", postalCode: "", country: "IE", phone: "",
+      name: "", line1: "", houseNumber: "", line2: "", city: "", postalCode: "", country: defaultCountry, phone: "",
     },
   );
 
-  const [rates, setRates] = useState<ShippoRate[] | null>(null);
-  const [selectedRate, setSelectedRate] = useState<ShippoRate | null>(null);
+  const [rates, setRates] = useState<Rate[] | null>(null);
+  const [selectedRate, setSelectedRate] = useState<Rate | null>(null);
   const [ratesLoading, setRatesLoading] = useState(false);
   const [ratesError, setRatesError] = useState<string | null>(null);
 
@@ -165,6 +179,13 @@ export function CheckoutFlow({
     address.country
   );
 
+  const selectedCountryAllowed = isAllowedCountry(address.country);
+  // In self-managed mode the buyer can pay once a valid (allowed) address is set;
+  // in integrated mode they must also pick a shipping rate.
+  const addressReady = selfManagedShipping
+    ? (selectedAddressId !== null || addressComplete) && selectedCountryAllowed
+    : rates !== null && selectedRate !== null;
+
   const fetchRates = useCallback(async (addr: AddressFields) => {
     setRatesLoading(true);
     setRatesError(null);
@@ -182,7 +203,7 @@ export function CheckoutFlow({
 
     try {
       const res = await fetch(`/api/shipping-rates?${params}`);
-      const data = await res.json() as { rates?: ShippoRate[]; error?: string };
+      const data = await res.json() as { rates?: Rate[]; error?: string };
       if (!res.ok) throw new Error(data.error ?? "Could not fetch shipping rates.");
       const fetched = data.rates ?? [];
       setRates(fetched);
@@ -196,7 +217,7 @@ export function CheckoutFlow({
 
   // Auto-fetch rates on mount when a default address is available
   useEffect(() => {
-    if (defaultAddress && !isDigital && shippoReady && sellerPickupReady) {
+    if (defaultAddress && !isDigital && !selfManagedShipping && shippoReady && sellerPickupReady) {
       fetchRates(toAddressFields(defaultAddress));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -207,7 +228,7 @@ export function CheckoutFlow({
     setSelectedAddressId(addr.id);
     setAddress(fields);
     setMode("summary");
-    fetchRates(fields);
+    if (!selfManagedShipping) fetchRates(fields);
   }
 
   function openNewAddressForm() {
@@ -270,7 +291,6 @@ export function CheckoutFlow({
   const itemsTotal = priceAmount * quantity;
   const shippingTotal = selectedRate ? Math.round(parseFloat(selectedRate.amount) * 100) : 0;
   const grandTotal = itemsTotal + shippingTotal;
-  const canProceed = rates !== null && selectedRate !== null;
 
   // ── Digital listing ──────────────────────────────────────────────────────────
   if (isDigital) {
@@ -295,8 +315,8 @@ export function CheckoutFlow({
     );
   }
 
-  // ── Shipping not configured ──────────────────────────────────────────────────
-  if (!shippoReady || !sellerPickupReady) {
+  // ── Shipping not configured (integrated mode only) ───────────────────────────
+  if (!selfManagedShipping && (!shippoReady || !sellerPickupReady)) {
     return (
       <div className="rounded-xl border border-warning bg-warning-subtle p-5 text-sm text-warning-fg">
         {!shippoReady
@@ -308,6 +328,14 @@ export function CheckoutFlow({
 
   return (
     <div className="space-y-6">
+
+      {/* ── Destination not served by this seller ── */}
+      {!selectedCountryAllowed && (
+        <div className="rounded-xl border border-warning bg-warning-subtle p-4 text-sm text-warning-fg">
+          This seller doesn&apos;t ship to {countryName(address.country)}. Please choose a
+          different delivery address.
+        </div>
+      )}
 
       {/* ── Summary: selected saved address ── */}
       {mode === "summary" && selectedAddressId && (
@@ -433,7 +461,7 @@ export function CheckoutFlow({
             <label className="block text-xs font-medium text-gray-600 mb-1">Country</label>
             <div className="relative">
               <select value={address.country} onChange={setField("country")} autoComplete="country" className={selectClass}>
-                {EU_COUNTRIES.map((c) => (
+                {allowedCountries.map((c) => (
                   <option key={c.code} value={c.code}>{c.name}</option>
                 ))}
               </select>
@@ -446,14 +474,16 @@ export function CheckoutFlow({
             <input type="tel" placeholder="+353 1 234 5678" value={address.phone} onChange={setField("phone")} autoComplete="tel" className={inputClass} />
           </div>
 
-          <button
-            type="button"
-            onClick={() => fetchRates(address)}
-            disabled={!addressComplete || ratesLoading}
-            className="w-full rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 transition-colors"
-          >
-            {ratesLoading ? "Fetching shipping options…" : "Check shipping options →"}
-          </button>
+          {!selfManagedShipping && (
+            <button
+              type="button"
+              onClick={() => fetchRates(address)}
+              disabled={!addressComplete || ratesLoading}
+              className="w-full rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+            >
+              {ratesLoading ? "Fetching shipping options…" : "Check shipping options →"}
+            </button>
+          )}
 
           {ratesError && <p className="text-xs text-error">{ratesError}</p>}
         </div>
@@ -518,7 +548,7 @@ export function CheckoutFlow({
       )}
 
       {/* ── Order summary + pay ── */}
-      {canProceed && (
+      {addressReady && (
         <div className="rounded-xl border border-gray-200 p-5 space-y-4">
           <p className="text-sm font-semibold text-gray-700">Order summary</p>
           <div className="space-y-1.5 text-sm">
@@ -528,7 +558,9 @@ export function CheckoutFlow({
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Shipping</span>
-              <span className="tabular-nums">{formatPrice(shippingTotal, currency)}</span>
+              <span className="tabular-nums">
+                {selfManagedShipping ? "Free" : formatPrice(shippingTotal, currency)}
+              </span>
             </div>
             <div className="flex justify-between border-t border-gray-100 pt-2 font-semibold">
               <span>Total</span>

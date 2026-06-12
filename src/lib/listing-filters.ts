@@ -63,6 +63,14 @@ export function buildPriceWhere(minPrice?: number, maxPrice?: number) {
   };
 }
 
+// Restrict to listings whose seller ships to the visitor's country. Returned as
+// an AND clause so it composes with any existing top-level `seller` filter (e.g.
+// the origin-country filter) without key collision. Empty when country unknown.
+export function buildShipsToWhere(country: string | null | undefined) {
+  if (!country) return {};
+  return { AND: [{ seller: { shipsToCountries: { has: country } } }] };
+}
+
 // Country list rarely changes; rebuilt every hour. Avoids hitting the DB on
 // every home / category / search page load.
 export const fetchAvailableCountries = unstable_cache(

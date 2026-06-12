@@ -9,6 +9,8 @@ import { StripeConnectButton } from "@/components/seller/stripe-connect-button";
 import { formatPrice } from "@/lib/utils";
 import { Clock, XCircle, AlertCircle, Package, UserPen, Plus, Pencil } from "lucide-react";
 import { GenerateLabelButton } from "@/components/seller/generate-label-button";
+import { MarkAsSentButton } from "@/components/seller/mark-as-sent-button";
+import { isIntegratedShippingEnabled } from "@/lib/platform-settings";
 import { DeleteListingButton } from "@/components/seller/delete-listing-button";
 import { PublishListingButton } from "@/components/seller/publish-listing-button";
 import { isShippoConfigured } from "@/lib/shippo";
@@ -55,6 +57,12 @@ export default async function SellerDashboardPage() {
 
   const { seller } = dbUser;
 
+  const selfManagedShipping = !(await isIntegratedShippingEnabled());
+  // Self-managed orders await a buyer confirmation after being sent, so keep
+  // SHIPPED ones visible to the seller; integrated orders leave the list once
+  // a label is generated.
+  const fulfilStatuses = selfManagedShipping ? (["PROCESSING", "SHIPPED"] as const) : (["PROCESSING"] as const);
+
   const [orderCount, revenueAgg, pendingOrders, listings] = await Promise.all([
     prisma.order.count({
       where: {
@@ -63,16 +71,19 @@ export default async function SellerDashboardPage() {
       },
     }),
     prisma.orderItem.aggregate({
+      // Revenue = payouts actually released to the seller. Paid-but-not-yet-
+      // released orders (e.g. awaiting the buyer's confirmation of receipt) are
+      // not counted until the transfer goes out.
       where: {
         sellerId: seller.id,
-        order: { status: { in: ["PROCESSING", "SHIPPED", "DELIVERED"] } },
+        payoutReleasedAt: { not: null },
       },
       _sum: { sellerPayout: true },
     }),
     prisma.order.findMany({
       where: {
         items: { some: { sellerId: seller.id } },
-        status: { in: ["PROCESSING"] },
+        status: { in: [...fulfilStatuses] },
       },
       orderBy: { createdAt: "asc" },
       include: {
@@ -262,18 +273,22 @@ export default async function SellerDashboardPage() {
                     </div>
                   </div>
 
-                  <GenerateLabelButton
-                    orderId={order.id}
-                    status={order.status}
-                    defaultWeightGrams={defaultWeight}
-                    defaultLengthCm={defaultLength}
-                    defaultWidthCm={defaultWidth}
-                    defaultHeightCm={defaultHeight}
-                    trackingCode={order.trackingCode ?? null}
-                    trackingUrl={order.trackingUrl ?? null}
-                    sendcloudConfigured={sendcloudConfigured}
-                    sellerPickupReady={sellerPickupReady}
-                  />
+                  {selfManagedShipping ? (
+                    <MarkAsSentButton orderId={order.id} status={order.status} />
+                  ) : (
+                    <GenerateLabelButton
+                      orderId={order.id}
+                      status={order.status}
+                      defaultWeightGrams={defaultWeight}
+                      defaultLengthCm={defaultLength}
+                      defaultWidthCm={defaultWidth}
+                      defaultHeightCm={defaultHeight}
+                      trackingCode={order.trackingCode ?? null}
+                      trackingUrl={order.trackingUrl ?? null}
+                      sendcloudConfigured={sendcloudConfigured}
+                      sellerPickupReady={sellerPickupReady}
+                    />
+                  )}
                 </li>
               );
             })}

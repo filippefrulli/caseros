@@ -14,14 +14,16 @@ import {
 type Props = {
   buyerName: string | null;
   orderId: string;
-  trackingCode: string;
-  trackingUrl: string;
+  // Tracking is omitted in self-managed shipping mode (no carrier label).
+  trackingCode?: string | null;
+  trackingUrl?: string | null;
   appUrl: string;
 };
 
 export function OrderShippedEmail({ buyerName, orderId, trackingCode, trackingUrl, appUrl }: Props) {
   const shortId = orderId.slice(-8).toUpperCase();
   const greeting = buyerName ? `Hi ${buyerName},` : "Hi there,";
+  const hasTracking = !!trackingCode;
 
   return (
     <Html>
@@ -36,16 +38,27 @@ export function OrderShippedEmail({ buyerName, orderId, trackingCode, trackingUr
             Great news — your order <strong>#{shortId}</strong> has been shipped.
           </Text>
 
-          <Section style={trackingBox}>
-            <Text style={{ ...text, margin: "0 0 4px", fontSize: "13px", color: "#6b7280" }}>Tracking number</Text>
-            <Text style={{ ...text, margin: "0", fontWeight: "600", fontFamily: "monospace", fontSize: "16px" }}>{trackingCode}</Text>
-          </Section>
+          {hasTracking ? (
+            <>
+              <Section style={trackingBox}>
+                <Text style={{ ...text, margin: "0 0 4px", fontSize: "13px", color: "#6b7280" }}>Tracking number</Text>
+                <Text style={{ ...text, margin: "0", fontWeight: "600", fontFamily: "monospace", fontSize: "16px" }}>{trackingCode}</Text>
+              </Section>
 
-          <Section style={{ textAlign: "center", marginTop: "24px" }}>
-            <Link href={trackingUrl} style={button}>
-              Track your parcel
-            </Link>
-          </Section>
+              {trackingUrl && (
+                <Section style={{ textAlign: "center", marginTop: "24px" }}>
+                  <Link href={trackingUrl} style={button}>
+                    Track your parcel
+                  </Link>
+                </Section>
+              )}
+            </>
+          ) : (
+            <Text style={text}>
+              The seller is sending your item and will be in touch with any details.
+              Once it arrives, head to your orders to confirm you&apos;ve received it.
+            </Text>
+          )}
 
           <Section style={{ textAlign: "center", marginTop: "16px" }}>
             <Link href={`${appUrl}/account/orders`} style={secondaryLink}>

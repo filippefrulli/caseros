@@ -1,4 +1,11 @@
 import { env } from "@/env";
+import type {
+  CreatedShipment,
+  CreateShipmentParams,
+  GetRatesParams,
+  Rate,
+  ShipmentStatus,
+} from "@/lib/shipping/types";
 
 const BASE_URL = "https://api.goshippo.com";
 
@@ -26,38 +33,6 @@ async function shippoFetch(path: string, init?: RequestInit) {
   }
   return res.json();
 }
-
-export type ShippoAddress = {
-  name: string;
-  street1: string;
-  street_no?: string;
-  city: string;
-  zip: string;
-  country: string;
-  phone?: string;
-  email?: string;
-};
-
-export type CreateShipmentParams = {
-  orderNumber: string;
-  toAddress: ShippoAddress;
-  fromAddress: ShippoAddress;
-  weightGrams: number;
-  lengthCm?: number | null;
-  widthCm?: number | null;
-  heightCm?: number | null;
-  // Preferred carrier/service snapshotted from buyer's rate choice at checkout.
-  // When set, label generation picks this service over the cheapest available.
-  preferredProvider?: string | null;
-  preferredServiceLevel?: string | null;
-};
-
-export type CreatedShipment = {
-  id: string;
-  trackingNumber: string;
-  trackingUrl: string;
-  labelDocumentLink: string;
-};
 
 export async function createShipment(params: CreateShipmentParams): Promise<CreatedShipment> {
   if (!isShippoConfigured()) throw new Error("Shippo not configured");
@@ -147,12 +122,6 @@ export async function createShipment(params: CreateShipmentParams): Promise<Crea
   };
 }
 
-export type ShipmentStatus = {
-  id: string;
-  trackingNumber: string;
-  statusCode: string;
-};
-
 export async function getShipments(transactionIds: string[]): Promise<ShipmentStatus[]> {
   if (!isShippoConfigured()) throw new Error("Shippo not configured");
   if (transactionIds.length === 0) return [];
@@ -176,23 +145,7 @@ export async function getShipments(transactionIds: string[]): Promise<ShipmentSt
   return results;
 }
 
-export type ShippoRate = {
-  objectId: string;
-  provider: string;
-  servicelevel: string;
-  amount: string;
-  currency: string;
-  estimatedDays: number | null;
-};
-
-export async function getRates(params: {
-  fromAddress: ShippoAddress;
-  toAddress: ShippoAddress;
-  weightGrams: number;
-  lengthCm?: number | null;
-  widthCm?: number | null;
-  heightCm?: number | null;
-}): Promise<ShippoRate[]> {
+export async function getRates(params: GetRatesParams): Promise<Rate[]> {
   if (!isShippoConfigured()) throw new Error("Shippo not configured");
 
   const shipment = await shippoFetch("/shipments", {
@@ -245,4 +198,9 @@ export async function cancelShipment(transactionId: string): Promise<void> {
     method: "POST",
     body: JSON.stringify({ transaction: transactionId }),
   });
+}
+
+// Shippo label URLs are stable signed S3 URLs — fetch directly, no auth.
+export async function fetchLabelPdf(labelUrl: string): Promise<Response> {
+  return fetch(labelUrl);
 }

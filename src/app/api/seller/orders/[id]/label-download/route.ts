@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { getShipments } from "@/lib/shippo";
+import { fetchLabelPdf } from "@/lib/shipping";
 
 export const runtime = "nodejs";
 
@@ -24,6 +24,7 @@ export async function GET(_req: Request, { params }: Params) {
     where: { id: orderId },
     select: {
       id: true,
+      shippingProvider: true,
       shippingTransactionId: true,
       labelDocumentLink: true,
       items: { select: { sellerId: true } },
@@ -38,8 +39,9 @@ export async function GET(_req: Request, { params }: Params) {
     return NextResponse.json({ error: "No label available." }, { status: 404 });
   }
 
-  // Shippo label URLs are stable signed S3 URLs — fetch directly.
-  const pdfRes = await fetch(order.labelDocumentLink);
+  // Provider-aware fetch: Shippo URLs are public signed S3 links, Sendcloud
+  // label URLs require Basic auth.
+  const pdfRes = await fetchLabelPdf(order.shippingProvider, order.labelDocumentLink);
   if (!pdfRes.ok) {
     return NextResponse.json({ error: "Could not retrieve label — please try again later." }, { status: 502 });
   }

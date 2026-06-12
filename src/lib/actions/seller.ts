@@ -231,3 +231,43 @@ export async function updatePickupAddress(
 
   return { success: true, data: saved };
 }
+
+// ─── Ships-to countries ─────────────────────────────────────────────────────
+
+const shipsToSchema = z.object({
+  countries: z
+    .array(z.string().length(2))
+    .min(1, "Select at least one country you ship to")
+    .max(50),
+});
+
+export type ShipsToState = { success?: boolean; error?: string; data?: string[] } | null;
+
+export async function updateShipsToCountries(
+  _prev: ShipsToState,
+  formData: FormData,
+): Promise<ShipsToState> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "You must be signed in." };
+
+  const seller = await prisma.sellerProfile.findFirst({
+    where: { user: { supabaseId: user.id } },
+    select: { id: true },
+  });
+  if (!seller) return { error: "Seller profile not found." };
+
+  const parsed = shipsToSchema.safeParse({
+    countries: formData.getAll("countries").map(String),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.flatten().fieldErrors.countries?.[0] ?? "Invalid selection." };
+  }
+
+  await prisma.sellerProfile.update({
+    where: { id: seller.id },
+    data: { shipsToCountries: parsed.data.countries },
+  });
+
+  return { success: true, data: parsed.data.countries };
+}

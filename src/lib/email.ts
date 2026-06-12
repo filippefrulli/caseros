@@ -113,8 +113,9 @@ export async function sendOrderShippedEmail({
   to: string;
   buyerName: string | null;
   orderId: string;
-  trackingCode: string;
-  trackingUrl: string;
+  // Optional: self-managed shipping mode has no carrier tracking.
+  trackingCode?: string | null;
+  trackingUrl?: string | null;
   appUrl: string;
 }) {
   if (!resend) {

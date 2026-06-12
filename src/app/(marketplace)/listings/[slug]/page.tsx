@@ -9,6 +9,8 @@ import { FavoriteButton } from "@/components/marketplace/favorite-button";
 import { BuyNowButton } from "@/components/marketplace/buy-now-button";
 import { StartConversationButton } from "@/components/messages/start-conversation-button";
 import { ChevronLeft } from "lucide-react";
+import { getVisitorCountry } from "@/lib/visitor-country";
+import { countryName } from "@/lib/countries";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -38,6 +40,7 @@ export default async function ListingPage({ params }: Props) {
             slug: true,
             stripeOnboardingDone: true,
             payoutsEnabled: true,
+            shipsToCountries: true,
             user: { select: { supabaseId: true } },
           },
         },
@@ -64,6 +67,15 @@ export default async function ListingPage({ params }: Props) {
         where: { userId_listingId: { userId: dbUser.id, listingId: listing.id } },
       }))
     : false;
+
+  // Physical items can only be bought by visitors in a country the seller ships
+  // to. Digital items and unknown-country visitors are unrestricted here (the
+  // visitor can still pick their country and checkout enforces it server-side).
+  const visitorCountry = await getVisitorCountry();
+  const shippable =
+    listing.isDigital ||
+    !visitorCountry ||
+    listing.seller.shipsToCountries.includes(visitorCountry);
 
   return (
     <main className="mx-auto max-w-5xl px-4 pt-5 pb-10">
@@ -109,14 +121,20 @@ export default async function ListingPage({ params }: Props) {
               </Link>
             ) : (
               <>
-                <BuyNowButton
-                  listingId={listing.id}
-                  slug={listing.slug}
-                  stock={listing.stock}
-                  payable={listing.seller.stripeOnboardingDone && listing.seller.payoutsEnabled}
-                  isLoggedIn={!!user}
-                  isDigital={listing.isDigital}
-                />
+                {shippable ? (
+                  <BuyNowButton
+                    listingId={listing.id}
+                    slug={listing.slug}
+                    stock={listing.stock}
+                    payable={listing.seller.stripeOnboardingDone && listing.seller.payoutsEnabled}
+                    isLoggedIn={!!user}
+                    isDigital={listing.isDigital}
+                  />
+                ) : (
+                  <div className="flex-1 rounded-xl border border-warning bg-warning-subtle px-4 py-3 text-center text-sm text-warning-fg">
+                    This seller doesn&apos;t ship to {countryName(visitorCountry!)}.
+                  </div>
+                )}
                 <FavoriteButton
                   listingId={listing.id}
                   isFavorited={isFavorited}

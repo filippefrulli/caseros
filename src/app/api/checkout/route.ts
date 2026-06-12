@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { env } from "@/env";
-import { getRates, isShippoConfigured } from "@/lib/shippo";
+import { getRates, isShippingConfigured } from "@/lib/shipping";
+import { isIntegratedShippingEnabled } from "@/lib/platform-settings";
 
 export const runtime = "nodejs";
 
@@ -81,6 +82,7 @@ async function handleCheckout(req: Request) {
             payoutsEnabled: true,
             commissionRate: true,
             userId: true,
+            shipsToCountries: true,
             pickupName: true,
             pickupLine1: true,
             pickupHouseNumber: true,
@@ -119,10 +121,7 @@ async function handleCheckout(req: Request) {
   let matchedRate: Awaited<ReturnType<typeof getRates>>[number] | undefined;
 
   if (!listing.isDigital) {
-    if (!shippingRate) {
-      return NextResponse.json({ error: "Shipping rate is required." }, { status: 400 });
-    }
-
+    // Resolve the destination address (saved or inline) — needed in both modes.
     if (addressId) {
       const saved = await prisma.address.findFirst({
         where: { id: addressId, userId: dbUser.id },
@@ -139,53 +138,71 @@ async function handleCheckout(req: Request) {
     } else {
       return NextResponse.json({ error: "Shipping address is required." }, { status: 400 });
     }
-
-    if (!isShippoConfigured()) {
-      return NextResponse.json({ error: "Shipping not configured." }, { status: 503 });
-    }
-    const s = listing.seller;
-    if (!s.pickupLine1 || !s.pickupCity || !s.pickupPostalCode || !s.pickupCountry || !listing.weightGrams) {
-      return NextResponse.json({ error: "Seller is not ready to ship this listing." }, { status: 409 });
-    }
     // At this point address is guaranteed non-null (early returns cover all null cases above)
     const resolvedAddress = address!;
-    let rates: Awaited<ReturnType<typeof getRates>>;
-    try {
-      rates = await getRates({
-        fromAddress: {
-          name: s.pickupName ?? "Seller",
-          street1: s.pickupLine1,
-          street_no: s.pickupHouseNumber ?? undefined,
-          city: s.pickupCity,
-          zip: s.pickupPostalCode,
-          country: s.pickupCountry,
-          phone: s.pickupPhone ?? undefined,
-        },
-        toAddress: {
-          name: resolvedAddress.name,
-          street1: resolvedAddress.line1.split(",")[0].trim(),
-          street_no: resolvedAddress.houseNumber ?? undefined,
-          city: resolvedAddress.city,
-          zip: resolvedAddress.postalCode,
-          country: resolvedAddress.country,
-        },
-        weightGrams: listing.weightGrams,
-        lengthCm: listing.lengthCm,
-        widthCm: listing.widthCm,
-        heightCm: listing.heightCm,
-      });
-    } catch (err) {
-      console.error("[checkout] rate verification failed:", err);
-      return NextResponse.json({ error: "Could not verify shipping rate." }, { status: 502 });
+
+    // Seller covers delivery — enforce their ships-to allowlist. Authoritative
+    // server-side check behind the filtered checkout dropdown. Applies in both modes.
+    if (!listing.seller.shipsToCountries.includes(resolvedAddress.country)) {
+      return NextResponse.json(
+        { error: `This seller doesn't ship to ${resolvedAddress.country}.` },
+        { status: 409 },
+      );
     }
-    const matched = rates.find(
-      (r) => Math.round(parseFloat(r.amount) * 100) === shippingRate.amount,
-    );
-    if (!matched) {
-      return NextResponse.json({ error: "Selected shipping rate is no longer available." }, { status: 409 });
+
+    if (await isIntegratedShippingEnabled()) {
+      // Integrated shipping: re-fetch rates server-side to verify the chosen rate
+      // is real — never trust the amount from the client.
+      if (!shippingRate) {
+        return NextResponse.json({ error: "Shipping rate is required." }, { status: 400 });
+      }
+      if (!isShippingConfigured()) {
+        return NextResponse.json({ error: "Shipping not configured." }, { status: 503 });
+      }
+      const s = listing.seller;
+      if (!s.pickupLine1 || !s.pickupCity || !s.pickupPostalCode || !s.pickupCountry || !listing.weightGrams) {
+        return NextResponse.json({ error: "Seller is not ready to ship this listing." }, { status: 409 });
+      }
+      let rates: Awaited<ReturnType<typeof getRates>>;
+      try {
+        rates = await getRates({
+          fromAddress: {
+            name: s.pickupName ?? "Seller",
+            street1: s.pickupLine1,
+            street_no: s.pickupHouseNumber ?? undefined,
+            city: s.pickupCity,
+            zip: s.pickupPostalCode,
+            country: s.pickupCountry,
+            phone: s.pickupPhone ?? undefined,
+          },
+          toAddress: {
+            name: resolvedAddress.name,
+            street1: resolvedAddress.line1.split(",")[0].trim(),
+            street_no: resolvedAddress.houseNumber ?? undefined,
+            city: resolvedAddress.city,
+            zip: resolvedAddress.postalCode,
+            country: resolvedAddress.country,
+          },
+          weightGrams: listing.weightGrams,
+          lengthCm: listing.lengthCm,
+          widthCm: listing.widthCm,
+          heightCm: listing.heightCm,
+        });
+      } catch (err) {
+        console.error("[checkout] rate verification failed:", err);
+        return NextResponse.json({ error: "Could not verify shipping rate." }, { status: 502 });
+      }
+      const matched = rates.find(
+        (r) => Math.round(parseFloat(r.amount) * 100) === shippingRate.amount,
+      );
+      if (!matched) {
+        return NextResponse.json({ error: "Selected shipping rate is no longer available." }, { status: 409 });
+      }
+      shippingTotal = shippingRate.amount;
+      matchedRate = matched;
     }
-    shippingTotal = shippingRate.amount;
-    matchedRate = matched;
+    // Self-managed mode: the seller covers delivery, so shippingTotal stays 0
+    // and no rate/service is recorded.
   }
 
   const totalAmount = itemsTotal + shippingTotal;
