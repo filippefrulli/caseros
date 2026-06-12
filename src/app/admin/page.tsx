@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { Route } from "next";
+import { notFound } from "next/navigation";
 import { ShoppingBag, Users, Settings, AlertCircle, TrendingUp } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils";
+import { env } from "@/env";
 
 export const metadata: Metadata = { title: "Admin" };
 
 export default async function AdminDashboardPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.email !== env.ADMIN_EMAIL) return notFound();
+
   const [orderStats, pendingSellerCount, activeSellerCount] = await Promise.all([
     prisma.order.groupBy({
       by: ["status"],
