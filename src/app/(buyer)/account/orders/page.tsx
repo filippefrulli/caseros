@@ -85,82 +85,97 @@ export default async function OrdersPage() {
           </Link>
         </div>
       ) : (
-        <ul className="space-y-5">
-          {orders.map((order) => (
-            <li
-              key={order.id}
-              className="rounded-xl border border-gray-200 p-5"
-            >
-              <div className="mb-4 flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-xs uppercase tracking-wide text-gray-500">
-                    {DATE_FMT.format(order.createdAt)}
-                  </p>
-                  <p className="mt-0.5 font-mono text-xs text-gray-400 truncate max-w-[10rem]">{order.id}</p>
+        <ul className="space-y-4">
+          {orders.map((order) => {
+            // Total only adds information when there's more than one item or a
+            // shipping charge — otherwise it just repeats the single item's price.
+            const showTotal = order.items.length > 1 || order.shippingAmount > 0;
+            return (
+              <li key={order.id} className="rounded-xl border border-gray-200 p-4 sm:p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="font-mono text-xs text-gray-500">
+                      #{order.id.slice(-8).toUpperCase()}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-400">{DATE_FMT.format(order.createdAt)}</p>
+                  </div>
+                  <span
+                    className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[order.status]}`}
+                  >
+                    {STATUS_LABEL[order.status]}
+                  </span>
                 </div>
-                <span
-                  className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[order.status]}`}
-                >
-                  {STATUS_LABEL[order.status]}
-                </span>
-              </div>
 
-              <ul className="space-y-3 border-t border-gray-100 pt-4">
-                {order.items.map((item) => {
-                  const thumb = item.listing?.images?.[0]?.url ?? item.listingImageUrl;
-                  return (
-                    <li key={item.id} className="flex items-start gap-3">
-                      {thumb ? (
-                        <Image
-                          src={thumb}
-                          alt={item.listingTitle}
-                          width={56}
-                          height={56}
-                          className="h-14 w-14 shrink-0 rounded-lg object-cover"
-                        />
-                      ) : (
-                        <div className="h-14 w-14 shrink-0 rounded-lg bg-gray-100" />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        {item.listing?.slug ? (
-                          <Link
-                            href={`/listings/${item.listing.slug}`}
-                            className="text-sm font-medium text-gray-900 hover:underline"
-                          >
-                            {item.listingTitle}
-                          </Link>
+                <ul className="mt-3 space-y-3 border-t border-gray-100 pt-3">
+                  {order.items.map((item) => {
+                    const thumb = item.listing?.images?.[0]?.url ?? item.listingImageUrl;
+                    return (
+                      <li key={item.id} className="flex items-center gap-3">
+                        {thumb ? (
+                          <Image
+                            src={thumb}
+                            alt={item.listingTitle}
+                            width={56}
+                            height={56}
+                            className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                          />
                         ) : (
-                          <span className="text-sm font-medium text-gray-900">
-                            {item.listingTitle}
-                          </span>
+                          <div className="h-14 w-14 shrink-0 rounded-lg bg-gray-100" />
                         )}
-                        <p className="mt-0.5 text-xs text-gray-500">Qty {item.quantity}</p>
+                        <div className="min-w-0 flex-1">
+                          {item.listing?.slug ? (
+                            <Link
+                              href={`/listings/${item.listing.slug}`}
+                              className="text-sm font-medium text-gray-900 hover:underline"
+                            >
+                              {item.listingTitle}
+                            </Link>
+                          ) : (
+                            <span className="text-sm font-medium text-gray-900">
+                              {item.listingTitle}
+                            </span>
+                          )}
+                          <p className="mt-0.5 text-xs text-gray-500">
+                            {item.listing?.seller?.shopName && (
+                              <>
+                                <Link
+                                  href={`/shop/${item.listing.seller.slug}`}
+                                  className="hover:underline"
+                                >
+                                  {item.listing.seller.shopName}
+                                </Link>
+                                {" · "}
+                              </>
+                            )}
+                            Qty {item.quantity}
+                          </p>
+                        </div>
+                        <p className="shrink-0 text-sm font-medium tabular-nums text-gray-900">
+                          {formatPrice(item.unitAmount * item.quantity, order.currency)}
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                {(showTotal || order.status === "SHIPPED") && (
+                  <div className="mt-3 flex items-center justify-between gap-4 border-t border-gray-100 pt-3">
+                    {showTotal ? (
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-sm text-gray-500">Total</span>
+                        <span className="text-base font-semibold tabular-nums text-gray-900">
+                          {formatPrice(order.totalAmount, order.currency)}
+                        </span>
                       </div>
-                      <p className="shrink-0 text-sm tabular-nums text-gray-700">
-                        {formatPrice(item.unitAmount * item.quantity, order.currency)}
-                      </p>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
-                <p className="text-sm text-gray-500">Total</p>
-                <p className="text-sm font-semibold tabular-nums text-gray-900">
-                  {formatPrice(order.totalAmount, order.currency)}
-                </p>
-              </div>
-
-              {order.status === "SHIPPED" && (
-                <div className="mt-4 flex items-center justify-between gap-4 border-t border-gray-100 pt-4">
-                  <p className="text-xs text-gray-500">
-                    Received your order? Confirm to complete it.
-                  </p>
-                  <ConfirmReceivedButton orderId={order.id} />
-                </div>
-              )}
-            </li>
-          ))}
+                    ) : (
+                      <p className="text-sm text-gray-500">Received your order?</p>
+                    )}
+                    {order.status === "SHIPPED" && <ConfirmReceivedButton orderId={order.id} />}
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </main>

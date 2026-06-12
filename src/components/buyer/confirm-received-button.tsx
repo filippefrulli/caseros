@@ -34,7 +34,7 @@ export function ConfirmReceivedButton({ orderId }: { orderId: string }) {
       <button
         onClick={confirm}
         disabled={loading}
-        className="rounded-lg bg-gray-900 px-4 py-2 text-xs font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+        className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
       >
         {loading ? "Confirming…" : "Confirm received"}
       </button>
