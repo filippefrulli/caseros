@@ -31,3 +31,18 @@ export function countryName(code: string): string {
   if (known) return known.name;
   return displayNames.of(code) ?? code;
 }
+
+// Emoji flag for an ISO-2 code (regional indicator symbols). Renders as a flag
+// on macOS/iOS/Android; on Windows it falls back to the two-letter code.
+export function flagEmoji(code: string): string {
+  return code
+    .toUpperCase()
+    .replace(/[A-Z]/g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
+}
+
+// Infer an ISO-2 country from a browser locale string (e.g. "en-IE" → "IE").
+// Returns null when the locale has no region or it isn't a shipping country.
+export function countryFromLocale(locale: string): string | null {
+  const region = locale.split("-")[1]?.toUpperCase();
+  return region && isShippingCountry(region) ? region : null;
+}

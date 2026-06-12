@@ -18,11 +18,3 @@ export async function getVisitorCountry(): Promise<string | null> {
 
   return null;
 }
-
-// Whether the visitor has explicitly chosen a country (vs geo/none). Drives the
-// first-visit prompt.
-export async function hasChosenCountry(): Promise<boolean> {
-  const cookieStore = await cookies();
-  const v = cookieStore.get(VISITOR_COUNTRY_COOKIE)?.value;
-  return !!v && isShippingCountry(v);
-}

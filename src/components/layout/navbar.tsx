@@ -5,13 +5,17 @@ import { SearchBar } from "./search-bar";
 import { ChatIcon } from "@/components/messages/chat-icon";
 import { NotificationsBell } from "@/components/notifications/notifications-bell";
 import Link from "next/link";
-import { Home } from "lucide-react";
+import Image from "next/image";
+import { CountryPicker } from "@/components/marketplace/country-picker";
+import { getVisitorCountry } from "@/lib/visitor-country";
 
 export async function Navbar() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const visitorCountry = await getVisitorCountry();
 
   const name = user?.user_metadata?.full_name as string | undefined;
 
@@ -87,7 +91,7 @@ export async function Navbar() {
             href="/"
             className="flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight hover:opacity-75 transition-opacity"
           >
-            <Home size={18} />
+            <Image src="/logo.png" alt="Caseros" width={24} height={24} priority className="rounded-sm" />
             Caseros
           </Link>
 
@@ -98,7 +102,8 @@ export async function Navbar() {
             </div>
           </div>
 
-          <nav className="ml-auto flex shrink-0 items-center gap-1 sm:ml-0">
+          <nav className="ml-auto flex shrink-0 items-center gap-1.5 sm:ml-0">
+            <CountryPicker current={visitorCountry} />
             {user && <ChatIcon unreadCount={unreadCount} />}
             {user && (
               <NotificationsBell
