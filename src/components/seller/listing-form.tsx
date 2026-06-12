@@ -33,6 +33,18 @@ const inputClass =
   "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
 const selectClass = `${inputClass} appearance-none pr-8`;
 
+// Keep in sync with the limits enforced in listingSchema (actions/listing.ts).
+const TITLE_MAX = 100;
+const DESCRIPTION_MAX = 5000;
+
+function CharCount({ value, max }: { value: number; max: number }) {
+  return (
+    <span className={`text-xs tabular-nums ${value >= max ? "text-error" : "text-gray-400"}`}>
+      {value}/{max}
+    </span>
+  );
+}
+
 type Category = { id: string; name: string };
 type ExistingListing = {
   id: string;
@@ -60,6 +72,8 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
   );
   const [uploading, setUploading] = useState(false);
   const [isDigital, setIsDigital] = useState(listing?.isDigital ?? false);
+  const [titleLen, setTitleLen] = useState(listing?.title.length ?? 0);
+  const [descLen, setDescLen] = useState(listing?.description.length ?? 0);
   const handleBusyChange = useCallback((busy: boolean) => setUploading(busy), []);
 
   return (
@@ -99,17 +113,21 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
 
       {/* Title */}
       <div>
-        <Label htmlFor="title" required>
-          Title
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="title" required>
+            Title
+          </Label>
+          <CharCount value={titleLen} max={TITLE_MAX} />
+        </div>
         <input
           id="title"
           name="title"
           type="text"
           required
-          maxLength={100}
+          maxLength={TITLE_MAX}
           placeholder="e.g. Hand-thrown ceramic mug"
           defaultValue={listing?.title}
+          onChange={(e) => setTitleLen(e.target.value.length)}
           className={inputClass}
         />
         <FieldError messages={state?.fieldErrors?.title} />
@@ -117,17 +135,21 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
 
       {/* Description */}
       <div>
-        <Label htmlFor="description" required>
-          Description
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="description" required>
+            Description
+          </Label>
+          <CharCount value={descLen} max={DESCRIPTION_MAX} />
+        </div>
         <textarea
           id="description"
           name="description"
           required
           rows={6}
-          maxLength={5000}
+          maxLength={DESCRIPTION_MAX}
           placeholder="Describe your item — materials, dimensions, care instructions…"
           defaultValue={listing?.description}
+          onChange={(e) => setDescLen(e.target.value.length)}
           className={inputClass}
         />
         <FieldError messages={state?.fieldErrors?.description} />
