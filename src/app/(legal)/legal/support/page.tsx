@@ -13,7 +13,7 @@ const FAQS = [
   },
   {
     q: "Can I return or exchange an item?",
-    a: "Because every item is handmade to order, returns and exchanges are at the seller's discretion. Reach out to us within 14 days of delivery if something arrived damaged or not as described, we'll make it right.",
+    a: "Because every item is made to order by an independent maker, returns and exchanges are at the seller's discretion. Reach out to us within 14 days of delivery if something arrived damaged or not as described, we'll make it right.",
   },
   {
     q: "How long does shipping take?",

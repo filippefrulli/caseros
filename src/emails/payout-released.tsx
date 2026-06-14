@@ -55,7 +55,7 @@ export function PayoutReleasedEmail({ shopName, orderId, payoutAmount, currency,
           </Section>
 
           <Hr style={hr} />
-          <Text style={footer}>Caseros: handmade goods from EU makers.</Text>
+          <Text style={footer}>Caseros: original goods from EU makers.</Text>
         </Container>
       </Body>
     </Html>

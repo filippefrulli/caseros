@@ -306,7 +306,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div className="rounded-lg border border-border bg-bg-subtle p-3">
               <p className="text-xs font-semibold text-text-primary">Private individual</p>
-              <p className="mt-1 text-xs text-text-secondary">Clearing out items you no longer need: handmade crafts, second-hand clothes, vintage finds. No business registration required.</p>
+              <p className="mt-1 text-xs text-text-secondary">Clearing out items you no longer need: crafts, second-hand clothes, vintage finds. No business registration required.</p>
             </div>
             <div className="rounded-lg border border-border bg-bg-subtle p-3">
               <p className="text-xs font-semibold text-text-primary">Commercial trader</p>
@@ -620,10 +620,10 @@ export function OnboardingForm({ userId }: { userId: string }) {
     return (
       <form onSubmit={handleSubmit} className="space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Verify your craft</h1>
+          <h1 className="text-2xl font-bold text-text-primary">Verify your work</h1>
           <p className="mt-1.5 text-sm text-text-secondary">
-            Caseros is built on real, handmade goods. To keep it that way, we review every new seller
-            before approving their shop. This usually takes 1–2 hours.
+            Caseros is built on real, original goods made by independent makers. To keep it that way,
+            we review every new seller before approving their shop. This usually takes 1–2 hours.
           </p>
         </div>
 

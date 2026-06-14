@@ -66,9 +66,9 @@ export default function TermsOfServicePage() {
         <Subsection title="Listings">
           <p>
             You are responsible for the accuracy of your listings, including descriptions,
-            images, prices, and stock levels. Listings must represent goods that are genuinely
-            handmade, crafted, or produced by you or under your direct supervision. Mass-produced
-            goods not made by the seller are not permitted.
+            images, prices, and stock levels. Listings must represent goods that are designed and
+            produced by you — by hand, with tools, or by machine — or under your direct supervision.
+            Mass-produced, resold, or drop-shipped goods are not permitted.
           </p>
         </Subsection>
         <Subsection title="Platform commission">

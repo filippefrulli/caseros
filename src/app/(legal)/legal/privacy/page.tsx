@@ -10,8 +10,8 @@ export default function PrivacyPolicyPage() {
 
       <Section title="1. Who we are">
         <p>
-          Caseros is an online marketplace connecting buyers with independent European artisans
-          selling handmade and craft goods. References to "Caseros", "we", "us", or "our" in
+          Caseros is an online marketplace connecting buyers with independent European makers
+          selling original goods they make themselves. References to "Caseros", "we", "us", or "our" in
           this policy refer to the operator of this platform. If you have questions about this
           policy, contact us at <a href="mailto:filippe.frulli@caseros.eu" className="underline">filippe.frulli@caseros.eu</a>.
         </p>

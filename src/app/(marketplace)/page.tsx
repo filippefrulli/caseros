@@ -116,8 +116,8 @@ export default async function HomePage({ searchParams }: Props) {
           Real things, made by real people across Europe
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-text-secondary">
-          Every piece is crafted by an independent maker in the EU! Discover something
-          one of a kind, and buy it straight from the hands that made it.
+          Every piece is made by an independent maker in the EU! Discover something
+          one of a kind, and buy it straight from the person who made it.
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-text-secondary">
           <span className="flex items-center gap-2">
@@ -153,9 +153,9 @@ export default async function HomePage({ searchParams }: Props) {
             style={{ backgroundImage: "linear-gradient(135deg, #2E4D8E, #1F3A6E)" }}
           >
             <p className="text-xs font-semibold uppercase tracking-widest text-gold">Our promise</p>
-            <h2 className="mt-2 font-display text-2xl font-semibold sm:text-3xl">Real. Handmade. European.</h2>
+            <h2 className="mt-2 font-display text-2xl font-semibold sm:text-3xl">Real. Original. European.</h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed opacity-90">
-              Every listing on Caseros is a genuine item crafted by an independent maker based in the EU.
+              Every listing on Caseros is an original item made by an independent maker based in the EU.
               Your money, your activity, and your information all stay in Europe.
             </p>
           </div>
@@ -165,7 +165,7 @@ export default async function HomePage({ searchParams }: Props) {
           <p className="font-display text-xl font-semibold text-text-primary">Nothing here just yet</p>
           <p className="mt-1.5 max-w-sm text-sm text-text-secondary">
             No makers match these filters right now. Try widening your search, there&apos;s plenty
-            more handmade waiting.
+            more to discover.
           </p>
         </div>
       )}

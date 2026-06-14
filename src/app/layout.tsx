@@ -10,7 +10,7 @@ const geist = Geist({
   subsets: ["latin"],
 });
 
-// Warm "old-style" serif for display headings, carries the handmade/European
+// Warm "old-style" serif for display headings, carries the maker/European
 // personality the neutral sans can't. Currently used on the homepage only.
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     template: "%s | Caseros",
     default: "Caseros",
   },
-  description: "Discover unique handmade and craft goods from European artisans.",
+  description: "Discover original goods made by independent European makers.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
