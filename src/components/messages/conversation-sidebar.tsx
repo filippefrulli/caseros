@@ -35,13 +35,13 @@ export async function ConversationSidebar({ activeId }: { activeId?: string }) {
   if (conversations.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center p-8">
-        <p className="text-center text-sm text-gray-400">No conversations yet.</p>
+        <p className="text-center text-sm text-text-muted">No conversations yet.</p>
       </div>
     );
   }
 
   return (
-    <div className="divide-y divide-gray-100">
+    <div className="divide-y divide-border">
       {conversations.map((conv) => {
         const isBuyer = conv.buyerId === dbUser.id;
         const otherName = isBuyer
@@ -63,24 +63,24 @@ export async function ConversationSidebar({ activeId }: { activeId?: string }) {
           <Link
             key={conv.id}
             href={`/messages/${conv.id}`}
-            className={`flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-gray-50 ${isActive ? "bg-gray-50" : ""}`}
+            className={`flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-bg-subtle ${isActive ? "bg-bg-subtle" : ""}`}
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-200 text-xs font-semibold text-gray-600">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-bg-subtle text-xs font-semibold text-text-secondary">
               {otherName.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-1">
-                <p className={`truncate text-sm ${unread > 0 ? "font-semibold text-gray-900" : "font-medium text-gray-700"}`}>
+                <p className={`truncate text-sm ${unread > 0 ? "font-semibold text-text-primary" : "font-medium text-text-secondary"}`}>
                   {otherName}
                 </p>
                 {lastMsg && (
-                  <p className="shrink-0 text-xs text-gray-400">
+                  <p className="shrink-0 text-xs text-text-muted">
                     {new Date(lastMsg.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                   </p>
                 )}
               </div>
               {lastMsg && (
-                <p className={`truncate text-xs ${unread > 0 ? "text-gray-600" : "text-gray-400"}`}>
+                <p className={`truncate text-xs ${unread > 0 ? "text-text-secondary" : "text-text-muted"}`}>
                   {lastMsg.senderId === dbUser.id ? "You: " : ""}{lastMsg.body}
                 </p>
               )}

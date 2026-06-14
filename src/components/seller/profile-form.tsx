@@ -17,7 +17,7 @@ interface Props {
     } | null;
 }
 
-const inputCls = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+const inputCls = "block w-full rounded-lg border border-border-strong px-3 py-2 text-sm shadow-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 
 const PLATFORMS = [
   { key: "website",   label: "Website",     placeholder: "https://yourwebsite.com" },
@@ -64,11 +64,11 @@ export function ProfileForm({ bio, socialLinks }: Props) {
 
       {/* Bio */}
       <section>
-        <h2 className="mb-4 text-sm font-semibold text-gray-900">About your shop</h2>
+        <h2 className="mb-4 text-sm font-semibold text-text-primary">About your shop</h2>
         <div>
           <div className="flex items-baseline justify-between mb-1.5">
-            <label htmlFor="bio" className="text-sm font-medium text-gray-700">Bio</label>
-            <span className="text-xs text-gray-400">
+            <label htmlFor="bio" className="text-sm font-medium text-text-secondary">Bio</label>
+            <span className="text-xs text-text-muted">
               <span id="bio-count">{bio?.length ?? 0}</span> / 2000
             </span>
           </div>
@@ -92,13 +92,13 @@ export function ProfileForm({ bio, socialLinks }: Props) {
 
       {/* Social links */}
       <section>
-        <h2 className="mb-1 text-sm font-semibold text-gray-900">Social links</h2>
-        <p className="mb-4 text-xs text-gray-400">Paste the full URL to your profile on each platform.</p>
+        <h2 className="mb-1 text-sm font-semibold text-text-primary">Social links</h2>
+        <p className="mb-4 text-xs text-text-muted">Paste the full URL to your profile on each platform.</p>
         <div className="space-y-3">
           {PLATFORMS.map(({ key, label, placeholder }) => (
             <div key={key}>
-              <label htmlFor={key} className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-1.5">
-                <Globe size={14} className="shrink-0 text-gray-400" />
+              <label htmlFor={key} className="flex items-center gap-2 text-sm font-medium text-text-secondary mb-1.5">
+                <Globe size={14} className="shrink-0 text-text-muted" />
                 {label}
               </label>
               <input
@@ -118,7 +118,7 @@ export function ProfileForm({ bio, socialLinks }: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+        className="w-full rounded-lg bg-btn-neutral py-2.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:opacity-50 transition-colors"
       >
         {isPending ? "Saving…" : "Save changes"}
       </button>

@@ -15,7 +15,7 @@ const EU_COUNTRIES = [
   ["CH", "Switzerland"], ["NO", "Norway"],
 ] as const;
 
-const inputCls = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+const inputCls = "block w-full rounded-lg border border-border-strong px-3 py-2 text-sm shadow-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 const selectCls = `${inputCls} appearance-none pr-8`;
 
 function FieldError({ messages }: { messages?: string[] }) {
@@ -73,7 +73,7 @@ export function PickupAddressForm({ initial }: Props) {
       )}
 
       <div>
-        <label htmlFor="pickupName" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="pickupName" className="block text-sm font-medium text-text-secondary mb-1">
           Full name <span className="text-error">*</span>
         </label>
         <input id="pickupName" name="pickupName" type="text" required defaultValue={values.pickupName ?? ""} placeholder="Jane Smith" autoComplete="name" className={inputCls} />
@@ -81,7 +81,7 @@ export function PickupAddressForm({ initial }: Props) {
       </div>
 
       <div>
-        <label htmlFor="pickupLine1" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="pickupLine1" className="block text-sm font-medium text-text-secondary mb-1">
           Street address <span className="text-error">*</span>
         </label>
         <input
@@ -95,7 +95,7 @@ export function PickupAddressForm({ initial }: Props) {
       </div>
 
       <div>
-        <label htmlFor="pickupLine2" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="pickupLine2" className="block text-sm font-medium text-text-secondary mb-1">
           Apt / suite (optional)
         </label>
         <input id="pickupLine2" name="pickupLine2" type="text" defaultValue={values.pickupLine2 ?? ""} placeholder="Apartment 3B" autoComplete="address-line2" className={inputCls} />
@@ -103,14 +103,14 @@ export function PickupAddressForm({ initial }: Props) {
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label htmlFor="pickupPostalCode" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="pickupPostalCode" className="block text-sm font-medium text-text-secondary mb-1">
             Postal code <span className="text-error">*</span>
           </label>
           <input id="pickupPostalCode" name="pickupPostalCode" type="text" required defaultValue={values.pickupPostalCode ?? ""} placeholder="D01 F5P2" autoComplete="postal-code" className={inputCls} />
           <FieldError messages={state?.fieldErrors?.pickupPostalCode} />
         </div>
         <div>
-          <label htmlFor="pickupCity" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="pickupCity" className="block text-sm font-medium text-text-secondary mb-1">
             City <span className="text-error">*</span>
           </label>
           <input id="pickupCity" name="pickupCity" type="text" required defaultValue={values.pickupCity ?? ""} placeholder="Dublin" autoComplete="address-level2" className={inputCls} />
@@ -119,7 +119,7 @@ export function PickupAddressForm({ initial }: Props) {
       </div>
 
       <div>
-        <label htmlFor="pickupCountry" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="pickupCountry" className="block text-sm font-medium text-text-secondary mb-1">
           Country <span className="text-error">*</span>
         </label>
         <div className="relative">
@@ -129,13 +129,13 @@ export function PickupAddressForm({ initial }: Props) {
               <option key={code} value={code}>{name}</option>
             ))}
           </select>
-          <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
         </div>
         <FieldError messages={state?.fieldErrors?.pickupCountry} />
       </div>
 
       <div>
-        <label htmlFor="pickupPhone" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="pickupPhone" className="block text-sm font-medium text-text-secondary mb-1">
           Phone (optional)
         </label>
         <input id="pickupPhone" name="pickupPhone" type="tel" defaultValue={values.pickupPhone ?? ""} placeholder="+353 1 234 5678" autoComplete="tel" className={inputCls} />
@@ -145,7 +145,7 @@ export function PickupAddressForm({ initial }: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+        className="w-full rounded-lg bg-btn-neutral py-2.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:opacity-50 transition-colors"
       >
         {isPending ? "Saving…" : "Save pickup address"}
       </button>

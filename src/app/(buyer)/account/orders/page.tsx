@@ -22,7 +22,7 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
 };
 
 const STATUS_STYLE: Record<OrderStatus, string> = {
-  PENDING: "bg-gray-100 text-gray-700",
+  PENDING: "bg-bg-subtle text-text-secondary",
   PAID: "bg-green-100 text-green-800",
   PROCESSING: "bg-blue-100 text-blue-800",
   SHIPPED: "bg-violet-100 text-violet-800",
@@ -71,16 +71,16 @@ export default async function OrdersPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 pt-6 pb-12">
       <div className="mb-6">
-        <Link href="/account" className="inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+        <Link href="/account" className="inline-flex items-center rounded-lg border border-border p-2 text-text-muted hover:border-border-strong hover:text-text-secondary transition-colors">
           <ChevronLeft size={25} />
         </Link>
         <h1 className="mt-4 text-2xl font-bold text-center">My Orders</h1>
       </div>
 
       {orders.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 py-24 text-center">
-          <p className="text-gray-400">You have no orders yet.</p>
-          <Link href="/" className="mt-3 text-sm font-medium text-gray-900 underline underline-offset-4">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-24 text-center">
+          <p className="text-text-muted">You have no orders yet.</p>
+          <Link href="/" className="mt-3 text-sm font-medium text-text-primary underline underline-offset-4">
             Browse listings
           </Link>
         </div>
@@ -88,16 +88,16 @@ export default async function OrdersPage() {
         <ul className="space-y-4">
           {orders.map((order) => {
             // Total only adds information when there's more than one item or a
-            // shipping charge — otherwise it just repeats the single item's price.
+            // shipping charge, otherwise it just repeats the single item's price.
             const showTotal = order.items.length > 1 || order.shippingAmount > 0;
             return (
-              <li key={order.id} className="rounded-xl border border-gray-200 p-4 sm:p-5">
+              <li key={order.id} className="rounded-xl border border-border p-4 sm:p-5">
                 <div className="flex items-center justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="font-mono text-xs text-gray-500">
+                    <p className="font-mono text-xs text-text-secondary">
                       #{order.id.slice(-8).toUpperCase()}
                     </p>
-                    <p className="mt-0.5 text-xs text-gray-400">{DATE_FMT.format(order.createdAt)}</p>
+                    <p className="mt-0.5 text-xs text-text-muted">{DATE_FMT.format(order.createdAt)}</p>
                   </div>
                   <span
                     className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[order.status]}`}
@@ -106,7 +106,7 @@ export default async function OrdersPage() {
                   </span>
                 </div>
 
-                <ul className="mt-3 space-y-3 border-t border-gray-100 pt-3">
+                <ul className="mt-3 space-y-3 border-t border-border pt-3">
                   {order.items.map((item) => {
                     const thumb = item.listing?.images?.[0]?.url ?? item.listingImageUrl;
                     return (
@@ -120,22 +120,22 @@ export default async function OrdersPage() {
                             className="h-14 w-14 shrink-0 rounded-lg object-cover"
                           />
                         ) : (
-                          <div className="h-14 w-14 shrink-0 rounded-lg bg-gray-100" />
+                          <div className="h-14 w-14 shrink-0 rounded-lg bg-bg-subtle" />
                         )}
                         <div className="min-w-0 flex-1">
                           {item.listing?.slug ? (
                             <Link
                               href={`/listings/${item.listing.slug}`}
-                              className="text-sm font-medium text-gray-900 hover:underline"
+                              className="text-sm font-medium text-text-primary hover:underline"
                             >
                               {item.listingTitle}
                             </Link>
                           ) : (
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-sm font-medium text-text-primary">
                               {item.listingTitle}
                             </span>
                           )}
-                          <p className="mt-0.5 text-xs text-gray-500">
+                          <p className="mt-0.5 text-xs text-text-secondary">
                             {item.listing?.seller?.shopName && (
                               <>
                                 <Link
@@ -150,7 +150,7 @@ export default async function OrdersPage() {
                             Qty {item.quantity}
                           </p>
                         </div>
-                        <p className="shrink-0 text-sm font-medium tabular-nums text-gray-900">
+                        <p className="shrink-0 text-sm font-medium tabular-nums text-text-primary">
                           {formatPrice(item.unitAmount * item.quantity, order.currency)}
                         </p>
                       </li>
@@ -159,16 +159,16 @@ export default async function OrdersPage() {
                 </ul>
 
                 {(showTotal || order.status === "SHIPPED") && (
-                  <div className="mt-3 flex items-center justify-between gap-4 border-t border-gray-100 pt-3">
+                  <div className="mt-3 flex items-center justify-between gap-4 border-t border-border pt-3">
                     {showTotal ? (
                       <div className="flex items-baseline gap-2">
-                        <span className="text-sm text-gray-500">Total</span>
-                        <span className="text-base font-semibold tabular-nums text-gray-900">
+                        <span className="text-sm text-text-secondary">Total</span>
+                        <span className="text-base font-semibold tabular-nums text-text-primary">
                           {formatPrice(order.totalAmount, order.currency)}
                         </span>
                       </div>
                     ) : (
-                      <p className="text-sm text-gray-500">Received your order?</p>
+                      <p className="text-sm text-text-secondary">Received your order?</p>
                     )}
                     {order.status === "SHIPPED" && <ConfirmReceivedButton orderId={order.id} />}
                   </div>

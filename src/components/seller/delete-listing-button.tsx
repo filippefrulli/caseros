@@ -35,7 +35,7 @@ export function DeleteListingButton({ listingId, listingTitle }: Props) {
     <>
       <button
         onClick={open}
-        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-error transition-colors py-2 px-1"
+        className="flex items-center gap-1.5 text-xs text-text-muted hover:text-error transition-colors py-2 px-1"
         aria-label={`Delete ${listingTitle}`}
       >
         <Trash2 size={13} />
@@ -44,12 +44,12 @@ export function DeleteListingButton({ listingId, listingTitle }: Props) {
 
       <dialog
         ref={dialogRef}
-        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 rounded-xl border border-gray-200 p-6 shadow-xl backdrop:bg-black/40 w-full max-w-sm"
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 rounded-xl border border-border p-6 shadow-xl backdrop:bg-black/40 w-full max-w-sm"
         onClick={(e) => { if (e.target === dialogRef.current) close(); }}
       >
-        <h2 className="text-base font-semibold text-gray-900">Delete listing?</h2>
-        <p className="mt-2 text-sm text-gray-600">
-          <span className="font-medium">{listingTitle}</span> will be permanently deleted — including all its photos and videos. This cannot be undone.
+        <h2 className="text-base font-semibold text-text-primary">Delete listing?</h2>
+        <p className="mt-2 text-sm text-text-secondary">
+          <span className="font-medium">{listingTitle}</span> will be permanently deleted, including all its photos and videos. This cannot be undone.
         </p>
 
         {error && (
@@ -61,7 +61,7 @@ export function DeleteListingButton({ listingId, listingTitle }: Props) {
             type="button"
             onClick={close}
             disabled={isPending}
-            className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-subtle transition-colors disabled:opacity-50"
           >
             Cancel
           </button>

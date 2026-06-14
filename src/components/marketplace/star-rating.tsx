@@ -7,7 +7,7 @@ export function StarRating({ rating, max = 5, size = 16 }: { rating: number; max
         <Star
           key={i}
           size={size}
-          className={i < Math.round(rating) ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200"}
+          className={i < Math.round(rating) ? "fill-gold text-gold" : "fill-border-strong text-text-muted"}
         />
       ))}
     </span>

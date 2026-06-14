@@ -35,7 +35,7 @@ function SearchInput() {
       </div>
       <button
         type="submit"
-        className="rounded-full bg-gray-900 px-4 text-sm font-medium text-white transition-colors hover:bg-gray-700"
+        className="rounded-full bg-btn-primary px-4 text-sm font-medium text-btn-primary-fg transition-colors hover:bg-btn-primary-hover"
       >
         Search
       </button>
@@ -49,7 +49,7 @@ const fallback = (
       <Search size={14} className="ml-2 shrink-0 text-text-muted" />
       <div className="flex-1 py-1 pl-2 pr-1 text-sm text-text-muted">Search listings…</div>
     </div>
-    <div className="rounded-full bg-gray-900 px-4 text-sm font-medium text-white flex items-center">Search</div>
+    <div className="rounded-full bg-btn-primary px-4 text-sm font-medium text-btn-primary-fg flex items-center">Search</div>
   </div>
 );
 

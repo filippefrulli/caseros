@@ -57,7 +57,7 @@ export async function signInWithEmail(
     update: { email: user.email! },
   });
 
-  // Prevent open redirect — protocol-relative URLs would escape our origin.
+  // Prevent open redirect, protocol-relative URLs would escape our origin.
   const isSafe =
     next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\");
   redirect((isSafe ? next : "/") as "/");
@@ -92,7 +92,7 @@ export async function signUpWithEmail(
     return { error: error.message };
   }
 
-  // Email confirmation disabled — user is immediately active
+  // Email confirmation disabled, user is immediately active
   if (data.session && data.user) {
     const u = data.user;
     const dbUser = await prisma.user.upsert({
@@ -150,7 +150,7 @@ export async function updatePassword(
   const { error } = await supabase.auth.updateUser({ password: parsed.data });
 
   if (error) {
-    return { error: "Failed to update password. Your reset link may have expired — please request a new one." };
+    return { error: "Failed to update password. Your reset link may have expired, please request a new one." };
   }
 
   redirect("/login");

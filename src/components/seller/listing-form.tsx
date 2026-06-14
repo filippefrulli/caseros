@@ -22,7 +22,7 @@ function Label({
   required?: boolean;
 }) {
   return (
-    <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700">
+    <label htmlFor={htmlFor} className="block text-sm font-medium text-text-secondary">
       {children}
       {required && <span className="ml-0.5 text-error"> *</span>}
     </label>
@@ -30,7 +30,7 @@ function Label({
 }
 
 const inputClass =
-  "mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+  "mt-1 block w-full rounded-lg border border-border-strong px-3 py-2 text-sm shadow-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 const selectClass = `${inputClass} appearance-none pr-8`;
 
 // Keep in sync with the limits enforced in listingSchema (actions/listing.ts).
@@ -39,7 +39,7 @@ const DESCRIPTION_MAX = 5000;
 
 function CharCount({ value, max }: { value: number; max: number }) {
   return (
-    <span className={`text-xs tabular-nums ${value >= max ? "text-error" : "text-gray-400"}`}>
+    <span className={`text-xs tabular-nums ${value >= max ? "text-error" : "text-text-muted"}`}>
       {value}/{max}
     </span>
   );
@@ -106,7 +106,7 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
             <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </select>
-        <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
         </div>
         <FieldError messages={state?.fieldErrors?.categoryId} />
       </div>
@@ -147,7 +147,7 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
           required
           rows={6}
           maxLength={DESCRIPTION_MAX}
-          placeholder="Describe your item — materials, dimensions, care instructions…"
+          placeholder="Describe your item: materials, dimensions, care instructions…"
           defaultValue={listing?.description}
           onChange={(e) => setDescLen(e.target.value.length)}
           className={inputClass}
@@ -162,7 +162,7 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
             Price
           </Label>
           <div className="relative mt-1">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-gray-500">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-text-secondary">
               €
             </span>
             <input
@@ -175,12 +175,12 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
               step="0.01"
               placeholder="0.00"
               defaultValue={listing ? (listing.priceAmount / 100).toFixed(2) : undefined}
-              className="block w-full rounded-lg border border-gray-300 py-2 pl-7 pr-3 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+              className="block w-full rounded-lg border border-border-strong py-2 pl-7 pr-3 text-sm shadow-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
             />
           </div>
           <FieldError messages={state?.fieldErrors?.priceEuros} />
           {selfManagedShipping && !isDigital && (
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-text-muted">
               You cover delivery, so factor shipping costs into your price.
             </p>
           )}
@@ -206,7 +206,7 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
       </div>
 
       {/* Digital / Physical toggle */}
-      <div className="flex items-center gap-3 rounded-lg border border-gray-200 px-4 py-3">
+      <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
         <input
           id="isDigital"
           name="isDigital"
@@ -214,21 +214,21 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
           value="true"
           checked={isDigital}
           onChange={(e) => setIsDigital(e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+          className="h-4 w-4 rounded border-border-strong text-text-primary focus:ring-brand"
         />
         <div>
-          <label htmlFor="isDigital" className="cursor-pointer text-sm font-medium text-gray-700">
+          <label htmlFor="isDigital" className="cursor-pointer text-sm font-medium text-text-secondary">
             Digital product
           </label>
-          <p className="text-xs text-gray-400">No shipping required — buyers receive a download link</p>
+          <p className="text-xs text-text-muted">No shipping required, buyers receive a download link</p>
         </div>
       </div>
 
-      {/* Shipping fields — physical listings only */}
+      {/* Shipping fields, physical listings only */}
       {!isDigital && (
-        <div className="rounded-lg border border-gray-200 p-4 space-y-4">
+        <div className="rounded-lg border border-border p-4 space-y-4">
           <div>
-            <p className="text-sm font-medium text-gray-900">Dimensions</p>
+            <p className="text-sm font-medium text-text-primary">Dimensions</p>
           </div>
 
           <div>
@@ -296,7 +296,7 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
               name="publishNow"
               value="true"
               disabled={isPending || uploading || !stripeOnboardingDone}
-              className="flex-1 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+              className="flex-1 rounded-lg bg-btn-neutral px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-btn-neutral-hover disabled:opacity-50"
             >
               {uploading ? "Uploading media…" : isPending ? "Publishing…" : "Publish"}
             </button>
@@ -307,8 +307,8 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
             disabled={isPending || uploading}
             className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 ${
               !listing || listing.status === "DRAFT"
-                ? "border border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-900"
-                : "bg-gray-900 text-white hover:bg-gray-700"
+                ? "border border-border-strong text-text-secondary hover:border-border-strong hover:text-text-primary"
+                : "bg-btn-neutral text-white hover:bg-btn-neutral-hover"
             }`}
           >
             {uploading
@@ -324,8 +324,8 @@ export function ListingForm({ userId, categories, listing, stripeOnboardingDone 
         </div>
 
         {(!listing || listing.status === "DRAFT") && !stripeOnboardingDone && (
-          <p className="text-xs text-gray-400">
-            Connect your Stripe account to publish — you can save as a draft for now.
+          <p className="text-xs text-text-muted">
+            Connect your Stripe account to publish. You can save it as a draft for now.
           </p>
         )}
       </div>

@@ -5,8 +5,8 @@ export const metadata: Metadata = { title: "Cookie Policy" };
 export default function CookiePolicyPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="text-3xl font-bold text-gray-900">Cookie Policy</h1>
-      <p className="mt-2 text-sm text-gray-400">Last updated: May 2025</p>
+      <h1 className="text-3xl font-bold text-text-primary">Cookie Policy</h1>
+      <p className="mt-2 text-sm text-text-muted">Last updated: May 2025</p>
 
       <Section title="1. What are cookies">
         <p>
@@ -22,22 +22,22 @@ export default function CookiePolicyPage() {
           third-party tracking cookies, or analytics cookies.
         </p>
 
-        <div className="mt-4 overflow-x-auto rounded-lg border border-gray-200">
+        <div className="mt-4 overflow-x-auto rounded-lg border border-border">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-bg-subtle">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Cookie</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Provider</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Purpose</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Duration</th>
+                <th className="px-4 py-3 text-left font-medium text-text-secondary">Cookie</th>
+                <th className="px-4 py-3 text-left font-medium text-text-secondary">Provider</th>
+                <th className="px-4 py-3 text-left font-medium text-text-secondary">Purpose</th>
+                <th className="px-4 py-3 text-left font-medium text-text-secondary">Duration</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               <tr>
-                <td className="px-4 py-3 font-mono text-xs text-gray-800">sb-*-auth-token</td>
-                <td className="px-4 py-3 text-gray-600">Supabase</td>
-                <td className="px-4 py-3 text-gray-600">Stores your authentication session so you remain logged in between page loads.</td>
-                <td className="px-4 py-3 text-gray-600">Session / up to 1 week</td>
+                <td className="px-4 py-3 font-mono text-xs text-text-primary">sb-*-auth-token</td>
+                <td className="px-4 py-3 text-text-secondary">Supabase</td>
+                <td className="px-4 py-3 text-text-secondary">Stores your authentication session so you remain logged in between page loads.</td>
+                <td className="px-4 py-3 text-text-secondary">Session / up to 1 week</td>
               </tr>
             </tbody>
           </table>
@@ -110,8 +110,8 @@ export default function CookiePolicyPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-10">
-      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-      <div className="mt-3 space-y-3 text-sm leading-7 text-gray-600">{children}</div>
+      <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
+      <div className="mt-3 space-y-3 text-sm leading-7 text-text-secondary">{children}</div>
     </section>
   );
 }

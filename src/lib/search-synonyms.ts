@@ -1,6 +1,6 @@
 // Each group is a set of interchangeable search terms for a handmade goods marketplace.
 // Groups are bidirectional: searching any term in a group expands to all others.
-// Keep terms as single words — multi-word phrases don't work in to_tsquery lexemes.
+// Keep terms as single words, multi-word phrases don't work in to_tsquery lexemes.
 
 const GROUPS: string[][] = [
   // ── Stationery ─────────────────────────────────────────────────────────────

@@ -35,7 +35,7 @@ export function OrderShippedEmail({ buyerName, orderId, trackingCode, trackingUr
           <Heading style={h2}>Your order is on its way</Heading>
           <Text style={text}>{greeting}</Text>
           <Text style={text}>
-            Great news — your order <strong>#{shortId}</strong> has been shipped.
+            Great news! Your order <strong>#{shortId}</strong> has been shipped.
           </Text>
 
           {hasTracking ? (
@@ -67,7 +67,7 @@ export function OrderShippedEmail({ buyerName, orderId, trackingCode, trackingUr
           </Section>
 
           <Hr style={hr} />
-          <Text style={footer}>caseros — handmade goods from EU makers.</Text>
+          <Text style={footer}>Caseros: handmade goods from EU makers.</Text>
         </Container>
       </Body>
     </Html>

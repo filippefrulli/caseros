@@ -18,7 +18,7 @@ export function FavoriteButton({
   listingId,
   isFavorited,
   isLoggedIn,
-  className = "absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition hover:bg-white",
+  className = "absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-bg-card/80 shadow-sm backdrop-blur-sm transition hover:bg-bg-card",
   iconSize = 15,
 }: Props) {
   const router = useRouter();
@@ -53,7 +53,7 @@ export function FavoriteButton({
         className={
           optimisticFav
             ? "fill-red-500 text-red-500"
-            : "text-gray-600 transition group-hover/card:text-gray-800"
+            : "text-text-secondary transition group-hover/card:text-text-primary"
         }
       />
     </button>

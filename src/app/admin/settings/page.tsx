@@ -6,7 +6,7 @@ import { env } from "@/env";
 import { LabelCreationToggle } from "@/components/admin/label-creation-toggle";
 import { IntegratedShippingToggle } from "@/components/admin/integrated-shipping-toggle";
 
-export const metadata: Metadata = { title: "Admin — Settings" };
+export const metadata: Metadata = { title: "Admin: Settings" };
 
 export default async function AdminSettingsPage() {
   const supabase = await createClient();
@@ -21,10 +21,10 @@ export default async function AdminSettingsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10 space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900">Platform settings</h1>
+      <h1 className="text-2xl font-bold text-text-primary">Platform settings</h1>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Shipping</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-text-secondary">Shipping</h2>
         <IntegratedShippingToggle enabled={settings.integratedShippingEnabled} />
         {settings.integratedShippingEnabled && (
           <LabelCreationToggle enabled={settings.labelCreationEnabled} />

@@ -79,7 +79,7 @@ export default async function ListingPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-5xl px-4 pt-5 pb-10">
-      <Link href="/" className="mb-8 inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+      <Link href="/" className="mb-8 inline-flex items-center rounded-lg border border-border p-2 text-text-muted hover:border-border-strong hover:text-text-secondary transition-colors">
         <ChevronLeft size={25} />
       </Link>
 
@@ -95,12 +95,12 @@ export default async function ListingPage({ params }: Props) {
           <ListingImageCarousel images={listing.images} title={listing.title} />
 
           {!listing.isDigital && (listing.lengthCm || listing.widthCm || listing.heightCm || listing.weightGrams) && (
-            <div className="rounded-xl border border-gray-100 px-4 py-3 text-sm">
+            <div className="rounded-xl border border-border px-4 py-3 text-sm">
               <dl className="space-y-1">
                 {(listing.lengthCm || listing.widthCm || listing.heightCm) && (
                   <div className="flex justify-between">
-                    <dt className="text-gray-400">Dimensions</dt>
-                    <dd className="text-gray-700">
+                    <dt className="text-text-muted">Dimensions</dt>
+                    <dd className="text-text-secondary">
                       {[
                         listing.lengthCm && `${listing.lengthCm} L`,
                         listing.widthCm && `${listing.widthCm} W`,
@@ -111,8 +111,8 @@ export default async function ListingPage({ params }: Props) {
                 )}
                 {listing.weightGrams && (
                   <div className="flex justify-between">
-                    <dt className="text-gray-400">Weight</dt>
-                    <dd className="text-gray-700">
+                    <dt className="text-text-muted">Weight</dt>
+                    <dd className="text-text-secondary">
                       {listing.weightGrams >= 1000
                         ? `${(listing.weightGrams / 1000).toFixed(1)} kg`
                         : `${listing.weightGrams} g`}
@@ -126,8 +126,8 @@ export default async function ListingPage({ params }: Props) {
 
         {/* Details */}
         <div className="flex flex-col">
-          <p className="text-sm text-gray-400">
-            <Link href={`/shop/${listing.seller.slug}`} className="hover:text-gray-700 transition-colors">
+          <p className="text-sm text-text-muted">
+            <Link href={`/shop/${listing.seller.slug}`} className="hover:text-text-secondary transition-colors">
               {listing.seller.shopName}
             </Link>
           </p>
@@ -138,7 +138,7 @@ export default async function ListingPage({ params }: Props) {
             {formatPrice(listing.priceAmount, listing.currency)}
           </p>
 
-          <p className="mt-1 text-sm text-gray-400">
+          <p className="mt-1 text-sm text-text-muted">
             {listing.stock > 0 ? `${listing.stock} in stock` : "Out of stock"}
           </p>
 
@@ -146,7 +146,7 @@ export default async function ListingPage({ params }: Props) {
             {isOwner ? (
               <Link
                 href={`/seller/listings/${listing.slug}/edit`}
-                className="flex-1 rounded-xl border border-gray-900 py-3 text-center text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+                className="flex-1 rounded-xl border border-border-strong py-3 text-center text-sm font-medium text-text-primary hover:bg-bg-subtle transition-colors"
               >
                 Edit listing
               </Link>
@@ -170,7 +170,7 @@ export default async function ListingPage({ params }: Props) {
                   listingId={listing.id}
                   isFavorited={isFavorited}
                   isLoggedIn={!!user}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-gray-200 transition hover:bg-gray-50"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-border transition hover:bg-bg-subtle"
                   iconSize={20}
                 />
               </>
@@ -184,9 +184,9 @@ export default async function ListingPage({ params }: Props) {
           )}
 
           {listing.description && (
-            <div className="mt-8 border-t border-gray-100 pt-6">
-              <h2 className="mb-2 text-sm font-medium text-gray-700">Description</h2>
-              <p className="whitespace-pre-wrap text-sm text-gray-600">{listing.description}</p>
+            <div className="mt-8 border-t border-border pt-6">
+              <h2 className="mb-2 text-sm font-medium text-text-secondary">Description</h2>
+              <p className="whitespace-pre-wrap text-sm text-text-secondary">{listing.description}</p>
             </div>
           )}
         </div>

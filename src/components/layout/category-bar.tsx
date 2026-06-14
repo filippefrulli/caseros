@@ -13,7 +13,7 @@ export async function CategoryBar() {
           <Link
             key={cat.id}
             href={`/category/${cat.slug}`}
-            className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-accent-subtle hover:text-accent"
+            className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium text-text-secondary transition-colors hover:bg-brand-subtle hover:text-brand"
           >
             {cat.name}
           </Link>

@@ -33,7 +33,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
     },
   });
 
-  // Order belongs to someone else — don't leak. Treat as 404.
+  // Order belongs to someone else, don't leak. Treat as 404.
   if (!order || order.buyerId !== dbUser.id) redirect("/account/orders");
 
   // Webhook may not have fired yet (or arrived first as checkout.session.completed
@@ -48,7 +48,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
           <div>
             <p className="font-semibold text-warning-fg">Confirming your payment…</p>
             <p className="mt-0.5 text-sm text-warning-fg">
-              Your payment was submitted. We're waiting for Stripe to confirm — refresh this page
+              Your payment was submitted. We're waiting for Stripe to confirm, refresh this page
               in a moment.
             </p>
           </div>
@@ -65,36 +65,36 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
         </div>
       )}
 
-      <div className="rounded-xl border border-gray-200 p-5">
-        <p className="text-xs uppercase tracking-wide text-gray-500">Order</p>
-        <p className="mt-0.5 font-mono text-sm text-gray-700">{order.id}</p>
+      <div className="rounded-xl border border-border p-5">
+        <p className="text-xs uppercase tracking-wide text-text-secondary">Order</p>
+        <p className="mt-0.5 font-mono text-sm text-text-secondary">{order.id}</p>
 
-        <div className="mt-5 space-y-3 border-t border-gray-100 pt-5">
+        <div className="mt-5 space-y-3 border-t border-border pt-5">
           {order.items.map((item) => (
             <div key={item.id} className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 {item.listing?.slug ? (
                   <Link
                     href={`/listings/${item.listing.slug}`}
-                    className="text-sm font-medium text-gray-900 hover:underline"
+                    className="text-sm font-medium text-text-primary hover:underline"
                   >
                     {item.listingTitle}
                   </Link>
                 ) : (
-                  <span className="text-sm font-medium text-gray-900">{item.listingTitle}</span>
+                  <span className="text-sm font-medium text-text-primary">{item.listingTitle}</span>
                 )}
-                <p className="mt-0.5 text-xs text-gray-500">Qty {item.quantity}</p>
+                <p className="mt-0.5 text-xs text-text-secondary">Qty {item.quantity}</p>
               </div>
-              <p className="text-sm tabular-nums text-gray-700">
+              <p className="text-sm tabular-nums text-text-secondary">
                 {formatPrice(item.unitAmount * item.quantity, order.currency)}
               </p>
             </div>
           ))}
         </div>
 
-        <div className="mt-5 flex items-center justify-between border-t border-gray-100 pt-5">
-          <p className="text-sm font-medium text-gray-900">Total</p>
-          <p className="text-sm font-semibold tabular-nums text-gray-900">
+        <div className="mt-5 flex items-center justify-between border-t border-border pt-5">
+          <p className="text-sm font-medium text-text-primary">Total</p>
+          <p className="text-sm font-semibold tabular-nums text-text-primary">
             {formatPrice(order.totalAmount, order.currency)}
           </p>
         </div>
@@ -103,21 +103,21 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
       <div className="mt-8 flex gap-3">
         <Link
           href="/account/orders"
-          className="flex-1 rounded-lg border border-gray-200 px-4 py-2.5 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex-1 rounded-lg border border-border px-4 py-2.5 text-center text-sm font-medium text-text-secondary hover:bg-bg-subtle transition-colors"
         >
           My orders
         </Link>
         <Link
           href="/"
-          className="flex-1 rounded-lg bg-gray-900 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+          className="flex-1 rounded-lg bg-btn-neutral px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-btn-neutral-hover transition-colors"
         >
           Keep shopping
         </Link>
       </div>
 
-      <p className="mt-6 text-center text-xs text-gray-400">
+      <p className="mt-6 text-center text-xs text-text-muted">
         Something wrong with your order?{" "}
-        <Link href="/legal/support" className="underline hover:text-gray-600 transition-colors">
+        <Link href="/legal/support" className="underline hover:text-text-secondary transition-colors">
           Contact support
         </Link>
       </p>

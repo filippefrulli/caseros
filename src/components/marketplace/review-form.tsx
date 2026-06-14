@@ -12,7 +12,7 @@ export function ReviewForm({ sellerId }: { sellerId: string }) {
   if (state?.success) {
     return (
       <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-        Thank you — your review has been submitted.
+        Thank you! Your review has been submitted.
       </div>
     );
   }
@@ -23,7 +23,7 @@ export function ReviewForm({ sellerId }: { sellerId: string }) {
       <input type="hidden" name="rating" value={rating} />
 
       <div>
-        <p className="mb-2 text-sm font-medium text-gray-700">Your rating</p>
+        <p className="mb-2 text-sm font-medium text-text-secondary">Your rating</p>
         <div className="flex gap-1">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -40,7 +40,7 @@ export function ReviewForm({ sellerId }: { sellerId: string }) {
                 className={
                   star <= (hovered || rating)
                     ? "fill-amber-400 text-amber-400"
-                    : "fill-gray-200 text-gray-200"
+                    : "fill-border-strong text-text-muted"
                 }
               />
             </button>
@@ -49,8 +49,8 @@ export function ReviewForm({ sellerId }: { sellerId: string }) {
       </div>
 
       <div>
-        <label htmlFor="review-body" className="mb-1.5 block text-sm font-medium text-gray-700">
-          Comment <span className="text-gray-400 font-normal">(optional)</span>
+        <label htmlFor="review-body" className="mb-1.5 block text-sm font-medium text-text-secondary">
+          Comment <span className="text-text-muted font-normal">(optional)</span>
         </label>
         <textarea
           id="review-body"
@@ -58,7 +58,7 @@ export function ReviewForm({ sellerId }: { sellerId: string }) {
           rows={4}
           maxLength={2000}
           placeholder="Share your experience with this item and seller…"
-          className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+          className="block w-full rounded-lg border border-border-strong px-3 py-2 text-sm shadow-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
       </div>
 
@@ -69,7 +69,7 @@ export function ReviewForm({ sellerId }: { sellerId: string }) {
       <button
         type="submit"
         disabled={isPending || rating === 0}
-        className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+        className="rounded-lg bg-btn-neutral px-5 py-2.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:opacity-50 transition-colors"
       >
         {isPending ? "Submitting…" : "Submit review"}
       </button>

@@ -37,7 +37,7 @@ export default async function ShopPage({ params }: Props) {
   const [seller, favIds] = await Promise.all([
     prisma.sellerProfile.findUnique({
       where: { slug },
-      // Explicit select — `include` would expose pickup address, stripeAccountId,
+      // Explicit select, `include` would expose pickup address, stripeAccountId,
       // commissionRate, and other internal fields to every visitor.
       select: {
         id: true,
@@ -120,8 +120,8 @@ export default async function ShopPage({ params }: Props) {
       ))}
     </div>
   ) : (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 py-24 text-center">
-      <p className="text-gray-400">No listings yet.</p>
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-24 text-center">
+      <p className="text-text-muted">No listings yet.</p>
     </div>
   );
 
@@ -149,14 +149,14 @@ export default async function ShopPage({ params }: Props) {
 
       {seller.bio && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-gray-900">About</h2>
-          <p className="whitespace-pre-wrap text-sm text-gray-600">{seller.bio}</p>
+          <h2 className="mb-3 text-sm font-semibold text-text-primary">About</h2>
+          <p className="whitespace-pre-wrap text-sm text-text-secondary">{seller.bio}</p>
         </section>
       )}
 
       {activePlatforms.length > 0 && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-gray-900">Find us online</h2>
+          <h2 className="mb-3 text-sm font-semibold text-text-primary">Find us online</h2>
           <div className="space-y-2">
             {activePlatforms.map(({ key, label }) => {
               const url = socialLinks![key] as string;
@@ -168,8 +168,8 @@ export default async function ShopPage({ params }: Props) {
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 text-sm group"
                 >
-                  <span className="w-24 shrink-0 font-medium text-gray-700">{label}</span>
-                  <span className="truncate text-gray-400 group-hover:text-gray-900 transition-colors">
+                  <span className="w-24 shrink-0 font-medium text-text-secondary">{label}</span>
+                  <span className="truncate text-text-muted group-hover:text-text-primary transition-colors">
                     {url.replace(/^https?:\/\/(www\.)?/, "")}
                   </span>
                 </a>
@@ -188,8 +188,8 @@ export default async function ShopPage({ params }: Props) {
   const reviewsContent = (
     <div className="max-w-2xl space-y-8">
       {canReview && (
-        <div className="rounded-xl border border-gray-200 p-6">
-          <h3 className="mb-4 text-sm font-semibold text-gray-900">Leave a review</h3>
+        <div className="rounded-xl border border-border p-6">
+          <h3 className="mb-4 text-sm font-semibold text-text-primary">Leave a review</h3>
           <ReviewForm sellerId={seller.id} />
         </div>
       )}
@@ -202,13 +202,13 @@ export default async function ShopPage({ params }: Props) {
       <div className="mb-10">
         <h1 className="text-3xl font-bold tracking-tight">{seller.shopName}</h1>
         <div className="mt-2 flex flex-wrap items-center gap-4">
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-text-muted">
             {seller.listings.length} listing{seller.listings.length === 1 ? "" : "s"}
           </p>
           {avgRating !== null && (
             <div className="flex items-center gap-1.5">
               <StarRating rating={avgRating} size={14} />
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-text-secondary">
                 {avgRating.toFixed(1)} ({reviewCount} review{reviewCount !== 1 ? "s" : ""})
               </span>
             </div>

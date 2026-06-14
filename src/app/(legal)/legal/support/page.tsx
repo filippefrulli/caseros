@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Mail, ChevronDown } from "lucide-react";
 
-export const metadata: Metadata = { title: "Support — Caseros" };
+export const metadata: Metadata = { title: "Support: Caseros" };
 
 const SUPPORT_EMAIL = "filippe.frulli@caseros.eu";
 
@@ -13,7 +13,7 @@ const FAQS = [
   },
   {
     q: "Can I return or exchange an item?",
-    a: "Because every item is handmade to order, returns and exchanges are at the seller's discretion. Reach out to us within 14 days of delivery if something arrived damaged or not as described — we'll make it right.",
+    a: "Because every item is handmade to order, returns and exchanges are at the seller's discretion. Reach out to us within 14 days of delivery if something arrived damaged or not as described, we'll make it right.",
   },
   {
     q: "How long does shipping take?",
@@ -29,7 +29,7 @@ const FAQS = [
   },
   {
     q: "Is my payment information secure?",
-    a: "Yes. All payments are processed by Stripe — we never store your card details. Caseros is PCI-compliant by design.",
+    a: "Yes. All payments are processed by Stripe, we never store your card details. Caseros is PCI-compliant by design.",
   },
   {
     q: "I didn't receive a confirmation email. What should I do?",
@@ -48,7 +48,7 @@ export default function SupportPage() {
       <div className="mb-12">
         <h1 className="text-3xl font-bold tracking-tight text-text-primary">How can we help?</h1>
         <p className="mt-3 text-base text-text-secondary leading-relaxed">
-          Browse the common questions below, or reach out directly — we&apos;re a small team and we read every message.
+          Browse the common questions below, or reach out directly, we&apos;re a small team and we read every message.
         </p>
       </div>
 
@@ -80,7 +80,7 @@ export default function SupportPage() {
           <div>
             <h2 className="text-base font-semibold text-text-primary">Still need help?</h2>
             <p className="mt-1 text-sm leading-relaxed text-text-secondary">
-              Send us an email and we&apos;ll get back to you as soon as we can — usually within one business day. Please include your order number if your question is about a specific purchase.
+              Send us an email and we&apos;ll get back to you as soon as we can, usually within one business day. Please include your order number if your question is about a specific purchase.
             </p>
             <a
               href={`mailto:${SUPPORT_EMAIL}`}

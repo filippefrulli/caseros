@@ -27,7 +27,7 @@ export function ListingCard({ listing, isFavorited = false, isLoggedIn = false, 
   return (
     <div className="group/card relative">
       {/* Image → listing */}
-      <Link href={`/listings/${listing.slug}`} className="block aspect-[3/4] w-full overflow-hidden rounded-xl bg-gray-100">
+      <Link href={`/listings/${listing.slug}`} className="block aspect-[3/4] w-full overflow-hidden rounded-xl bg-bg-subtle">
         {image ? (
           <Image
             src={image.url}
@@ -38,7 +38,7 @@ export function ListingCard({ listing, isFavorited = false, isLoggedIn = false, 
             className="h-full w-full object-cover transition-transform duration-300 group-hover/card:scale-105"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-gray-300">
+          <div className="flex h-full w-full items-center justify-center text-text-muted">
             <Package size={40} strokeWidth={1.5} />
           </div>
         )}
@@ -46,15 +46,15 @@ export function ListingCard({ listing, isFavorited = false, isLoggedIn = false, 
 
       {/* Info */}
       <div className="mt-2.5 space-y-0.5">
-        <Link href={`/listings/${listing.slug}`} className="block truncate text-sm font-medium text-gray-900 transition-colors hover:text-gray-600">
+        <Link href={`/listings/${listing.slug}`} className="block truncate text-sm font-medium text-text-primary transition-colors hover:text-text-secondary">
           {listing.title}
         </Link>
         {!hideShopLink && (
-          <Link href={`/shop/${listing.seller.slug}`} className="block text-xs text-gray-400 transition-colors hover:text-gray-700">
+          <Link href={`/shop/${listing.seller.slug}`} className="block text-xs text-text-muted transition-colors hover:text-text-secondary">
             {listing.seller.shopName}
           </Link>
         )}
-        <p className="text-sm font-semibold text-gray-900">
+        <p className="text-sm font-semibold text-text-primary">
           {formatPrice(listing.priceAmount, listing.currency)}
         </p>
       </div>

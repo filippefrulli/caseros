@@ -28,11 +28,11 @@ const LISTING_STATUS_LABEL: Record<ListingStatus, string> = {
 };
 
 const LISTING_STATUS_STYLE: Record<ListingStatus, string> = {
-  DRAFT: "bg-gray-100 text-gray-700",
+  DRAFT: "bg-bg-subtle text-text-secondary",
   ACTIVE: "bg-green-100 text-green-800",
   PAUSED: "bg-warning text-warning-fg",
   SOLD_OUT: "bg-error-subtle text-error",
-  ARCHIVED: "bg-gray-100 text-gray-500",
+  ARCHIVED: "bg-bg-subtle text-text-secondary",
 };
 
 export const metadata: Metadata = { title: "Seller Dashboard" };
@@ -181,14 +181,14 @@ export default async function SellerDashboardPage() {
             <>
               <Link
                 href="/seller/profile"
-                className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-subtle transition-colors"
               >
                 <UserPen size={15} />
                 Edit profile
               </Link>
               <Link
                 href="/seller/listings/new"
-                className="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-btn-neutral px-4 py-2 text-sm font-medium text-white hover:bg-btn-neutral-hover transition-colors"
               >
                 <Plus size={15} />
                 New listing
@@ -200,17 +200,17 @@ export default async function SellerDashboardPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-10 sm:grid-cols-4">
-        <div className="rounded-xl border border-gray-200 p-5">
+        <div className="rounded-xl border border-border p-5">
           <p className="text-2xl font-bold sm:text-3xl">{seller._count.listings}</p>
-          <p className="mt-1 text-sm text-gray-500">Listings</p>
+          <p className="mt-1 text-sm text-text-secondary">Listings</p>
         </div>
-        <div className="rounded-xl border border-gray-200 p-5">
+        <div className="rounded-xl border border-border p-5">
           <p className="text-2xl font-bold sm:text-3xl">{orderCount}</p>
-          <p className="mt-1 text-sm text-gray-500">Orders</p>
+          <p className="mt-1 text-sm text-text-secondary">Orders</p>
         </div>
-        <div className="rounded-xl border border-gray-200 p-5">
+        <div className="rounded-xl border border-border p-5">
           <p className="text-2xl font-bold sm:text-3xl">{formatPrice(totalRevenue, "EUR")}</p>
-          <p className="mt-1 text-sm text-gray-500">Revenue</p>
+          <p className="mt-1 text-sm text-text-secondary">Revenue</p>
         </div>
       </div>
 
@@ -226,11 +226,11 @@ export default async function SellerDashboardPage() {
               const defaultWidth = firstItem?.listing?.widthCm ?? null;
               const defaultHeight = firstItem?.listing?.heightCm ?? null;
               return (
-                <li key={order.id} className="rounded-xl border border-gray-200 p-5">
+                <li key={order.id} className="rounded-xl border border-border p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
                     <div>
-                      <p className="text-xs text-gray-400">{DATE_FMT.format(order.createdAt)}</p>
-                      <p className="font-mono text-xs text-gray-500 mt-0.5">#{order.id.slice(-8).toUpperCase()}</p>
+                      <p className="text-xs text-text-muted">{DATE_FMT.format(order.createdAt)}</p>
+                      <p className="font-mono text-xs text-text-secondary mt-0.5">#{order.id.slice(-8).toUpperCase()}</p>
                     </div>
                     <span className="rounded-full px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-800">
                       Ready to ship
@@ -240,12 +240,12 @@ export default async function SellerDashboardPage() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     {/* Items */}
                     <div>
-                      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">Items</p>
+                      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-text-muted">Items</p>
                       <ul className="space-y-1">
                         {order.items.map((item, i) => (
                           <li key={i} className="flex items-center justify-between text-sm">
-                            <span className="text-gray-700">{item.listingTitle} × {item.quantity}</span>
-                            <span className="tabular-nums text-gray-500">
+                            <span className="text-text-secondary">{item.listingTitle} × {item.quantity}</span>
+                            <span className="tabular-nums text-text-secondary">
                               {formatPrice(item.unitAmount * item.quantity, order.currency)}
                             </span>
                           </li>
@@ -255,12 +255,12 @@ export default async function SellerDashboardPage() {
 
                     {/* Ship to */}
                     <div>
-                      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-text-muted">
                         <Package size={11} className="inline mr-1" />
                         Ship to
                       </p>
                       {order.shippingLine1 ? (
-                        <address className="not-italic text-sm text-gray-700 leading-relaxed">
+                        <address className="not-italic text-sm text-text-secondary leading-relaxed">
                           {order.shippingName && <p className="font-medium">{order.shippingName}</p>}
                           <p>{order.shippingLine1}{order.shippingHouseNumber ? ` ${order.shippingHouseNumber}` : ""}</p>
                           {order.shippingLine2 && <p>{order.shippingLine2}</p>}
@@ -268,7 +268,7 @@ export default async function SellerDashboardPage() {
                           {order.shippingCountry && <p>{COUNTRY_FMT.of(order.shippingCountry) ?? order.shippingCountry}</p>}
                         </address>
                       ) : (
-                        <p className="text-sm text-gray-400 italic">Address not available yet</p>
+                        <p className="text-sm text-text-muted italic">Address not available yet</p>
                       )}
                     </div>
                   </div>
@@ -297,12 +297,12 @@ export default async function SellerDashboardPage() {
       )}
 
       {listings.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-300 p-12 text-center">
-          <p className="text-gray-500">You have no listings yet.</p>
+        <div className="rounded-xl border border-dashed border-border-strong p-12 text-center">
+          <p className="text-text-secondary">You have no listings yet.</p>
           {seller.status === "ACTIVE" && (
             <Link
               href="/seller/listings/new"
-              className="mt-4 inline-block text-sm font-medium text-gray-900 underline underline-offset-4"
+              className="mt-4 inline-block text-sm font-medium text-text-primary underline underline-offset-4"
             >
               Create your first listing
             </Link>
@@ -317,10 +317,10 @@ export default async function SellerDashboardPage() {
               return (
                 <li
                   key={l.id}
-                  className="overflow-hidden rounded-xl border border-gray-200 transition-colors hover:border-gray-300"
+                  className="overflow-hidden rounded-xl border border-border transition-colors hover:border-border-strong"
                 >
                   <Link href={`/listings/${l.slug}`} className="block">
-                    <div className="relative aspect-square w-full bg-gray-50">
+                    <div className="relative aspect-square w-full bg-bg-subtle">
                       {thumb ? (
                         <Image
                           src={thumb}
@@ -337,22 +337,22 @@ export default async function SellerDashboardPage() {
                       </span>
                     </div>
                     <div className="p-4">
-                      <p className="line-clamp-2 min-h-10 text-sm font-medium text-gray-900" title={l.title}>{l.title}</p>
+                      <p className="line-clamp-2 min-h-10 text-sm font-medium text-text-primary" title={l.title}>{l.title}</p>
                       <div className="mt-2 flex items-center justify-between">
-                        <p className="text-sm font-semibold tabular-nums text-gray-900">
+                        <p className="text-sm font-semibold tabular-nums text-text-primary">
                           {formatPrice(l.priceAmount, l.currency)}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-text-secondary">
                           {l.stock > 0 ? `${l.stock} in stock` : "Out of stock"}
                         </p>
                       </div>
                     </div>
                   </Link>
-                  <div className="border-t border-gray-100 px-4 py-1 flex items-center justify-between">
+                  <div className="border-t border-border px-4 py-1 flex items-center justify-between">
                     <div className="flex items-center gap-1">
                       <Link
                         href={`/seller/listings/${l.slug}/edit`}
-                        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors py-2 px-1"
+                        className="flex items-center gap-1.5 text-xs text-text-muted hover:text-text-secondary transition-colors py-2 px-1"
                       >
                         <Pencil size={13} />
                         Edit

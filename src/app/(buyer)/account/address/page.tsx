@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { AddressBook } from "@/components/buyer/address-book";
 
-export const metadata: Metadata = { title: "Addresses — Caseros" };
+export const metadata: Metadata = { title: "Addresses: Caseros" };
 
 export default async function AccountAddressPage() {
   const supabase = await createClient();
@@ -41,12 +41,12 @@ export default async function AccountAddressPage() {
     <main className="mx-auto max-w-lg px-4 pt-6 pb-12">
       <Link
         href="/account"
-        className="mb-6 inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors"
+        className="mb-6 inline-flex items-center rounded-lg border border-border p-2 text-text-muted hover:border-border-strong hover:text-text-secondary transition-colors"
       >
         <ChevronLeft size={25} />
       </Link>
       <h1 className="mb-1 text-2xl font-bold">Addresses</h1>
-      <p className="mb-8 text-sm text-gray-500">Your saved delivery addresses.</p>
+      <p className="mb-8 text-sm text-text-secondary">Your saved delivery addresses.</p>
       <AddressBook addresses={addresses} />
     </main>
   );

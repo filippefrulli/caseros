@@ -47,7 +47,7 @@ export function CookieBanner() {
           </button>
           <button
             onClick={accept}
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+            className="rounded-lg bg-btn-neutral px-4 py-2 text-sm font-medium text-white hover:bg-btn-neutral-hover transition-colors"
           >
             Accept
           </button>

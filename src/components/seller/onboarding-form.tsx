@@ -16,24 +16,24 @@ interface FormState {
   // Step 1
   sellerType: SellerType | null;
   disclaimerAcknowledged: boolean;
-  // Step 2 — individual
+  // Step 2: individual
   fullName: string;
   dateOfBirth: string;
   addressLine1: string;
   addressLine2: string;
   city: string;
   postalCode: string;
-  // Step 2 — trader
+  // Step 2: trader
   businessRegNumber: string;
   contactPhone: string;
   contactEmail: string;
   safetyCompliant: boolean;
-  // Step 3 — shop
+  // Step 3: shop
   shopName: string;
   slug: string;
   bio: string;
   country: string;
-  // Step 3 — pickup/shipping address
+  // Step 3: pickup/shipping address
   sameAsProfileAddress: boolean;
   pickupName: string;
   pickupLine1: string;
@@ -42,7 +42,7 @@ interface FormState {
   pickupPostalCode: string;
   pickupCountry: string;
   pickupPhone: string;
-  // Step 4 — verification
+  // Step 4: verification
   verificationVideoUrl: string;
   website: string;
   instagram: string;
@@ -68,7 +68,7 @@ const EMPTY_FORM: FormState = {
 // Countries with reliable default carrier pickup from the active shipping
 // provider (DPD, GLS, DHL Parcel). Excluded: IE/CY/MT (islands, no default
 // carrier pickup), GB (post-Brexit customs), NO/CH/IS (non-EU, customs
-// complications). IE is pending the Sendcloud origin validation — add it here
+// complications). IE is pending the Sendcloud origin validation, add it here
 // once confirmed. Add more as carrier accounts are connected.
 const EU_COUNTRIES = [
   { code: "AT", name: "Austria" }, { code: "BE", name: "Belgium" },
@@ -102,7 +102,7 @@ function toSlug(value: string) {
 
 // ─── Shared primitives ────────────────────────────────────────────────────────
 
-const inputCls = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+const inputCls = "block w-full rounded-lg border border-border-strong px-3 py-2 text-sm shadow-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 const selectCls = `${inputCls} appearance-none pr-8`;
 
 function Field({ label, hint, required, children }: {
@@ -110,11 +110,11 @@ function Field({ label, hint, required, children }: {
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700">
+      <label className="block text-sm font-medium text-text-secondary">
         {label}{required && <span className="ml-0.5 text-error">*</span>}
       </label>
       <div className="mt-1">{children}</div>
-      {hint && <p className="mt-1 text-xs text-gray-400">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-text-muted">{hint}</p>}
     </div>
   );
 }
@@ -139,22 +139,22 @@ function StepIndicator({ current, maxStep, onStepClick }: {
           <div key={n} className="flex flex-1 flex-col items-center">
             <div className="flex w-full items-center">
               {i > 0 && (
-                <div className={`h-px flex-1 ${done || active ? "bg-gray-900" : "bg-gray-200"}`} />
+                <div className={`h-px flex-1 ${done || active ? "bg-brand" : "bg-bg-subtle"}`} />
               )}
               <button
                 type="button"
                 onClick={() => reachable && onStepClick(n)}
                 disabled={!reachable}
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
-                  done ? "bg-gray-900 text-white" + (reachable ? " cursor-pointer hover:bg-gray-700" : "")
-                    : active ? "border-2 border-gray-900 text-gray-900"
-                    : "border-2 border-gray-200 text-gray-300"
+                  done ? "bg-brand text-white" + (reachable ? " cursor-pointer hover:bg-brand-hover" : "")
+                    : active ? "border-2 border-border-strong text-text-primary"
+                    : "border-2 border-border text-text-muted"
                 } ${reachable && !active ? "cursor-pointer" : ""}`}
               >
                 {done ? "✓" : n}
               </button>
               {i < STEP_LABELS.length - 1 && (
-                <div className={`h-px flex-1 ${done ? "bg-gray-900" : "bg-gray-200"}`} />
+                <div className={`h-px flex-1 ${done ? "bg-brand" : "bg-bg-subtle"}`} />
               )}
             </div>
             <button
@@ -162,9 +162,9 @@ function StepIndicator({ current, maxStep, onStepClick }: {
               onClick={() => reachable && onStepClick(n)}
               disabled={!reachable}
               className={`mt-1.5 text-center text-xs transition-colors ${
-                active ? "font-medium text-gray-900"
-                  : reachable ? "text-gray-400 hover:text-gray-700 cursor-pointer"
-                  : "text-gray-300"
+                active ? "font-medium text-text-primary"
+                  : reachable ? "text-text-muted hover:text-text-secondary cursor-pointer"
+                  : "text-text-muted"
               }`}
             >
               {label}
@@ -278,7 +278,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
     return (
       <div className="space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">How do you plan to sell?</h1>
+          <h1 className="text-2xl font-bold text-text-primary">How do you plan to sell?</h1>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -298,22 +298,22 @@ export function OnboardingForm({ userId }: { userId: string }) {
           />
         </div>
 
-        <details className="group rounded-xl border border-gray-200 px-4 py-3">
-          <summary className="flex cursor-pointer select-none items-center justify-between text-sm font-medium text-gray-600 [list-style:none] [&::-webkit-details-marker]:hidden">
+        <details className="group rounded-xl border border-border px-4 py-3">
+          <summary className="flex cursor-pointer select-none items-center justify-between text-sm font-medium text-text-secondary [list-style:none] [&::-webkit-details-marker]:hidden">
             <span>Not sure which applies to you?</span>
-            <ChevronDown size={15} className="shrink-0 text-gray-400 transition-transform duration-150 group-open:rotate-180" />
+            <ChevronDown size={15} className="shrink-0 text-text-muted transition-transform duration-150 group-open:rotate-180" />
           </summary>
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-              <p className="text-xs font-semibold text-gray-900">Private individual</p>
-              <p className="mt-1 text-xs text-gray-500">Clearing out items you no longer need — handmade crafts, second-hand clothes, vintage finds. No business registration required.</p>
+            <div className="rounded-lg border border-border bg-bg-subtle p-3">
+              <p className="text-xs font-semibold text-text-primary">Private individual</p>
+              <p className="mt-1 text-xs text-text-secondary">Clearing out items you no longer need: handmade crafts, second-hand clothes, vintage finds. No business registration required.</p>
             </div>
-            <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-              <p className="text-xs font-semibold text-gray-900">Commercial trader</p>
-              <p className="mt-1 text-xs text-gray-500">Selling regularly for profit, running a business, manufacturing goods, or buying items to resell. EU consumer protection rules apply to your buyers.</p>
+            <div className="rounded-lg border border-border bg-bg-subtle p-3">
+              <p className="text-xs font-semibold text-text-primary">Commercial trader</p>
+              <p className="mt-1 text-xs text-text-secondary">Selling regularly for profit, running a business, manufacturing goods, or buying items to resell. EU consumer protection rules apply to your buyers.</p>
             </div>
           </div>
-          <p className="mt-3 text-xs text-gray-400">Still unsure? You&apos;re most likely a <strong className="text-gray-600">Trader</strong> if you sell new-with-tags items in bulk, flip items regularly, or hold a business licence.</p>
+          <p className="mt-3 text-xs text-text-muted">Still unsure? You&apos;re most likely a <strong className="text-text-secondary">Trader</strong> if you sell new-with-tags items in bulk, flip items regularly, or hold a business licence.</p>
         </details>
 
 
@@ -321,7 +321,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
           type="button"
           onClick={() => goToStep(2)}
           disabled={!step1CanContinue}
-          className="w-full rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
+          className="w-full rounded-lg bg-btn-neutral py-2.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
         >
           Continue
         </button>
@@ -341,10 +341,10 @@ export function OnboardingForm({ userId }: { userId: string }) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-text-primary">
             {isIndividual ? "Verify your identity" : "Business details"}
           </h1>
-          <p className="mt-1.5 text-sm text-gray-500">
+          <p className="mt-1.5 text-sm text-text-secondary">
             {isIndividual
               ? "Required by EU law. These details are kept private and never shown to buyers."
               : "Required by EU law. Your contact details may be displayed to buyers."}
@@ -393,15 +393,15 @@ export function OnboardingForm({ userId }: { userId: string }) {
               <input type="email" value={form.contactEmail} onChange={e => set({ contactEmail: e.target.value })}
                 placeholder="contact@mybusiness.com" autoComplete="email" className={inputCls} />
             </Field>
-            <div className="rounded-xl border border-gray-200 p-4">
+            <div className="rounded-xl border border-border p-4">
               <label className="flex cursor-pointer items-start gap-3">
                 <input
                   type="checkbox"
                   checked={form.safetyCompliant}
                   onChange={e => set({ safetyCompliant: e.target.checked })}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-gray-900"
+                  className="mt-0.5 h-4 w-4 rounded border-border-strong accent-gray-900"
                 />
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-text-secondary">
                   I certify that I will only sell products compliant with EU product safety regulations,
                   including CE marking requirements where applicable.
                 </span>
@@ -412,11 +412,11 @@ export function OnboardingForm({ userId }: { userId: string }) {
 
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={() => goToStep(1)}
-            className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-subtle transition-colors">
             Back
           </button>
           <button type="button" onClick={() => goToStep(3)} disabled={!step2CanContinue}
-            className="flex-1 rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-40 transition-colors">
+            className="flex-1 rounded-lg bg-btn-neutral py-2.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:cursor-not-allowed disabled:opacity-40 transition-colors">
             Continue
           </button>
         </div>
@@ -435,8 +435,8 @@ export function OnboardingForm({ userId }: { userId: string }) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Set up your shop</h1>
-          <p className="mt-1.5 text-sm text-gray-500">Choose a name and URL for your shop. You can update these later.</p>
+          <h1 className="text-2xl font-bold text-text-primary">Set up your shop</h1>
+          <p className="mt-1.5 text-sm text-text-secondary">Choose a name and URL for your shop. You can update these later.</p>
         </div>
 
         <div className="space-y-4">
@@ -454,8 +454,8 @@ export function OnboardingForm({ userId }: { userId: string }) {
           </Field>
 
           <Field label="Shop URL" required>
-            <div className="flex rounded-lg border border-gray-300 shadow-sm focus-within:border-gray-900 focus-within:ring-1 focus-within:ring-gray-900">
-              <span className="flex items-center rounded-l-lg border-r border-gray-300 bg-gray-50 px-3 text-xs text-gray-500 select-none whitespace-nowrap">
+            <div className="flex rounded-lg border border-border-strong shadow-sm focus-within:border-border-strong focus-within:ring-1 focus-within:ring-brand">
+              <span className="flex items-center rounded-l-lg border-r border-border-strong bg-bg-subtle px-3 text-xs text-text-secondary select-none whitespace-nowrap">
                 caseros.com/shop/
               </span>
               <input
@@ -492,17 +492,17 @@ export function OnboardingForm({ userId }: { userId: string }) {
                   <option key={c.code} value={c.code}>{c.name}</option>
                 ))}
               </select>
-              <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
             </div>
-            <p className="mt-1.5 text-xs text-gray-400">
-              Not all countries are supported yet — we&apos;re working on expanding coverage.
+            <p className="mt-1.5 text-xs text-text-muted">
+              Apologies, not all countries are supported yet. We&apos;re working on expanding coverage.
             </p>
           </Field>
 
           <div className="pt-2 space-y-3">
             <div>
-              <p className="text-sm font-medium text-gray-700">Shipping address <span className="ml-0.5 text-error">*</span></p>
-              <p className="text-xs text-gray-400 mt-0.5">The address packages will be sent from.</p>
+              <p className="text-sm font-medium text-text-secondary">Shipping address <span className="ml-0.5 text-error">*</span></p>
+              <p className="text-xs text-text-muted mt-0.5">The address packages will be sent from.</p>
             </div>
 
             {isIndividual && (
@@ -511,15 +511,15 @@ export function OnboardingForm({ userId }: { userId: string }) {
                   type="checkbox"
                   checked={form.sameAsProfileAddress}
                   onChange={e => set({ sameAsProfileAddress: e.target.checked })}
-                  className="h-4 w-4 rounded border-gray-300 accent-gray-900"
+                  className="h-4 w-4 rounded border-border-strong accent-gray-900"
                 />
-                <span className="text-sm text-gray-700">Same as my identity address</span>
+                <span className="text-sm text-text-secondary">Same as my identity address</span>
               </label>
             )}
 
             {form.sameAsProfileAddress && isIndividual ? (
-              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-600 space-y-0.5">
-                {form.fullName && <p className="font-medium text-gray-900">{form.fullName}</p>}
+              <div className="rounded-lg border border-border bg-bg-subtle px-3 py-2.5 text-sm text-text-secondary space-y-0.5">
+                {form.fullName && <p className="font-medium text-text-primary">{form.fullName}</p>}
                 <p>{form.addressLine1}{form.addressLine2 ? `, ${form.addressLine2}` : ""}</p>
                 <p>{form.postalCode} {form.city}</p>
               </div>
@@ -555,7 +555,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
                         <option key={c.code} value={c.code}>{c.name}</option>
                       ))}
                     </select>
-                    <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
                   </div>
                 </Field>
               </div>
@@ -565,11 +565,11 @@ export function OnboardingForm({ userId }: { userId: string }) {
 
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={() => goToStep(2)}
-            className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-subtle transition-colors">
             Back
           </button>
           <button type="button" onClick={() => goToStep(4)} disabled={!step3CanContinue}
-            className="flex-1 rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-40 transition-colors">
+            className="flex-1 rounded-lg bg-btn-neutral py-2.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:cursor-not-allowed disabled:opacity-40 transition-colors">
             Continue
           </button>
         </div>
@@ -620,8 +620,8 @@ export function OnboardingForm({ userId }: { userId: string }) {
     return (
       <form onSubmit={handleSubmit} className="space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Verify your craft</h1>
-          <p className="mt-1.5 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-text-primary">Verify your craft</h1>
+          <p className="mt-1.5 text-sm text-text-secondary">
             Caseros is built on real, handmade goods. To keep it that way, we review every new seller
             before approving their shop. This usually takes 1–2 hours.
           </p>
@@ -629,31 +629,31 @@ export function OnboardingForm({ userId }: { userId: string }) {
 
         {/* Video upload */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-text-secondary">
             Workstation video <span className="text-error">*</span>
           </label>
-          <p className="mt-0.5 text-xs text-gray-400">
+          <p className="mt-0.5 text-xs text-text-muted">
             Record a short video (15–60 sec) showing your workspace and tools. This helps us confirm you're a genuine maker.
           </p>
 
           <div className="mt-2">
             {form.verificationVideoUrl ? (
-              <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
+              <div className="flex items-center gap-3 rounded-lg border border-border bg-bg-subtle px-3 py-2.5">
                 <CheckCircle size={16} className="shrink-0 text-green-600" />
-                <p className="min-w-0 flex-1 truncate text-sm text-gray-700">{videoName}</p>
+                <p className="min-w-0 flex-1 truncate text-sm text-text-secondary">{videoName}</p>
                 <button type="button" onClick={removeVideo}
-                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-gray-400 hover:text-gray-700">
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-text-muted hover:text-text-secondary">
                   <X size={14} />
                 </button>
               </div>
             ) : videoUploading ? (
-              <div className="flex items-center gap-3 rounded-lg border border-gray-200 px-3 py-2.5">
-                <Loader2 size={16} className="shrink-0 animate-spin text-gray-400" />
-                <p className="text-sm text-gray-500">Uploading {videoName}…</p>
+              <div className="flex items-center gap-3 rounded-lg border border-border px-3 py-2.5">
+                <Loader2 size={16} className="shrink-0 animate-spin text-text-muted" />
+                <p className="text-sm text-text-secondary">Uploading {videoName}…</p>
               </div>
             ) : (
               <button type="button" onClick={() => videoInputRef.current?.click()}
-                className="flex items-center gap-2 rounded-lg border-2 border-dashed border-gray-300 px-4 py-3 text-sm text-gray-400 transition-colors hover:border-gray-400 hover:text-gray-600">
+                className="flex items-center gap-2 rounded-lg border-2 border-dashed border-border-strong px-4 py-3 text-sm text-text-muted transition-colors hover:border-border-strong hover:text-text-secondary">
                 <Video size={16} />
                 Upload workstation video
               </button>
@@ -668,16 +668,16 @@ export function OnboardingForm({ userId }: { userId: string }) {
               className="hidden"
               onChange={e => e.target.files?.[0] && handleVideoSelect(e.target.files[0])}
             />
-            <p className="mt-1.5 text-xs text-gray-400">MP4 or WebM · max 100 MB</p>
+            <p className="mt-1.5 text-xs text-text-muted">MP4 or WebM · max 100 MB</p>
           </div>
         </div>
 
         {/* Social links */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-text-secondary">
             Social media / website <span className="text-error">*</span>
           </label>
-          <p className="mt-0.5 text-xs text-gray-400">
+          <p className="mt-0.5 text-xs text-text-muted">
             At least one link required. Share where buyers (and we) can see your work.
             The more you add, the easier the verification process
           </p>
@@ -686,9 +686,9 @@ export function OnboardingForm({ userId }: { userId: string }) {
               const value = form[key as keyof Pick<FormState, "website" | "instagram" | "tiktok" | "youtube" | "facebook">];
               return (
                 <div key={key} className="flex items-center gap-2">
-                  <span className="w-20 shrink-0 text-xs text-gray-500">{label}</span>
-                  <div className="flex flex-1 overflow-hidden rounded-lg border border-gray-300 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent">
-                    <span className="flex items-center bg-gray-50 px-2.5 text-xs text-gray-400 whitespace-nowrap border-r border-gray-300 select-none">
+                  <span className="w-20 shrink-0 text-xs text-text-secondary">{label}</span>
+                  <div className="flex flex-1 overflow-hidden rounded-lg border border-border-strong focus-within:border-accent focus-within:ring-1 focus-within:ring-accent">
+                    <span className="flex items-center bg-bg-subtle px-2.5 text-xs text-text-muted whitespace-nowrap border-r border-border-strong select-none">
                       {prefix}
                     </span>
                     <input
@@ -701,7 +701,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
                         set({ [key]: v } as Partial<FormState>);
                       }}
                       placeholder={placeholder}
-                      className="flex-1 bg-white px-3 py-2 text-sm text-text-primary placeholder:text-gray-400 focus:outline-none"
+                      className="flex-1 bg-bg-card px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
                     />
                   </div>
                 </div>
@@ -716,11 +716,11 @@ export function OnboardingForm({ userId }: { userId: string }) {
 
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={() => goToStep(3)}
-            className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-subtle transition-colors">
             Back
           </button>
           <button type="submit" disabled={!step4CanSubmit || loading}
-            className="flex-1 rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-40 transition-colors">
+            className="flex-1 rounded-lg bg-btn-neutral py-2.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:cursor-not-allowed disabled:opacity-40 transition-colors">
             {loading
               ? <span className="flex items-center justify-center gap-2"><Loader2 size={14} className="animate-spin" />Submitting…</span>
               : "Submit for review"}
@@ -760,13 +760,13 @@ function TypeCard({ active, onClick, icon, title, description }: {
       onClick={onClick}
       className={`flex flex-col items-start rounded-xl border-2 p-5 text-left transition-colors ${
         active
-          ? "border-gray-900 bg-gray-50"
-          : "border-gray-200 hover:border-gray-300"
+          ? "border-border-strong bg-bg-subtle"
+          : "border-border hover:border-border-strong"
       }`}
     >
-      <span className={active ? "text-gray-900" : "text-gray-400"}>{icon}</span>
-      <p className="mt-3 text-sm font-semibold text-gray-900">{title}</p>
-      <p className="mt-1 text-xs text-gray-500">{description}</p>
+      <span className={active ? "text-text-primary" : "text-text-muted"}>{icon}</span>
+      <p className="mt-3 text-sm font-semibold text-text-primary">{title}</p>
+      <p className="mt-1 text-xs text-text-secondary">{description}</p>
     </button>
   );
 }

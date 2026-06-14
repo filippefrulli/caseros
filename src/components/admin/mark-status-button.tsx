@@ -35,7 +35,7 @@ export function MarkStatusButton({ orderId, status }: { orderId: string; status:
     <button
       onClick={advance}
       disabled={loading}
-      className="flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+      className="flex items-center gap-1.5 rounded-lg bg-btn-neutral px-3 py-1.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:opacity-50 transition-colors"
     >
       {loading ? <Loader2 size={13} className="animate-spin" /> : null}
       {NEXT_LABEL[status]}

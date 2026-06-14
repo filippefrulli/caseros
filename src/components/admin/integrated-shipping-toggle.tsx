@@ -29,7 +29,7 @@ export function IntegratedShippingToggle({ enabled }: { enabled: boolean }) {
   }
 
   return (
-    <div className="flex items-start justify-between gap-6 rounded-xl border border-gray-200 bg-white p-5">
+    <div className="flex items-start justify-between gap-6 rounded-xl border border-border bg-bg-card p-5">
       <div className="flex items-start gap-3">
         {enabled ? (
           <Truck size={20} className="mt-0.5 shrink-0 text-emerald-600" />
@@ -37,8 +37,8 @@ export function IntegratedShippingToggle({ enabled }: { enabled: boolean }) {
           <Hand size={20} className="mt-0.5 shrink-0 text-amber-500" />
         )}
         <div>
-          <p className="font-medium text-gray-900">Integrated shipping</p>
-          <p className="mt-0.5 text-sm text-gray-500">
+          <p className="font-medium text-text-primary">Integrated shipping</p>
+          <p className="mt-0.5 text-sm text-text-secondary">
             {enabled
               ? "Buyers pick carrier rates at checkout and sellers generate labels."
               : "Self-managed mode: sellers arrange and cover delivery, coordinating with buyers directly. No rates, labels, or tracking."}

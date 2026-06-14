@@ -1,7 +1,7 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
-// Bypass RLS — server-side admin actions only. Never expose to the client.
+// Bypass RLS, server-side admin actions only. Never expose to the client.
 export function createServiceClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -7,7 +7,7 @@ import { SHIPPING_COUNTRIES, countryName, flagEmoji, countryFromLocale } from "@
 import { setVisitorCountry } from "@/lib/actions/visitor";
 
 // Compact shipping-destination selector (Etsy-style): shows just the flag, opens
-// a dropdown on click. Works for anonymous visitors — listings are filtered to
+// a dropdown on click. Works for anonymous visitors, listings are filtered to
 // those whose seller ships to the chosen country.
 export function CountryPicker({ current }: { current: string | null }) {
   const router = useRouter();
@@ -55,18 +55,18 @@ export function CountryPicker({ current }: { current: string | null }) {
         onClick={() => setOpen((o) => !o)}
         disabled={pending}
         aria-label={current ? `Shipping to ${countryName(current)}` : "Select shipping country"}
-        className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-lg leading-none hover:border-gray-400 disabled:opacity-50 transition-colors"
+        className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-lg leading-none hover:border-border-strong disabled:opacity-50 transition-colors"
       >
         {current ? (
           <span aria-hidden>{flagEmoji(current)}</span>
         ) : (
-          <Globe size={16} className="text-gray-400" />
+          <Globe size={16} className="text-text-muted" />
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 max-h-80 w-56 overflow-auto rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
-          <p className="px-3 pb-1.5 pt-1 text-xs font-medium uppercase tracking-wide text-gray-400">
+        <div className="absolute right-0 z-50 mt-2 max-h-80 w-56 overflow-auto rounded-lg border border-border bg-bg-card py-1 shadow-float">
+          <p className="px-3 pb-1.5 pt-1 text-xs font-medium uppercase tracking-wide text-text-muted">
             Ship to
           </p>
           {SHIPPING_COUNTRIES.map((c) => (
@@ -74,13 +74,13 @@ export function CountryPicker({ current }: { current: string | null }) {
               key={c.code}
               type="button"
               onClick={() => choose(c.code)}
-              className="flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-sm hover:bg-gray-50"
+              className="flex w-full items-center gap-2.5 px-3 py-1.5 text-left text-sm hover:bg-bg-subtle"
             >
               <span className="text-base leading-none" aria-hidden>{flagEmoji(c.code)}</span>
-              <span className={c.code === current ? "font-semibold text-gray-900" : "text-gray-700"}>
+              <span className={c.code === current ? "font-semibold text-brand" : "text-text-secondary"}>
                 {c.name}
               </span>
-              {c.code === current && <Check size={14} className="ml-auto text-gray-900" />}
+              {c.code === current && <Check size={14} className="ml-auto text-brand" />}
             </button>
           ))}
         </div>

@@ -73,7 +73,7 @@ export async function saveBuyerAddress(
           postalCode: parsed.data.postalCode,
           country: parsed.data.country,
           phone: parsed.data.phone ?? null,
-          // Do NOT change isDefault — editing an address doesn't promote it
+          // Do NOT change isDefault, editing an address doesn't promote it
         },
       });
       savedId = existingId;

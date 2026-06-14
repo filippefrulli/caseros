@@ -74,7 +74,7 @@ export function OrderDeliveredEmail({ buyerName, orderId, items, totalAmount, cu
           </Section>
 
           <Hr style={hr} />
-          <Text style={footer}>caseros — handmade goods from EU makers.</Text>
+          <Text style={footer}>Caseros: handmade goods from EU makers.</Text>
         </Container>
       </Body>
     </Html>

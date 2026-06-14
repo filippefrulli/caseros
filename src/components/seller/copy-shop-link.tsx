@@ -17,14 +17,14 @@ export function CopyShopLink({ slug }: { slug: string }) {
     <>
       <button
         onClick={handleCopy}
-        className="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+        className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-subtle transition-colors"
       >
         {copied ? <Check size={15} /> : <Share2 size={15} />}
         {copied ? "Copied!" : "Share shop"}
       </button>
 
       {copied && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-lg bg-gray-900 px-4 py-2.5 text-sm text-white shadow-lg animate-in fade-in slide-in-from-bottom-2">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-lg bg-btn-neutral px-4 py-2.5 text-sm text-white shadow-lg animate-in fade-in slide-in-from-bottom-2">
           Link copied to clipboard
         </div>
       )}

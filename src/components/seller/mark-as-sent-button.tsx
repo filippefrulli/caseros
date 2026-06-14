@@ -24,7 +24,7 @@ export function MarkAsSentButton({ orderId, status }: { orderId: string; status:
       }
       router.refresh();
     } catch {
-      setError("Network error — please try again.");
+      setError("Network error, please try again.");
     } finally {
       setLoading(false);
     }
@@ -35,7 +35,7 @@ export function MarkAsSentButton({ orderId, status }: { orderId: string; status:
       {error && <p className="text-xs text-error">{error}</p>}
 
       {status === "SHIPPED" && (
-        <p className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500">
+        <p className="rounded-lg border border-border bg-bg-subtle px-3 py-2 text-xs text-text-secondary">
           Awaiting buyer confirmation of receipt.
         </p>
       )}
@@ -45,7 +45,7 @@ export function MarkAsSentButton({ orderId, status }: { orderId: string; status:
           <button
             onClick={markSent}
             disabled={loading}
-            className="flex-1 rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+            className="flex-1 rounded-lg bg-btn-neutral py-2.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:opacity-50 transition-colors"
           >
             {loading ? "Saving…" : "Mark as sent"}
           </button>
@@ -53,7 +53,7 @@ export function MarkAsSentButton({ orderId, status }: { orderId: string; status:
 
         <Link
           href="/messages"
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border-strong py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-subtle transition-colors"
         >
           <MessageCircle size={15} />
           Message buyer

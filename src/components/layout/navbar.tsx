@@ -89,13 +89,13 @@ export async function Navbar() {
         <div className="flex h-14 items-center gap-3">
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight hover:opacity-75 transition-opacity"
+            className="flex shrink-0 items-center gap-2 font-display text-xl font-semibold tracking-tight hover:opacity-75 transition-opacity"
           >
             <Image src="/logo.png" alt="Caseros" width={24} height={24} priority className="rounded-sm" />
             Caseros
           </Link>
 
-          {/* Search bar — hidden on mobile, centered on sm+ */}
+          {/* Search bar, hidden on mobile, centered on sm+ */}
           <div className="hidden flex-1 sm:flex sm:justify-center">
             <div className="w-full max-w-lg">
               <SearchBar />
@@ -121,7 +121,7 @@ export async function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="rounded-md bg-gray-900 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-gray-700 transition-colors"
+                className="rounded-md bg-btn-neutral px-3.5 py-1.5 text-sm font-medium text-btn-neutral-fg hover:bg-btn-neutral-hover transition-colors"
               >
                 Sign in
               </Link>

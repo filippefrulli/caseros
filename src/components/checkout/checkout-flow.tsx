@@ -42,7 +42,7 @@ const countryName = (code: string) =>
   EU_COUNTRIES.find((c) => c.code === code)?.name ?? code;
 
 const inputClass =
-  "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+  "block w-full rounded-lg border border-border-strong px-3 py-2 text-sm shadow-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 const selectClass = `${inputClass} appearance-none pr-8`;
 
 type AddressFields = {
@@ -79,7 +79,7 @@ type Props = {
   shippoReady: boolean;
   sellerPickupReady: boolean;
   savedAddresses?: SavedAddress[];
-  // Self-managed shipping: no rates/labels — seller covers delivery and the
+  // Self-managed shipping: no rates/labels, seller covers delivery and the
   // buyer just provides an address. shipsToCountries limits destinations.
   selfManagedShipping: boolean;
   shipsToCountries: string[];
@@ -100,13 +100,13 @@ function toAddressFields(addr: Omit<SavedAddress, "id" | "isDefault">): AddressF
 
 function AddressSummary({ address }: { address: AddressFields }) {
   return (
-    <address className="not-italic text-sm leading-relaxed text-gray-700">
+    <address className="not-italic text-sm leading-relaxed text-text-secondary">
       {address.name && <p className="font-medium">{address.name}</p>}
       <p>{address.line1}{address.houseNumber ? ` ${address.houseNumber}` : ""}</p>
       {address.line2 && <p>{address.line2}</p>}
       <p>{address.postalCode} {address.city}</p>
       <p>{countryName(address.country)}</p>
-      {address.phone && <p className="text-gray-400">{address.phone}</p>}
+      {address.phone && <p className="text-text-muted">{address.phone}</p>}
     </address>
   );
 }
@@ -147,7 +147,7 @@ export function CheckoutFlow({
     defaultAddress?.id ?? null,
   );
 
-  // Address fields — used for shipping rate fetching and (when no addressId) for checkout
+  // Address fields, used for shipping rate fetching and (when no addressId) for checkout
   const [address, setAddress] = useState<AddressFields>(
     defaultAddress ? toAddressFields(defaultAddress) : {
       name: "", line1: "", houseNumber: "", line2: "", city: "", postalCode: "", country: defaultCountry, phone: "",
@@ -296,10 +296,10 @@ export function CheckoutFlow({
   if (isDigital) {
     return (
       <div className="space-y-6">
-        <div className="rounded-xl border border-gray-200 p-5">
-          <p className="mb-3 text-sm font-semibold text-gray-700">Order summary</p>
+        <div className="rounded-xl border border-border p-5">
+          <p className="mb-3 text-sm font-semibold text-text-secondary">Order summary</p>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-600">Item × {quantity}</span>
+            <span className="text-text-secondary">Item × {quantity}</span>
             <span className="tabular-nums font-medium">{formatPrice(itemsTotal, currency)}</span>
           </div>
         </div>
@@ -307,7 +307,7 @@ export function CheckoutFlow({
         <button
           onClick={handlePayment}
           disabled={checkoutLoading}
-          className="w-full rounded-xl bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+          className="w-full rounded-xl bg-btn-primary py-3 text-sm font-medium text-white hover:bg-btn-primary-hover disabled:opacity-50 transition-colors"
         >
           {checkoutLoading ? "Redirecting…" : `Pay ${formatPrice(itemsTotal, currency)}`}
         </button>
@@ -339,16 +339,16 @@ export function CheckoutFlow({
 
       {/* ── Summary: selected saved address ── */}
       {mode === "summary" && selectedAddressId && (
-        <div className="rounded-xl border border-gray-200 p-5">
+        <div className="rounded-xl border border-border p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="mb-2 text-sm font-semibold text-gray-700">Shipping to</p>
+              <p className="mb-2 text-sm font-semibold text-text-secondary">Shipping to</p>
               <AddressSummary address={address} />
             </div>
             <button
               type="button"
               onClick={() => setMode("picker")}
-              className="shrink-0 text-xs text-gray-500 underline underline-offset-2 hover:text-gray-900 transition-colors"
+              className="shrink-0 text-xs text-text-secondary underline underline-offset-2 hover:text-text-primary transition-colors"
             >
               Change
             </button>
@@ -358,13 +358,13 @@ export function CheckoutFlow({
 
       {/* ── Picker: list of saved addresses ── */}
       {mode === "picker" && (
-        <div className="rounded-xl border border-gray-200 p-5 space-y-2">
+        <div className="rounded-xl border border-border p-5 space-y-2">
           <div className="flex items-center justify-between mb-1">
-            <p className="text-sm font-semibold text-gray-700">Select address</p>
+            <p className="text-sm font-semibold text-text-secondary">Select address</p>
             <button
               type="button"
               onClick={() => setMode("summary")}
-              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-xs text-text-muted hover:text-text-secondary transition-colors"
             >
               Cancel
             </button>
@@ -379,23 +379,23 @@ export function CheckoutFlow({
                 onClick={() => selectSavedAddress(addr)}
                 className={`w-full rounded-lg border px-4 py-3 text-left text-sm transition-colors ${
                   isSelected
-                    ? "border-gray-900 bg-gray-50"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-border-strong bg-bg-subtle"
+                    : "border-border hover:border-border-strong"
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${
-                    isSelected ? "border-gray-900 bg-gray-900" : "border-gray-300"
+                    isSelected ? "border-brand bg-brand" : "border-border-strong"
                   }`}>
                     {isSelected && <Check size={10} strokeWidth={3} className="text-white" />}
                   </div>
                   <div>
-                    {addr.name && <p className="font-medium text-gray-900">{addr.name}</p>}
-                    <p className="text-gray-500">
+                    {addr.name && <p className="font-medium text-text-primary">{addr.name}</p>}
+                    <p className="text-text-secondary">
                       {addr.line1}{addr.houseNumber ? ` ${addr.houseNumber}` : ""},  {addr.city}
                     </p>
                     {addr.isDefault && (
-                      <span className="text-xs text-gray-400">Default</span>
+                      <span className="text-xs text-text-muted">Default</span>
                     )}
                   </div>
                 </div>
@@ -406,7 +406,7 @@ export function CheckoutFlow({
           <button
             type="button"
             onClick={openNewAddressForm}
-            className="w-full rounded-lg border border-dashed border-gray-300 px-4 py-3 text-left text-sm text-gray-500 transition-colors hover:border-gray-400 hover:text-gray-700"
+            className="w-full rounded-lg border border-dashed border-border-strong px-4 py-3 text-left text-sm text-text-secondary transition-colors hover:border-border-strong hover:text-text-secondary"
           >
             + Enter a new address
           </button>
@@ -415,16 +415,16 @@ export function CheckoutFlow({
 
       {/* ── Form: new address entry ── */}
       {mode === "form" && (
-        <div className="rounded-xl border border-gray-200 p-5 space-y-4">
+        <div className="rounded-xl border border-border p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-700">Shipping address</p>
+            <p className="text-sm font-semibold text-text-secondary">Shipping address</p>
             {hasSaved && (
               <button
                 type="button"
                 onClick={() => {
                   setMode("picker");
                 }}
-                className="text-xs text-gray-500 underline underline-offset-2 hover:text-gray-900 transition-colors"
+                className="text-xs text-text-secondary underline underline-offset-2 hover:text-text-primary transition-colors"
               >
                 ← Back to saved
               </button>
@@ -432,45 +432,45 @@ export function CheckoutFlow({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Full name</label>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Full name</label>
             <input type="text" placeholder="Jane Smith" value={address.name} onChange={setField("name")} autoComplete="name" className={inputClass} />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Street address</label>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Street address</label>
             <input type="text" placeholder="Main Street 12" value={address.line1} onChange={setField("line1")} autoComplete="address-line1" className={inputClass} />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Apt / suite (optional)</label>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Apt / suite (optional)</label>
             <input type="text" placeholder="Apartment 3B" value={address.line2} onChange={setField("line2")} autoComplete="address-line2" className={inputClass} />
           </div>
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Postal code</label>
+              <label className="block text-xs font-medium text-text-secondary mb-1">Postal code</label>
               <input type="text" placeholder="D01 F5P2" value={address.postalCode} onChange={setField("postalCode")} autoComplete="postal-code" className={inputClass} />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">City</label>
+              <label className="block text-xs font-medium text-text-secondary mb-1">City</label>
               <input type="text" placeholder="Dublin" value={address.city} onChange={setField("city")} autoComplete="address-level2" className={inputClass} />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Country</label>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Country</label>
             <div className="relative">
               <select value={address.country} onChange={setField("country")} autoComplete="country" className={selectClass}>
                 {allowedCountries.map((c) => (
                   <option key={c.code} value={c.code}>{c.name}</option>
                 ))}
               </select>
-              <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Phone (optional)</label>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Phone (optional)</label>
             <input type="tel" placeholder="+353 1 234 5678" value={address.phone} onChange={setField("phone")} autoComplete="tel" className={inputClass} />
           </div>
 
@@ -479,7 +479,7 @@ export function CheckoutFlow({
               type="button"
               onClick={() => fetchRates(address)}
               disabled={!addressComplete || ratesLoading}
-              className="w-full rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 transition-colors"
+              className="w-full rounded-lg border border-border-strong py-2 text-sm font-medium text-text-secondary hover:bg-bg-subtle disabled:opacity-40 transition-colors"
             >
               {ratesLoading ? "Fetching shipping options…" : "Check shipping options →"}
             </button>
@@ -491,8 +491,8 @@ export function CheckoutFlow({
 
       {/* ── Rate loading (summary mode) ── */}
       {ratesLoading && mode === "summary" && (
-        <div className="rounded-xl border border-gray-200 p-5">
-          <p className="text-sm text-gray-400">Calculating shipping options…</p>
+        <div className="rounded-xl border border-border p-5">
+          <p className="text-sm text-text-muted">Calculating shipping options…</p>
         </div>
       )}
 
@@ -505,8 +505,8 @@ export function CheckoutFlow({
 
       {/* ── Shipping options ── */}
       {rates !== null && rates.length > 0 && (
-        <div className="rounded-xl border border-gray-200 p-5 space-y-3">
-          <p className="text-sm font-semibold text-gray-700">
+        <div className="rounded-xl border border-border p-5 space-y-3">
+          <p className="text-sm font-semibold text-text-secondary">
             Shipping to {address.city}, {countryName(address.country)}
           </p>
           <div className="space-y-2">
@@ -518,20 +518,20 @@ export function CheckoutFlow({
                   type="button"
                   onClick={() => setSelectedRate(rate)}
                   className={`w-full flex items-center justify-between rounded-lg border px-4 py-3 text-sm transition-colors ${
-                    isSelected ? "border-gray-900 bg-gray-50" : "border-gray-200 hover:border-gray-300"
+                    isSelected ? "border-border-strong bg-bg-subtle" : "border-border hover:border-border-strong"
                   }`}
                 >
                   <div className="flex items-center gap-3 text-left">
-                    <div className={`h-4 w-4 shrink-0 rounded-full border-2 ${isSelected ? "border-gray-900 bg-gray-900" : "border-gray-300"}`} />
+                    <div className={`h-4 w-4 shrink-0 rounded-full border-2 ${isSelected ? "border-border-strong bg-btn-neutral" : "border-border-strong"}`} />
                     <div>
-                      <span className="font-medium text-gray-900">{rate.provider}</span>
-                      <span className="ml-1.5 text-gray-500">{rate.servicelevel}</span>
+                      <span className="font-medium text-text-primary">{rate.provider}</span>
+                      <span className="ml-1.5 text-text-secondary">{rate.servicelevel}</span>
                       {rate.estimatedDays != null && (
-                        <span className="ml-1.5 text-gray-400">· {rate.estimatedDays} days</span>
+                        <span className="ml-1.5 text-text-muted">· {rate.estimatedDays} days</span>
                       )}
                     </div>
                   </div>
-                  <span className="shrink-0 font-semibold tabular-nums text-gray-900">
+                  <span className="shrink-0 font-semibold tabular-nums text-text-primary">
                     {rate.currency} {parseFloat(rate.amount).toFixed(2)}
                   </span>
                 </button>
@@ -542,27 +542,27 @@ export function CheckoutFlow({
       )}
 
       {rates !== null && rates.length === 0 && (
-        <div className="rounded-xl border border-gray-200 p-5 text-sm text-gray-500">
+        <div className="rounded-xl border border-border p-5 text-sm text-text-secondary">
           No shipping options available for this address. Please check your address or contact the seller.
         </div>
       )}
 
       {/* ── Order summary + pay ── */}
       {addressReady && (
-        <div className="rounded-xl border border-gray-200 p-5 space-y-4">
-          <p className="text-sm font-semibold text-gray-700">Order summary</p>
+        <div className="rounded-xl border border-border p-5 space-y-4">
+          <p className="text-sm font-semibold text-text-secondary">Order summary</p>
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">Item × {quantity}</span>
+              <span className="text-text-secondary">Item × {quantity}</span>
               <span className="tabular-nums">{formatPrice(itemsTotal, currency)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Shipping</span>
+              <span className="text-text-secondary">Shipping</span>
               <span className="tabular-nums">
                 {selfManagedShipping ? "Free" : formatPrice(shippingTotal, currency)}
               </span>
             </div>
-            <div className="flex justify-between border-t border-gray-100 pt-2 font-semibold">
+            <div className="flex justify-between border-t border-border pt-2 font-semibold">
               <span>Total</span>
               <span className="tabular-nums">{formatPrice(grandTotal, currency)}</span>
             </div>
@@ -571,11 +571,11 @@ export function CheckoutFlow({
           <button
             onClick={handlePayment}
             disabled={checkoutLoading}
-            className="w-full rounded-xl bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+            className="w-full rounded-xl bg-btn-primary py-3 text-sm font-medium text-white hover:bg-btn-primary-hover disabled:opacity-50 transition-colors"
           >
             {checkoutLoading ? "Redirecting to payment…" : `Pay ${formatPrice(grandTotal, currency)}`}
           </button>
-          <p className="text-center text-xs text-gray-400">Secure payment via Stripe</p>
+          <p className="text-center text-xs text-text-muted">Secure payment via Stripe</p>
         </div>
       )}
     </div>

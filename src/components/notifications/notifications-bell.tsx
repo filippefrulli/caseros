@@ -132,7 +132,7 @@ export function NotificationsBell({ notifications, unreadCount }: NotificationsB
         type="button"
         onClick={handleToggle}
         aria-label={localUnread > 0 ? `${localUnread} unread notifications` : "Notifications"}
-        className="relative flex items-center justify-center rounded-md p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+        className="relative flex items-center justify-center rounded-md p-2 text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors"
       >
         <Bell size={20} />
         {localUnread > 0 && (
@@ -141,36 +141,36 @@ export function NotificationsBell({ notifications, unreadCount }: NotificationsB
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
-          <div className="border-b border-gray-100 px-4 py-3">
-            <p className="text-sm font-semibold text-gray-900">Notifications</p>
+        <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-border bg-bg-card shadow-float">
+          <div className="border-b border-border px-4 py-3">
+            <p className="text-sm font-semibold text-text-primary">Notifications</p>
           </div>
 
           {notifications.length === 0 ? (
             <div className="px-4 py-10 text-center">
-              <p className="text-sm text-gray-500">You're all caught up.</p>
+              <p className="text-sm text-text-secondary">You&apos;re all caught up.</p>
             </div>
           ) : (
-            <ul className="max-h-96 divide-y divide-gray-100 overflow-y-auto">
+            <ul className="max-h-96 divide-y divide-border overflow-y-auto">
               {notifications.map((n) => {
                 const meta = TYPE_META[n.type];
                 const Icon = meta?.icon ?? Bell;
-                const tone = meta?.tone ?? "text-gray-400";
+                const tone = meta?.tone ?? "text-text-muted";
                 const href = hrefFor(n);
                 const isUnread = !n.readAt;
                 const content = (
                   <div
                     className={`flex items-start gap-3 px-4 py-3 transition-colors ${
-                      href ? "hover:bg-gray-50" : ""
-                    } ${isUnread ? "bg-violet-50/40" : ""}`}
+                      href ? "hover:bg-bg-subtle" : ""
+                    } ${isUnread ? "bg-brand-subtle" : ""}`}
                   >
                     <Icon size={16} className={`mt-0.5 shrink-0 ${tone}`} />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900">{n.title}</p>
+                      <p className="text-sm font-medium text-text-primary">{n.title}</p>
                       {n.body && (
-                        <p className="mt-0.5 line-clamp-2 text-xs text-gray-500">{n.body}</p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-text-secondary">{n.body}</p>
                       )}
-                      <p className="mt-1 text-[11px] text-gray-400">{relativeTime(n.createdAt)}</p>
+                      <p className="mt-1 text-[11px] text-text-muted">{relativeTime(n.createdAt)}</p>
                     </div>
                   </div>
                 );

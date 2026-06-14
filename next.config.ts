@@ -5,7 +5,7 @@ import type { NextConfig } from "next";
 // Google Fonts are inlined at build time by next/font, so font-src stays 'self'.
 // Supabase Realtime (WebSocket) is not used, so wss:// is omitted from connect-src.
 //
-// Running as Report-Only — flip the key to "Content-Security-Policy" once a
+// Running as Report-Only, flip the key to "Content-Security-Policy" once a
 // week of violation reports confirms there are no legitimate blocked sources.
 const CSP = [
   "default-src 'self'",
@@ -41,7 +41,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     // Skip Vercel's image optimizer for remote sources. Supabase Storage already
-    // serves cached, CDN-fronted assets — passing them through /_next/image burns
+    // serves cached, CDN-fronted assets, passing them through /_next/image burns
     // the free-plan optimization quota for negligible benefit. Width/height props
     // still work as layout hints; the browser just fetches the URL directly.
     unoptimized: true,

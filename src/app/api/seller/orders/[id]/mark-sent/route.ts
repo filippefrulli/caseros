@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 type Params = { params: Promise<{ id: string }> };
 
 // Self-managed shipping: the seller arranges delivery themselves, then marks the
-// order as sent. No carrier label or tracking — just the status transition.
+// order as sent. No carrier label or tracking, just the status transition.
 export async function POST(_req: Request, { params }: Params) {
   const { id: orderId } = await params;
 

@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
   if (token_hash && type) {
     // Email confirmation opened in a different browser context (no PKCE cookie).
-    // verifyOtp is stateless — no code verifier required.
+    // verifyOtp is stateless, no code verifier required.
     const { data, error } = await supabase.auth.verifyOtp({
       token_hash,
       type: type as Parameters<typeof supabase.auth.verifyOtp>[0]["type"],
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     }
     user = data.user;
   } else {
-    // No code or token — likely an expired link. If the user was trying to reset
+    // No code or token, likely an expired link. If the user was trying to reset
     // their password, send them back to forgot-password with a clear message.
     const isReset = next.includes("reset-password");
     return NextResponse.redirect(
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 
   const { id, email, user_metadata } = user as { id: string; email: string; user_metadata: Record<string, unknown> };
 
-  // Upsert into our users table — runs on every sign-in to keep profile data fresh.
+  // Upsert into our users table, runs on every sign-in to keep profile data fresh.
   // Guard: if the account was previously deleted, sign out immediately rather than
   // restoring anonymised fields with fresh OAuth data.
   const existing = await prisma.user.findUnique({
@@ -102,7 +102,7 @@ export async function GET(request: Request) {
     await track("user_registered", { method: "oauth" });
   }
 
-  // Prevent open redirect — only allow same-origin relative paths.
+  // Prevent open redirect, only allow same-origin relative paths.
   // `//evil.com` and `/\evil.com` are protocol-relative and would escape the origin.
   const isSafe =
     next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\");

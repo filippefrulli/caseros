@@ -91,7 +91,7 @@ export async function anonymiseAccount(supabaseId: string): Promise<void> {
         },
       });
 
-      // Social links have no retention basis — delete immediately.
+      // Social links have no retention basis, delete immediately.
       await tx.sellerSocialLinks.deleteMany({ where: { sellerId } });
 
       // KYC must be retained under AML law (EU 6AMLD / Irish CJA 2010 s.55)
@@ -110,7 +110,7 @@ export async function anonymiseAccount(supabaseId: string): Promise<void> {
     }
   });
 
-  // Best-effort storage cleanup — non-fatal if any bucket fails.
+  // Best-effort storage cleanup, non-fatal if any bucket fails.
   const supabase = createServiceClient();
   const buckets = ["avatars", "listing-images", "listing-videos"];
   await Promise.allSettled(
@@ -130,7 +130,7 @@ export async function anonymiseAccount(supabaseId: string): Promise<void> {
     });
   });
 
-  // Delete the Supabase auth user last — after the DB is fully committed.
+  // Delete the Supabase auth user last, after the DB is fully committed.
   // If this fails, the DB is already anonymised; an admin can remove the stale
   // auth entry manually.
   const { error } = await createServiceClient().auth.admin.deleteUser(supabaseId);

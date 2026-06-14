@@ -7,7 +7,7 @@ import { env } from "@/env";
 
 // Only accept avatar URLs that point at our own Supabase Storage `avatars`
 // bucket. Without this, a user could set their avatar to an attacker-controlled
-// URL — every page that renders the avatar would then leak referers to (and
+// URL, every page that renders the avatar would then leak referers to (and
 // pull bandwidth from) that URL.
 const AVATAR_URL_PREFIX = `${env.NEXT_PUBLIC_SUPABASE_URL.replace(/\/$/, "")}/storage/v1/object/public/avatars/`;
 

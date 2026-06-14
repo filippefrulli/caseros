@@ -34,7 +34,7 @@ export function SetCommissionButton({ sellerId, current }: { sellerId: string; c
 
   return (
     <div className="flex items-center gap-2">
-      <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+      <div className="flex rounded-lg border border-border overflow-hidden">
         {PRESETS.map(({ label, value }) => {
           const active = selected === value;
           return (
@@ -42,10 +42,10 @@ export function SetCommissionButton({ sellerId, current }: { sellerId: string; c
               key={value}
               onClick={() => save(value)}
               disabled={loading}
-              className={`px-3 py-1 text-xs font-medium transition-colors border-r border-gray-200 last:border-r-0 disabled:opacity-50 ${
+              className={`px-3 py-1 text-xs font-medium transition-colors border-r border-border last:border-r-0 disabled:opacity-50 ${
                 active
-                  ? "bg-gray-900 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-btn-neutral text-white"
+                  : "bg-bg-card text-text-secondary hover:bg-bg-subtle hover:text-text-primary"
               }`}
             >
               {label}

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-// Buyer confirms they received the order — completes it and releases the seller
+// Buyer confirms they received the order, completes it and releases the seller
 // payout (the receipt handshake used when there's no carrier tracking).
 export function ConfirmReceivedButton({ orderId }: { orderId: string }) {
   const router = useRouter();
@@ -22,7 +22,7 @@ export function ConfirmReceivedButton({ orderId }: { orderId: string }) {
       }
       router.refresh();
     } catch {
-      setError("Network error — please try again.");
+      setError("Network error: please try again.");
     } finally {
       setLoading(false);
     }
@@ -34,7 +34,7 @@ export function ConfirmReceivedButton({ orderId }: { orderId: string }) {
       <button
         onClick={confirm}
         disabled={loading}
-        className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+        className="rounded-lg bg-btn-neutral px-5 py-2.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:opacity-50 transition-colors"
       >
         {loading ? "Confirming…" : "Confirm received"}
       </button>

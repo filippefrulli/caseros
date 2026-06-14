@@ -37,7 +37,7 @@ async function shippoFetch(path: string, init?: RequestInit) {
 export async function createShipment(params: CreateShipmentParams): Promise<CreatedShipment> {
   if (!isShippoConfigured()) throw new Error("Shippo not configured");
 
-  // Step 1 — create shipment to get rates.
+  // Step 1, create shipment to get rates.
   const shipment = await shippoFetch("/shipments", {
     method: "POST",
     body: JSON.stringify({
@@ -92,7 +92,7 @@ export async function createShipment(params: CreateShipmentParams): Promise<Crea
 
   const chosenRate = preferredRate ?? cheapestRate;
 
-  // Step 2 — purchase label.
+  // Step 2, purchase label.
   const transaction = await shippoFetch("/transactions", {
     method: "POST",
     body: JSON.stringify({
@@ -200,7 +200,7 @@ export async function cancelShipment(transactionId: string): Promise<void> {
   });
 }
 
-// Shippo label URLs are stable signed S3 URLs — fetch directly, no auth.
+// Shippo label URLs are stable signed S3 URLs, fetch directly, no auth.
 export async function fetchLabelPdf(labelUrl: string): Promise<Response> {
   return fetch(labelUrl);
 }

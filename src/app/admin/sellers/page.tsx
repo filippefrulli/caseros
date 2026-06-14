@@ -15,7 +15,7 @@ export default async function AdminSellersPage() {
 
   if (!user || user.email !== env.ADMIN_EMAIL) return notFound();
 
-  // Cap unbounded queries — replace with paginated UI when these tables grow.
+  // Cap unbounded queries, replace with paginated UI when these tables grow.
   const SELLERS_CAP = 100;
   const [sellers, activeSellers] = await Promise.all([
     prisma.sellerProfile.findMany({
@@ -66,12 +66,12 @@ export default async function AdminSellersPage() {
     <main className="mx-auto max-w-5xl px-4 py-12">
       <div className="mb-8">
         <h1 className="text-2xl font-bold">Seller Review</h1>
-        <p className="mt-1 text-sm text-gray-500">{sellers.length} seller{sellers.length === 1 ? "" : "s"} pending review</p>
+        <p className="mt-1 text-sm text-text-secondary">{sellers.length} seller{sellers.length === 1 ? "" : "s"} pending review</p>
       </div>
 
       {sellers.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-200 py-24 text-center">
-          <p className="text-gray-400">No sellers pending review.</p>
+        <div className="rounded-xl border border-dashed border-border py-24 text-center">
+          <p className="text-text-muted">No sellers pending review.</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -83,7 +83,7 @@ export default async function AdminSellersPage() {
               : [];
 
             return (
-              <div key={seller.id} className="rounded-xl border border-gray-200 bg-white p-6">
+              <div key={seller.id} className="rounded-xl border border-border bg-bg-card p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
@@ -96,17 +96,17 @@ export default async function AdminSellersPage() {
                         {seller.status}
                       </span>
                     </div>
-                    <p className="mt-0.5 text-sm text-gray-500">{seller.user.email}</p>
+                    <p className="mt-0.5 text-sm text-text-secondary">{seller.user.email}</p>
                     <div className="mt-2 flex flex-wrap gap-3">
-                      <span className="flex items-center gap-1 text-xs text-gray-400">
+                      <span className="flex items-center gap-1 text-xs text-text-muted">
                         <MapPin size={12} />
                         {countryFmt.of(seller.country) ?? seller.country}
                       </span>
-                      <span className="flex items-center gap-1 text-xs text-gray-400">
+                      <span className="flex items-center gap-1 text-xs text-text-muted">
                         <CalendarDays size={12} />
                         Applied {seller.createdAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-text-muted">
                         {kyc?.sellerType === "INDIVIDUAL" ? "Individual" : "Trader"}
                       </span>
                     </div>
@@ -118,16 +118,16 @@ export default async function AdminSellersPage() {
                 {/* Verification video */}
                 {kyc?.verificationVideoUrl && (
                   <div className="mt-5">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Verification video</p>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">Verification video</p>
                     {signedVideoUrls.has(seller.id) ? (
                       <video
                         src={signedVideoUrls.get(seller.id)}
                         controls
-                        className="w-full max-w-lg rounded-lg border border-gray-200 bg-black"
+                        className="w-full max-w-lg rounded-lg border border-border bg-black"
                         style={{ maxHeight: "280px" }}
                       />
                     ) : (
-                      <p className="text-xs text-gray-400">Video unavailable</p>
+                      <p className="text-xs text-text-muted">Video unavailable</p>
                     )}
                   </div>
                 )}
@@ -135,7 +135,7 @@ export default async function AdminSellersPage() {
                 {/* Social links */}
                 {activeSocials.length > 0 && (
                   <div className="mt-4">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Social links</p>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">Social links</p>
                     <div className="flex flex-wrap gap-2">
                       {activeSocials.map(({ platform, url }) => (
                         <a
@@ -143,7 +143,7 @@ export default async function AdminSellersPage() {
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1 text-xs text-gray-600 hover:border-gray-400 hover:text-gray-900 transition-colors capitalize"
+                          className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1 text-xs text-text-secondary hover:border-border-strong hover:text-text-primary transition-colors capitalize"
                         >
                           {platform}
                           <ExternalLink size={11} />
@@ -163,14 +163,14 @@ export default async function AdminSellersPage() {
                 {/* KYC summary */}
                 {kyc && (
                   <details className="mt-4">
-                    <summary className="cursor-pointer text-xs text-gray-400 hover:text-gray-600">Show KYC details</summary>
-                    <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-600">
-                      {kyc.fullName && <><span className="text-gray-400">Name</span><span>{kyc.fullName}</span></>}
-                      {kyc.dateOfBirth && <><span className="text-gray-400">DOB</span><span>{kyc.dateOfBirth.toLocaleDateString("en-GB")}</span></>}
-                      {kyc.addressLine1 && <><span className="text-gray-400">Address</span><span>{[kyc.addressLine1, kyc.city, kyc.postalCode].filter(Boolean).join(", ")}</span></>}
-                      {kyc.businessRegNumber && <><span className="text-gray-400">Reg. no.</span><span>{kyc.businessRegNumber}</span></>}
-                      {kyc.contactEmail && <><span className="text-gray-400">Contact email</span><span>{kyc.contactEmail}</span></>}
-                      {kyc.contactPhone && <><span className="text-gray-400">Contact phone</span><span>{kyc.contactPhone}</span></>}
+                    <summary className="cursor-pointer text-xs text-text-muted hover:text-text-secondary">Show KYC details</summary>
+                    <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-text-secondary">
+                      {kyc.fullName && <><span className="text-text-muted">Name</span><span>{kyc.fullName}</span></>}
+                      {kyc.dateOfBirth && <><span className="text-text-muted">DOB</span><span>{kyc.dateOfBirth.toLocaleDateString("en-GB")}</span></>}
+                      {kyc.addressLine1 && <><span className="text-text-muted">Address</span><span>{[kyc.addressLine1, kyc.city, kyc.postalCode].filter(Boolean).join(", ")}</span></>}
+                      {kyc.businessRegNumber && <><span className="text-text-muted">Reg. no.</span><span>{kyc.businessRegNumber}</span></>}
+                      {kyc.contactEmail && <><span className="text-text-muted">Contact email</span><span>{kyc.contactEmail}</span></>}
+                      {kyc.contactPhone && <><span className="text-text-muted">Contact phone</span><span>{kyc.contactPhone}</span></>}
                     </div>
                   </details>
                 )}
@@ -180,13 +180,13 @@ export default async function AdminSellersPage() {
         </div>
       )}
 
-      {/* Active sellers — commission management */}
+      {/* Active sellers, commission management */}
       {activeSellers.length > 0 && (
         <div className="mt-16">
           <h2 className="mb-4 text-lg font-semibold">Active sellers</h2>
-          <div className="overflow-hidden rounded-xl border border-gray-200">
+          <div className="overflow-hidden rounded-xl border border-border">
             <table className="w-full text-sm">
-              <thead className="border-b border-gray-200 bg-gray-50 text-xs text-gray-500">
+              <thead className="border-b border-border bg-bg-subtle text-xs text-text-secondary">
                 <tr>
                   <th className="px-4 py-3 text-left font-medium">Shop</th>
                   <th className="px-4 py-3 text-left font-medium">Email</th>
@@ -194,12 +194,12 @@ export default async function AdminSellersPage() {
                   <th className="px-4 py-3 text-left font-medium">Fee</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border">
                 {activeSellers.map(s => (
-                  <tr key={s.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-900">{s.shopName}</td>
-                    <td className="px-4 py-3 text-gray-500">{s.user.email}</td>
-                    <td className="px-4 py-3 text-gray-500">{countryFmt.of(s.country) ?? s.country}</td>
+                  <tr key={s.id} className="hover:bg-bg-subtle">
+                    <td className="px-4 py-3 font-medium text-text-primary">{s.shopName}</td>
+                    <td className="px-4 py-3 text-text-secondary">{s.user.email}</td>
+                    <td className="px-4 py-3 text-text-secondary">{countryFmt.of(s.country) ?? s.country}</td>
                     <td className="px-4 py-3">
                       <SetCommissionButton
                         sellerId={s.id}

@@ -1,22 +1,22 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════
-   DESIGN TOKENS  —  edit this block to restyle the whole UI
+   DESIGN TOKENS ,  edit this block to restyle the whole UI
    ═══════════════════════════════════════════════════════════ */
 :root {
-  /* ── Accent (sky blue #61AAF2) ── */
-  --accent:        #61AAF2;   /* primary buttons, links, active states      */
-  --accent-hover:  #4A97E6;   /* hover / pressed — slightly deeper          */
-  --accent-subtle: #EAF4FD;   /* light tints, chip backgrounds              */
-  --accent-fg:     #1A1816;   /* dark text — #61AAF2 is light, white fails contrast */
+  /* ── Accent, unified with the EU royal-blue brand (see --brand below) ── */
+  --accent:        var(--brand);        /* links, active states, input focus  */
+  --accent-hover:  var(--brand-hover);  /* hover / pressed                    */
+  --accent-subtle: var(--brand-subtle); /* light tints, chip backgrounds      */
+  --accent-fg:     #FFFFFF;             /* accent is now dark, white text on it */
 
   /* ── Page structure (Anthropic-inspired warm cream) ── */
   --bg-page:   #FAFAF7;       /* overall canvas                             */
-  --bg-card:   #FDFCF8;       /* cards, panels, modals — slightly off-white */
+  --bg-card:   #FDFCF8;       /* cards, panels, modals, slightly off-white */
   --bg-subtle: #EEEAE2;       /* inset areas, inputs, table stripes         */
 
   /* ── Text ── */
-  --text-primary:   #1A1816;  /* headings — near-black with warm undertone  */
+  --text-primary:   #1A1816;  /* headings, near-black with warm undertone  */
   --text-secondary: #5C5A55;  /* body copy and descriptions                 */
   --text-muted:     #9A9891;  /* captions, placeholders, disabled           */
 
@@ -34,10 +34,28 @@
   --warning-subtle: #FAF7F0;   /* very light tint for warning panels       */
   --warning-fg:     #7A5C24;   /* warm brown text for warning contexts     */
 
-  /* ── Terracotta (warm copper accent) ── */
-  --terracotta:        #D4A27F;   /* warm copper — highlights, tags, accents  */
-  --terracotta-hover:  #C08B64;   /* slightly deeper for hover states         */
-  --terracotta-subtle: #FAF2EC;   /* very light tint for backgrounds          */
+  /* ── Brand accent (EU royal blue) ── */
+  --brand:        #3A5DA8;   /* royal blue, icons, links, active states          */
+  --brand-hover:  #2E4D8E;   /* deeper blue for hover states                      */
+  --brand-subtle: #EBEFF9;   /* very light blue tint for backgrounds              */
+
+  /* ── Gold (EU-star secondary accent, the warmth) ──
+     gold is light: use it as a fill (with dark text) or on dark blue, NOT as
+     small text on cream (fails contrast). */
+  --gold:         #D9A53A;   /* warm gold, promise band, star ratings, flourishes */
+  --gold-fg:      #1A1816;   /* dark text for use on a gold fill                   */
+
+  /* ── Buttons (single central color) ──
+     Every button in the app resolves to --btn-primary. To recolor all buttons,
+     change these three values, nothing else. --btn-neutral is kept only as an
+     alias so existing `bg-btn-neutral` class names map to the same blue; there
+     is no separate "neutral" tier anymore. */
+  --btn-primary:        #2E4D8E;   /* deep royal blue, ~8:1 on white */
+  --btn-primary-hover:  #243E73;   /* darker blue for hover          */
+  --btn-primary-fg:     #FFFFFF;
+  --btn-neutral:        var(--btn-primary);
+  --btn-neutral-hover:  var(--btn-primary-hover);
+  --btn-neutral-fg:     var(--btn-primary-fg);
 
   /* ── Shadows (softer against cream) ── */
   --shadow-card:  0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.04);
@@ -54,6 +72,7 @@
   /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);   /* warm serif for headings, utility: font-display */
 
   /* Accent */
   --color-accent:        var(--accent);
@@ -85,17 +104,29 @@
   --color-warning-subtle: var(--warning-subtle);
   --color-warning-fg:     var(--warning-fg);
 
-  /* Terracotta */
-  --color-terracotta:        var(--terracotta);
-  --color-terracotta-hover:  var(--terracotta-hover);
-  --color-terracotta-subtle: var(--terracotta-subtle);
+  /* Brand accent */
+  --color-brand:        var(--brand);
+  --color-brand-hover:  var(--brand-hover);
+  --color-brand-subtle: var(--brand-subtle);
+
+  /* Gold secondary */
+  --color-gold:    var(--gold);
+  --color-gold-fg: var(--gold-fg);
+
+  /* Action buttons */
+  --color-btn-primary:        var(--btn-primary);
+  --color-btn-primary-hover:  var(--btn-primary-hover);
+  --color-btn-primary-fg:     var(--btn-primary-fg);
+  --color-btn-neutral:        var(--btn-neutral);
+  --color-btn-neutral-hover:  var(--btn-neutral-hover);
+  --color-btn-neutral-fg:     var(--btn-neutral-fg);
 
   /* Shadows */
   --shadow-card:  var(--shadow-card);
   --shadow-hover: var(--shadow-hover);
   --shadow-float: var(--shadow-float);
 
-  /* Border radius — slightly rounder than Tailwind defaults */
+  /* Border radius, slightly rounder than Tailwind defaults */
   --radius-sm:  0.375rem;   /*  6 px */
   --radius-md:  0.625rem;   /* 10 px */
   --radius-lg:  0.875rem;   /* 14 px */

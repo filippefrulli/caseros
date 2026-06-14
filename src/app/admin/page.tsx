@@ -35,8 +35,8 @@ export default async function AdminDashboardPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-      <p className="mt-1 text-sm text-gray-500">Platform overview</p>
+      <h1 className="text-2xl font-bold text-text-primary">Dashboard</h1>
+      <p className="mt-1 text-sm text-text-secondary">Platform overview</p>
 
       {/* Stat cards */}
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -100,12 +100,12 @@ function StatCard({
   highlight?: boolean;
 }) {
   return (
-    <div className={`rounded-xl border p-4 ${highlight ? "border-warning bg-warning-subtle" : "border-gray-200 bg-white"}`}>
-      <Icon size={16} className={`mb-3 ${highlight ? "text-amber-500" : "text-gray-400"}`} />
-      <p className={`text-2xl font-bold tabular-nums ${highlight ? "text-warning-fg" : "text-gray-900"}`}>
+    <div className={`rounded-xl border p-4 ${highlight ? "border-warning bg-warning-subtle" : "border-border bg-bg-card"}`}>
+      <Icon size={16} className={`mb-3 ${highlight ? "text-amber-500" : "text-text-muted"}`} />
+      <p className={`text-2xl font-bold tabular-nums ${highlight ? "text-warning-fg" : "text-text-primary"}`}>
         {value}
       </p>
-      <p className={`mt-0.5 text-xs ${highlight ? "text-warning-fg" : "text-gray-500"}`}>{label}</p>
+      <p className={`mt-0.5 text-xs ${highlight ? "text-warning-fg" : "text-text-secondary"}`}>{label}</p>
     </div>
   );
 }
@@ -128,22 +128,22 @@ function NavCard({
   return (
     <Link
       href={href}
-      className="group flex flex-col rounded-xl border border-gray-200 bg-white p-5 transition-shadow hover:shadow-md"
+      className="group flex flex-col rounded-xl border border-border bg-bg-card p-5 transition-shadow hover:shadow-md"
     >
       <div className="mb-4 flex items-center justify-between">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 transition-colors group-hover:bg-gray-900 group-hover:text-white text-gray-600">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-bg-subtle transition-colors group-hover:bg-btn-neutral group-hover:text-white text-text-secondary">
           <Icon size={18} />
         </div>
         {badge && (
           <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-            badgeVariant === "warning" ? "bg-warning text-warning-fg" : "bg-gray-100 text-gray-600"
+            badgeVariant === "warning" ? "bg-warning text-warning-fg" : "bg-bg-subtle text-text-secondary"
           }`}>
             {badge}
           </span>
         )}
       </div>
-      <p className="font-semibold text-gray-900">{title}</p>
-      <p className="mt-1 text-xs leading-relaxed text-gray-500">{description}</p>
+      <p className="font-semibold text-text-primary">{title}</p>
+      <p className="mt-1 text-xs leading-relaxed text-text-secondary">{description}</p>
     </Link>
   );
 }

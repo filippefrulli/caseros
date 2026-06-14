@@ -59,7 +59,7 @@ export function SellerActions({ sellerId }: { sellerId: string }) {
             value={denyReason}
             onChange={e => setDenyReason(e.target.value)}
             placeholder="Reason for denial (optional note for records)…"
-            className="block w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+            className="block w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
           <button
             onClick={deny}

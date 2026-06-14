@@ -42,7 +42,7 @@ export function PublishListingButton({ listingId }: { listingId: string }) {
       <button
         onClick={handlePublish}
         disabled={loading}
-        className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors py-2 px-1 disabled:opacity-50"
+        className="flex items-center gap-1.5 text-xs text-text-muted hover:text-text-secondary transition-colors py-2 px-1 disabled:opacity-50"
       >
         <Upload size={13} />
         {loading ? "Publishing…" : "Publish"}

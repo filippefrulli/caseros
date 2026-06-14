@@ -23,13 +23,13 @@ const rangeInputCls = [
   "[&::-webkit-slider-runnable-track]:bg-transparent",
   "[&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none",
   "[&::-webkit-slider-thumb]:h-[18px] [&::-webkit-slider-thumb]:w-[18px]",
-  "[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gray-900",
+  "[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-brand",
   "[&::-webkit-slider-thumb]:border-[3px] [&::-webkit-slider-thumb]:border-white",
   "[&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer",
   "[&::-moz-range-track]:bg-transparent",
   "[&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none",
   "[&::-moz-range-thumb]:h-[18px] [&::-moz-range-thumb]:w-[18px]",
-  "[&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-gray-900",
+  "[&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-brand",
   "[&::-moz-range-thumb]:border-[3px] [&::-moz-range-thumb]:border-solid [&::-moz-range-thumb]:border-white",
   "[&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer",
 ].join(" ");
@@ -120,7 +120,7 @@ function FiltersBarInner({ availableCountries }: { availableCountries: Country[]
         {open && (
           <div className="absolute left-0 top-full z-30 mt-1.5 w-52 overflow-hidden rounded-xl border border-border bg-bg-card py-1 shadow-lg">
             {availableCountries.length === 0 ? (
-              <p className="px-3 py-2 text-sm text-gray-400">No sellers yet</p>
+              <p className="px-3 py-2 text-sm text-text-muted">No sellers yet</p>
             ) : (
               availableCountries.map((country) => (
                 <label
@@ -131,7 +131,7 @@ function FiltersBarInner({ availableCountries }: { availableCountries: Country[]
                     type="checkbox"
                     checked={selectedCodes.includes(country.code)}
                     onChange={() => toggleCountry(country.code)}
-                    className="h-3.5 w-3.5 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                    className="h-3.5 w-3.5 rounded border-border-strong text-text-primary focus:ring-brand"
                   />
                   <span className="text-sm">{country.name}</span>
                 </label>
@@ -143,15 +143,15 @@ function FiltersBarInner({ availableCountries }: { availableCountries: Country[]
 
       {/* ── Price range slider ───────────────────────────────────── */}
       <div className="flex items-center gap-2.5">
-        <span className="min-w-[2.5rem] text-right text-sm text-gray-500">
+        <span className="min-w-[2.5rem] text-right text-sm text-text-secondary">
           €{posToPrice(localMin)}
         </span>
 
         <div className="relative flex h-5 w-36 items-center sm:w-44">
           {/* Track */}
-          <div className="pointer-events-none absolute h-1.5 w-full rounded-full bg-gray-200">
+          <div className="pointer-events-none absolute h-1.5 w-full rounded-full bg-bg-subtle">
             <div
-              className="absolute h-full rounded-full bg-gray-900"
+              className="absolute h-full rounded-full bg-brand"
               style={{
                 left: `${(localMin / SLIDER_MAX) * 100}%`,
                 right: `${100 - (localMax / SLIDER_MAX) * 100}%`,
@@ -159,7 +159,7 @@ function FiltersBarInner({ availableCountries }: { availableCountries: Country[]
             />
           </div>
 
-          {/* Min thumb — higher z-index when pushed against max */}
+          {/* Min thumb, higher z-index when pushed against max */}
           <input
             type="range"
             min={0}
@@ -188,7 +188,7 @@ function FiltersBarInner({ availableCountries }: { availableCountries: Country[]
           />
         </div>
 
-        <span className="min-w-[3rem] text-sm text-gray-500">
+        <span className="min-w-[3rem] text-sm text-text-secondary">
           {posToPrice(localMax) < MAX_EUR ? `€${posToPrice(localMax)}` : `€${MAX_EUR}+`}
         </span>
       </div>
@@ -211,7 +211,7 @@ function FiltersBarInner({ availableCountries }: { availableCountries: Country[]
       {hasFilters && (
         <button
           onClick={() => push({ countries: null, minPrice: null, maxPrice: null, sort: null })}
-          className="flex items-center gap-1 text-sm text-gray-400 transition-colors hover:text-gray-900"
+          className="flex items-center gap-1 text-sm text-text-muted transition-colors hover:text-text-primary"
         >
           <X size={13} />
           Clear
@@ -223,8 +223,8 @@ function FiltersBarInner({ availableCountries }: { availableCountries: Country[]
 
 const fallback = (
   <div className="flex flex-wrap items-center gap-3">
-    <div className="h-8 w-32 animate-pulse rounded-lg bg-gray-100" />
-    <div className="h-8 w-56 animate-pulse rounded-lg bg-gray-100" />
+    <div className="h-8 w-32 animate-pulse rounded-lg bg-bg-subtle" />
+    <div className="h-8 w-56 animate-pulse rounded-lg bg-bg-subtle" />
   </div>
 );
 

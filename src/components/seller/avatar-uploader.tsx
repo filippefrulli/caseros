@@ -71,7 +71,7 @@ export function AvatarUploader({ userId, currentUrl, displayName }: Props) {
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={uploading}
-        className="group relative h-20 w-20 overflow-hidden rounded-full bg-gray-100 ring-2 ring-gray-200 ring-offset-2 transition hover:ring-gray-400 disabled:opacity-70"
+        className="group relative h-20 w-20 overflow-hidden rounded-full bg-bg-subtle ring-2 ring-border ring-offset-2 transition hover:ring-border-strong disabled:opacity-70"
       >
         {displayUrl ? (
           <Image
@@ -83,7 +83,7 @@ export function AvatarUploader({ userId, currentUrl, displayName }: Props) {
             sizes="80px"
           />
         ) : (
-          <span className="flex h-full w-full items-center justify-center text-xl font-semibold text-gray-500">
+          <span className="flex h-full w-full items-center justify-center text-xl font-semibold text-text-secondary">
             {initials}
           </span>
         )}

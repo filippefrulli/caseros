@@ -13,7 +13,7 @@ import { RefundButton } from "@/components/admin/refund-button";
 import type { Route } from "next";
 import type { OrderStatus } from "@/generated/prisma/client";
 
-export const metadata: Metadata = { title: "Admin — Order detail" };
+export const metadata: Metadata = { title: "Admin: Order detail" };
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
   PENDING: "Pending",
@@ -26,7 +26,7 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
 };
 
 const STATUS_STYLE: Record<OrderStatus, string> = {
-  PENDING: "bg-gray-100 text-gray-600",
+  PENDING: "bg-bg-subtle text-text-secondary",
   PAID: "bg-green-100 text-green-800",
   PROCESSING: "bg-blue-100 text-blue-800",
   SHIPPED: "bg-violet-100 text-violet-800",
@@ -85,19 +85,19 @@ export default async function AdminOrderDetailPage({ params }: Props) {
   return (
     <main className="mx-auto max-w-3xl px-4 py-12">
       <div className="mb-6 flex items-center gap-3">
-        <Link href="/admin/orders" className="inline-flex items-center rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+        <Link href="/admin/orders" className="inline-flex items-center rounded-lg border border-border p-1.5 text-text-muted hover:border-border-strong hover:text-text-secondary transition-colors">
           <ChevronLeft size={20} />
         </Link>
-        <span className="text-gray-300">/</span>
-        <span className="font-mono text-sm text-gray-700">#{order.id.slice(-8).toUpperCase()}</span>
+        <span className="text-text-muted">/</span>
+        <span className="font-mono text-sm text-text-secondary">#{order.id.slice(-8).toUpperCase()}</span>
       </div>
 
       {/* Header */}
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold">Order detail</h1>
-          <p className="mt-1 text-sm text-gray-500">{DATE_FMT.format(order.createdAt)}</p>
-          <p className="mt-0.5 font-mono text-xs text-gray-400">{order.id}</p>
+          <p className="mt-1 text-sm text-text-secondary">{DATE_FMT.format(order.createdAt)}</p>
+          <p className="mt-0.5 font-mono text-xs text-text-muted">{order.id}</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-sm font-medium ${STATUS_STYLE[order.status]}`}>
           {STATUS_LABEL[order.status]}
@@ -105,15 +105,15 @@ export default async function AdminOrderDetailPage({ params }: Props) {
       </div>
 
       {/* Buyer */}
-      <section className="mb-6 rounded-xl border border-gray-200 p-5">
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Buyer</h2>
-        <p className="text-sm text-gray-900">{order.buyer.name ?? "—"}</p>
-        <p className="text-sm text-gray-500">{order.buyer.email}</p>
+      <section className="mb-6 rounded-xl border border-border p-5">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-secondary">Buyer</h2>
+        <p className="text-sm text-text-primary">{order.buyer.name ?? "-"}</p>
+        <p className="text-sm text-text-secondary">{order.buyer.email}</p>
       </section>
 
       {/* Items */}
-      <section className="mb-6 rounded-xl border border-gray-200 p-5">
-        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">Items</h2>
+      <section className="mb-6 rounded-xl border border-border p-5">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-secondary">Items</h2>
         <ul className="space-y-4">
           {order.items.map((item) => {
             const thumb = item.listing?.images?.[0]?.url ?? item.listingImageUrl;
@@ -129,11 +129,11 @@ export default async function AdminOrderDetailPage({ params }: Props) {
                     className="h-14 w-14 shrink-0 rounded-lg object-cover"
                   />
                 ) : (
-                  <div className="h-14 w-14 shrink-0 rounded-lg bg-gray-100" />
+                  <div className="h-14 w-14 shrink-0 rounded-lg bg-bg-subtle" />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-900">{item.listingTitle}</p>
-                  <p className="mt-0.5 text-xs text-gray-500">
+                  <p className="text-sm font-medium text-text-primary">{item.listingTitle}</p>
+                  <p className="mt-0.5 text-xs text-text-secondary">
                     Qty {item.quantity} ·{" "}
                     {seller ? (
                       <Link
@@ -147,7 +147,7 @@ export default async function AdminOrderDetailPage({ params }: Props) {
                       "Unknown seller"
                     )}
                   </p>
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="mt-1 text-xs text-text-muted">
                     Payout: {formatPrice(item.sellerPayout, order.currency)}
                     {item.stripeTransferId ? (
                       <span className="ml-2 text-emerald-600">
@@ -156,7 +156,7 @@ export default async function AdminOrderDetailPage({ params }: Props) {
                     ) : null}
                   </p>
                 </div>
-                <p className="shrink-0 text-sm tabular-nums text-gray-700">
+                <p className="shrink-0 text-sm tabular-nums text-text-secondary">
                   {formatPrice(item.unitAmount * item.quantity, order.currency)}
                 </p>
               </li>
@@ -164,31 +164,31 @@ export default async function AdminOrderDetailPage({ params }: Props) {
           })}
         </ul>
 
-        <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
-          <p className="text-sm text-gray-500">Total</p>
-          <p className="text-sm font-semibold tabular-nums text-gray-900">
+        <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
+          <p className="text-sm text-text-secondary">Total</p>
+          <p className="text-sm font-semibold tabular-nums text-text-primary">
             {formatPrice(order.totalAmount, order.currency)}
           </p>
         </div>
       </section>
 
       {/* Stripe IDs */}
-      <section className="mb-6 rounded-xl border border-gray-200 p-5">
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">Stripe</h2>
+      <section className="mb-6 rounded-xl border border-border p-5">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-secondary">Stripe</h2>
         <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-xs">
-          <dt className="text-gray-400">Payment Intent</dt>
-          <dd className="font-mono text-gray-700 truncate">{order.stripePaymentIntentId ?? "—"}</dd>
-          <dt className="text-gray-400">Charge</dt>
-          <dd className="font-mono text-gray-700 truncate">{order.stripeChargeId ?? "—"}</dd>
-          <dt className="text-gray-400">Session</dt>
-          <dd className="font-mono text-gray-700 truncate">{order.checkoutSessionId ?? "—"}</dd>
+          <dt className="text-text-muted">Payment Intent</dt>
+          <dd className="font-mono text-text-secondary truncate">{order.stripePaymentIntentId ?? "-"}</dd>
+          <dt className="text-text-muted">Charge</dt>
+          <dd className="font-mono text-text-secondary truncate">{order.stripeChargeId ?? "-"}</dd>
+          <dt className="text-text-muted">Session</dt>
+          <dd className="font-mono text-text-secondary truncate">{order.checkoutSessionId ?? "-"}</dd>
         </dl>
       </section>
 
       {/* Actions */}
       {(order.status !== "CANCELLED" && order.status !== "REFUNDED") && (
-        <section className="rounded-xl border border-gray-200 p-5">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-gray-500">Actions</h2>
+        <section className="rounded-xl border border-border p-5">
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-secondary">Actions</h2>
           <div className="flex flex-wrap gap-3">
             <MarkStatusButton orderId={order.id} status={order.status} />
             {canRelease && <ReleasePayoutButton orderId={order.id} />}

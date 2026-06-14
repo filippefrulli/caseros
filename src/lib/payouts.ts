@@ -7,7 +7,7 @@ import { sendPayoutReleasedEmail } from "@/lib/email";
  * Release the seller payout(s) for an order: create a Stripe transfer per item
  * to the seller's connected account, record it, and notify the seller.
  *
- * Idempotent — items that already have a `stripeTransferId` are skipped, so this
+ * Idempotent, items that already have a `stripeTransferId` are skipped, so this
  * is safe to call from the admin release route, the buyer's confirm-received
  * action, and the auto-release cron without double-paying.
  *
@@ -38,7 +38,7 @@ export async function releaseOrderPayout(orderId: string): Promise<number> {
     order.items.map(async (item) => {
       if (item.stripeTransferId) return; // already released
       if (!item.sellerStripeAccountId) {
-        console.warn(`[payouts] item ${item.id} has no sellerStripeAccountId — skipping`);
+        console.warn(`[payouts] item ${item.id} has no sellerStripeAccountId; skipping`);
         return;
       }
 

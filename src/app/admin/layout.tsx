@@ -16,18 +16,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   });
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-bg-subtle">
       {/* Sidebar */}
-      <aside className="flex w-56 shrink-0 flex-col border-r border-gray-200 bg-white px-3 py-6">
+      <aside className="flex w-56 shrink-0 flex-col border-r border-border bg-bg-card px-3 py-6">
         <Link
           href="/"
-          className="mb-8 flex items-center gap-2 px-3 text-sm font-bold text-gray-900 hover:opacity-75 transition-opacity"
+          className="mb-8 flex items-center gap-2 px-3 text-sm font-bold text-text-primary hover:opacity-75 transition-opacity"
         >
           <Home size={16} />
           Caseros
         </Link>
 
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-text-muted">
           Admin
         </p>
 

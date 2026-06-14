@@ -24,7 +24,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: "Order must be DELIVERED before releasing payout" }, { status: 409 });
   }
   if (!order.stripeChargeId) {
-    return NextResponse.json({ error: "No charge ID on order — cannot create transfer" }, { status: 409 });
+    return NextResponse.json({ error: "No charge ID on order, cannot create transfer" }, { status: 409 });
   }
 
   await releaseOrderPayout(id);

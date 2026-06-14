@@ -40,7 +40,7 @@ export function EmailTester({ defaultTo }: { defaultTo: string }) {
   return (
     <div className="space-y-5">
       <div>
-        <label htmlFor="test-email-to" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="test-email-to" className="block text-sm font-medium text-text-secondary">
           Recipient
         </label>
         <input
@@ -48,28 +48,28 @@ export function EmailTester({ defaultTo }: { defaultTo: string }) {
           type="email"
           value={to}
           onChange={(e) => setTo(e.target.value)}
-          className="mt-1 block w-full max-w-md rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+          className="mt-1 block w-full max-w-md rounded-lg border border-border-strong px-3 py-2 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-text-secondary">
           Buyer/seller emails go here. Admin emails always go to{" "}
-          <code className="rounded bg-gray-100 px-1">ADMIN_EMAIL</code> regardless. In Resend sandbox
+          <code className="rounded bg-bg-subtle px-1">ADMIN_EMAIL</code> regardless. In Resend sandbox
           mode delivery is limited to the account owner&apos;s address.
         </p>
       </div>
 
-      <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
+      <ul className="divide-y divide-border rounded-xl border border-border bg-bg-card">
         {TEST_EMAIL_TEMPLATES.map((t) => {
           const status = statuses[t.key] ?? "idle";
           return (
             <li key={t.key} className="flex items-center justify-between gap-4 px-5 py-4">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="font-medium text-gray-900">{t.label}</p>
+                  <p className="font-medium text-text-primary">{t.label}</p>
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${audienceBadge[t.audience]}`}>
                     {t.audience}
                   </span>
                 </div>
-                <p className="mt-0.5 text-sm text-gray-500">{t.description}</p>
+                <p className="mt-0.5 text-sm text-text-secondary">{t.description}</p>
                 {status === "error" && errors[t.key] && (
                   <p className="mt-1 text-xs text-error">{errors[t.key]}</p>
                 )}
@@ -77,7 +77,7 @@ export function EmailTester({ defaultTo }: { defaultTo: string }) {
               <button
                 onClick={() => send(t.key)}
                 disabled={status === "sending" || !to}
-                className="flex shrink-0 items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:opacity-50"
+                className="flex shrink-0 items-center gap-1.5 rounded-lg bg-btn-neutral px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-btn-neutral-hover disabled:opacity-50"
               >
                 {status === "sending" ? (
                   <Loader2 size={14} className="animate-spin" />

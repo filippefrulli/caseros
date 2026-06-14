@@ -71,7 +71,7 @@ export function OrderConfirmedEmail({ buyerName, orderId, items, totalAmount, cu
 
           <Hr style={hr} />
           <Text style={footer}>
-            caseros — handmade goods from EU makers.
+            Caseros: handmade goods from EU makers.
           </Text>
         </Container>
       </Body>

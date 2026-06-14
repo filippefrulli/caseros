@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 type Params = { params: Promise<{ id: string }> };
 
 // Buyer confirms they received the order. Completes the order and releases the
-// seller payout — the receipt handshake that replaces carrier tracking in
+// seller payout, the receipt handshake that replaces carrier tracking in
 // self-managed shipping mode.
 export async function POST(_req: Request, { params }: Params) {
   const { id: orderId } = await params;
@@ -74,7 +74,7 @@ export async function POST(_req: Request, { params }: Params) {
     appUrl: env.NEXT_PUBLIC_APP_URL,
   });
 
-  // Release the seller payout. Non-fatal if it fails — admin can retry via the
+  // Release the seller payout. Non-fatal if it fails, admin can retry via the
   // release route; the order is already DELIVERED.
   try {
     await releaseOrderPayout(orderId);

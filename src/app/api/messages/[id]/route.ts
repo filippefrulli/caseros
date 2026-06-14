@@ -69,7 +69,7 @@ export async function POST(request: Request, { params }: Props) {
   const now = new Date();
   const isBuyer = conversation.buyerId === dbUser.id;
   // Bump conversation.lastMessageAt (powers inbox sort + unread checks) and
-  // advance the sender's read cursor — they've obviously read up to "now".
+  // advance the sender's read cursor, they've obviously read up to "now".
   const message = await prisma.message.create({
     data: { conversationId: id, senderId: dbUser.id, body: body.trim() },
     select: { id: true, body: true, senderId: true, createdAt: true },

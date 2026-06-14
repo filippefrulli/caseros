@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Called by Vercel Cron (see vercel.json). Also safe to call manually.
-// Cancels PENDING orders older than 24 h that were never paid — these are
+// Cancels PENDING orders older than 24 h that were never paid, these are
 // abandoned Stripe Checkout sessions. No charge exists so no refund is needed
 // and no stock was reserved.
 export async function GET(req: Request) {

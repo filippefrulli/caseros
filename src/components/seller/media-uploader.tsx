@@ -151,10 +151,10 @@ export function MediaUploader({ userId, onBusyChange, initialImages, initialVide
       {/* Images */}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-text-secondary">
             Photos <span className="text-error">*</span>
           </label>
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-text-muted">
             {images.length}/{MAX_IMAGES}
           </span>
         </div>
@@ -163,7 +163,7 @@ export function MediaUploader({ userId, onBusyChange, initialImages, initialVide
           {images.map((img, i) => (
             <div
               key={img.id}
-              className="relative aspect-square overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
+              className="relative aspect-square overflow-hidden rounded-lg border border-border bg-bg-subtle"
             >
               <Image
                 src={img.preview}
@@ -206,7 +206,7 @@ export function MediaUploader({ userId, onBusyChange, initialImages, initialVide
             <button
               type="button"
               onClick={() => imageInputRef.current?.click()}
-              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 text-gray-400 transition-colors hover:border-gray-400 hover:text-gray-600"
+              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border-strong text-text-muted transition-colors hover:border-border-strong hover:text-text-secondary"
             >
               <ImageIcon className="h-6 w-6" />
               <span className="text-xs">Add photos</span>
@@ -222,26 +222,26 @@ export function MediaUploader({ userId, onBusyChange, initialImages, initialVide
           className="hidden"
           onChange={(e) => e.target.files?.length && handleImages(e.target.files)}
         />
-        <p className="mt-1.5 text-xs text-gray-400">
+        <p className="mt-1.5 text-xs text-text-muted">
           JPEG, PNG, WebP or GIF · max 5 MB each · first photo is the cover
         </p>
       </div>
 
       {/* Video */}
       <div>
-        <label className="mb-2 block text-sm font-medium text-gray-700">
+        <label className="mb-2 block text-sm font-medium text-text-secondary">
           Video{" "}
-          <span className="text-xs font-normal text-gray-400">(optional)</span>
+          <span className="text-xs font-normal text-text-muted">(optional)</span>
         </label>
 
         {video ? (
-          <div className="flex items-center gap-3 rounded-lg border border-gray-200 px-3 py-2.5">
-            <Video className="h-5 w-5 shrink-0 text-gray-400" />
+          <div className="flex items-center gap-3 rounded-lg border border-border px-3 py-2.5">
+            <Video className="h-5 w-5 shrink-0 text-text-muted" />
             <div className="min-w-0 flex-1">
               {video.uploading && (
                 <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                  <span className="text-sm text-gray-500">Uploading…</span>
+                  <Loader2 className="h-4 w-4 animate-spin text-text-muted" />
+                  <span className="text-sm text-text-secondary">Uploading…</span>
                 </div>
               )}
               {video.error && (
@@ -249,7 +249,7 @@ export function MediaUploader({ userId, onBusyChange, initialImages, initialVide
               )}
               {video.url && (
                 <>
-                  <p className="truncate text-sm text-gray-700">{video.name}</p>
+                  <p className="truncate text-sm text-text-secondary">{video.name}</p>
                   <input type="hidden" name="videoUrl" value={video.url} />
                 </>
               )}
@@ -257,7 +257,7 @@ export function MediaUploader({ userId, onBusyChange, initialImages, initialVide
             <button
               type="button"
               onClick={removeVideo}
-              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-gray-400 hover:text-gray-700"
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-text-muted hover:text-text-secondary"
             >
               <X className="h-4 w-4" />
             </button>
@@ -266,7 +266,7 @@ export function MediaUploader({ userId, onBusyChange, initialImages, initialVide
           <button
             type="button"
             onClick={() => videoInputRef.current?.click()}
-            className="flex items-center gap-2 rounded-lg border-2 border-dashed border-gray-300 px-4 py-3 text-sm text-gray-400 transition-colors hover:border-gray-400 hover:text-gray-600"
+            className="flex items-center gap-2 rounded-lg border-2 border-dashed border-border-strong px-4 py-3 text-sm text-text-muted transition-colors hover:border-border-strong hover:text-text-secondary"
           >
             <Video className="h-5 w-5" />
             Add a video
@@ -280,7 +280,7 @@ export function MediaUploader({ userId, onBusyChange, initialImages, initialVide
           className="hidden"
           onChange={(e) => e.target.files?.[0] && handleVideo(e.target.files[0])}
         />
-        <p className="mt-1.5 text-xs text-gray-400">MP4 or WebM · max 100 MB</p>
+        <p className="mt-1.5 text-xs text-text-muted">MP4 or WebM · max 100 MB</p>
       </div>
     </div>
   );

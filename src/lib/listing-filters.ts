@@ -20,7 +20,7 @@ export type ParsedFilters = {
 
 const VALID_SORTS: SortOption[] = ["newest", "price_asc", "price_desc"];
 
-// Hard caps — prevent bots from passing `minPrice=1e308` (→ Infinity, breaks
+// Hard caps, prevent bots from passing `minPrice=1e308` (→ Infinity, breaks
 // Prisma) or `countries=aa,bb,...` with 10k entries (→ huge IN clause).
 const MAX_PRICE_EUR = 1_000_000;
 const MAX_COUNTRIES = 30;

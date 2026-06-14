@@ -38,7 +38,7 @@ export default async function EditListingPage({ params }: Props) {
   return (
     <main className="mx-auto max-w-2xl px-4 pt-6 pb-12">
       <div className="mb-8 flex items-center gap-3">
-        <Link href="/seller/dashboard" className="inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+        <Link href="/seller/dashboard" className="inline-flex items-center rounded-lg border border-border p-2 text-text-muted hover:border-border-strong hover:text-text-secondary transition-colors">
           <ChevronLeft size={25} />
         </Link>
         <h1 className="text-2xl font-bold">Edit listing</h1>

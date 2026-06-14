@@ -7,7 +7,7 @@ import { formatPrice } from "@/lib/utils";
 import { env } from "@/env";
 import type { OrderStatus } from "@/generated/prisma/client";
 
-export const metadata: Metadata = { title: "Admin — Orders" };
+export const metadata: Metadata = { title: "Admin: Orders" };
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
   PENDING: "Pending",
@@ -20,7 +20,7 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
 };
 
 const STATUS_STYLE: Record<OrderStatus, string> = {
-  PENDING: "bg-gray-100 text-gray-600",
+  PENDING: "bg-bg-subtle text-text-secondary",
   PAID: "bg-green-100 text-green-800",
   PROCESSING: "bg-blue-100 text-blue-800",
   SHIPPED: "bg-violet-100 text-violet-800",
@@ -66,21 +66,21 @@ export default async function AdminOrdersPage() {
     <main className="mx-auto max-w-6xl px-4 py-12">
       <div className="mb-8">
         <h1 className="text-2xl font-bold">Orders</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-text-secondary">
           Showing {orders.length}
           {orders.length === ORDERS_CAP ? ` (most recent ${ORDERS_CAP})` : ""}
         </p>
       </div>
 
       {orders.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-200 py-24 text-center">
-          <p className="text-gray-400">No orders yet.</p>
+        <div className="rounded-xl border border-dashed border-border py-24 text-center">
+          <p className="text-text-muted">No orders yet.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-gray-200">
-          <table className="min-w-full divide-y divide-gray-100 text-sm">
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="min-w-full divide-y divide-border text-sm">
             <thead>
-              <tr className="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+              <tr className="bg-bg-subtle text-xs uppercase tracking-wide text-text-secondary">
                 <th className="px-4 py-3 text-left font-medium">Order</th>
                 <th className="px-4 py-3 text-left font-medium">Buyer</th>
                 <th className="px-4 py-3 text-left font-medium">Items</th>
@@ -90,28 +90,28 @@ export default async function AdminOrdersPage() {
                 <th className="px-4 py-3 text-left font-medium">Payout</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
+            <tbody className="divide-y divide-border bg-bg-card">
               {orders.map((order) => {
                 const allReleased = order.items.length > 0 && order.items.every((i) => i.stripeTransferId);
                 return (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={order.id} className="hover:bg-bg-subtle transition-colors">
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="font-mono text-xs text-gray-900 hover:underline"
+                        className="font-mono text-xs text-text-primary hover:underline"
                       >
                         #{order.id.slice(-8).toUpperCase()}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-3 text-text-secondary">
                       <p className="max-w-[140px] truncate">{order.buyer.name ?? order.buyer.email}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-3 text-text-secondary">
                       <p className="max-w-[180px] truncate">
                         {order.items.map((i) => `${i.listingTitle} ×${i.quantity}`).join(", ")}
                       </p>
                     </td>
-                    <td className="px-4 py-3 text-right tabular-nums text-gray-900">
+                    <td className="px-4 py-3 text-right tabular-nums text-text-primary">
                       {formatPrice(order.totalAmount, order.currency)}
                     </td>
                     <td className="px-4 py-3">
@@ -119,14 +119,14 @@ export default async function AdminOrdersPage() {
                         {STATUS_LABEL[order.status]}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    <td className="px-4 py-3 text-xs text-text-secondary">
                       {DATE_FMT.format(order.createdAt)}
                     </td>
                     <td className="px-4 py-3 text-xs">
                       {allReleased ? (
                         <span className="text-emerald-600">Released</span>
                       ) : order.status === "PENDING" || order.status === "CANCELLED" || order.status === "REFUNDED" ? (
-                        <span className="text-gray-400">N/A</span>
+                        <span className="text-text-muted">N/A</span>
                       ) : (
                         <span className="text-warning-fg">Pending</span>
                       )}

@@ -27,7 +27,7 @@ export function LabelCreationToggle({ enabled }: { enabled: boolean }) {
   }
 
   return (
-    <div className="flex items-start justify-between gap-6 rounded-xl border border-gray-200 bg-white p-5">
+    <div className="flex items-start justify-between gap-6 rounded-xl border border-border bg-bg-card p-5">
       <div className="flex items-start gap-3">
         {enabled ? (
           <ShieldCheck size={20} className="mt-0.5 shrink-0 text-emerald-600" />
@@ -35,8 +35,8 @@ export function LabelCreationToggle({ enabled }: { enabled: boolean }) {
           <ShieldOff size={20} className="mt-0.5 shrink-0 text-amber-500" />
         )}
         <div>
-          <p className="font-medium text-gray-900">Label creation</p>
-          <p className="mt-0.5 text-sm text-gray-500">
+          <p className="font-medium text-text-primary">Label creation</p>
+          <p className="mt-0.5 text-sm text-text-secondary">
             {enabled
               ? "Sellers can currently generate shipping labels."
               : "Label creation is disabled. Sellers cannot generate labels until you re-enable this."}

@@ -65,7 +65,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   return (
     <main className="mx-auto max-w-6xl px-4 pt-5 pb-10">
       <div className="mb-8">
-        <Link href="/" className="inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+        <Link href="/" className="inline-flex items-center rounded-lg border border-border p-2 text-text-muted hover:border-border-strong hover:text-text-secondary transition-colors">
           <ChevronLeft size={25} />
         </Link>
         <h1 className="mt-3 text-3xl font-bold tracking-tight text-text-primary">

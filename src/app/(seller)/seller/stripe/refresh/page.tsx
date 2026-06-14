@@ -18,7 +18,7 @@ export default function StripeRefreshPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center">
-      <p className="text-gray-500">Resuming setup…</p>
+      <p className="text-text-secondary">Resuming setup…</p>
     </main>
   );
 }

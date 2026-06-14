@@ -15,7 +15,7 @@ const EU_COUNTRIES = [
   ["CH", "Switzerland"], ["NO", "Norway"],
 ] as const;
 
-const inputCls = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+const inputCls = "block w-full rounded-lg border border-border-strong px-3 py-2 text-sm shadow-sm placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 const selectCls = `${inputCls} appearance-none pr-8`;
 
 export type InitialAddress = {
@@ -74,7 +74,7 @@ export function AddressForm({ initial, onSuccess, onCancel }: Props) {
       {values?.id && <input type="hidden" name="addressId" value={values.id} />}
 
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="name" className="block text-sm font-medium text-text-secondary mb-1">
           Full name <span className="text-error">*</span>
         </label>
         <input id="name" name="name" type="text" required defaultValue={values?.name ?? ""} placeholder="Jane Smith" autoComplete="name" className={inputCls} />
@@ -82,7 +82,7 @@ export function AddressForm({ initial, onSuccess, onCancel }: Props) {
       </div>
 
       <div>
-        <label htmlFor="line1" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="line1" className="block text-sm font-medium text-text-secondary mb-1">
           Street address <span className="text-error">*</span>
         </label>
         <input
@@ -96,20 +96,20 @@ export function AddressForm({ initial, onSuccess, onCancel }: Props) {
       </div>
 
       <div>
-        <label htmlFor="line2" className="block text-sm font-medium text-gray-700 mb-1">Apt / suite (optional)</label>
+        <label htmlFor="line2" className="block text-sm font-medium text-text-secondary mb-1">Apt / suite (optional)</label>
         <input id="line2" name="line2" type="text" defaultValue={values?.line2 ?? ""} placeholder="Apartment 3B" autoComplete="address-line3" className={inputCls} />
       </div>
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="postalCode" className="block text-sm font-medium text-text-secondary mb-1">
             Postal code <span className="text-error">*</span>
           </label>
           <input id="postalCode" name="postalCode" type="text" required defaultValue={values?.postalCode ?? ""} placeholder="D01 F5P2" autoComplete="postal-code" className={inputCls} />
           {state?.fieldErrors?.postalCode && <p className="mt-1 text-xs text-error">{state.fieldErrors.postalCode[0]}</p>}
         </div>
         <div>
-          <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="city" className="block text-sm font-medium text-text-secondary mb-1">
             City <span className="text-error">*</span>
           </label>
           <input id="city" name="city" type="text" required defaultValue={values?.city ?? ""} placeholder="Dublin" autoComplete="address-level2" className={inputCls} />
@@ -118,7 +118,7 @@ export function AddressForm({ initial, onSuccess, onCancel }: Props) {
       </div>
 
       <div>
-        <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="country" className="block text-sm font-medium text-text-secondary mb-1">
           Country <span className="text-error">*</span>
         </label>
         <div className="relative">
@@ -127,13 +127,13 @@ export function AddressForm({ initial, onSuccess, onCancel }: Props) {
               <option key={code} value={code}>{name}</option>
             ))}
           </select>
-          <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted" />
         </div>
         {state?.fieldErrors?.country && <p className="mt-1 text-xs text-error">{state.fieldErrors.country[0]}</p>}
       </div>
 
       <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone (optional)</label>
+        <label htmlFor="phone" className="block text-sm font-medium text-text-secondary mb-1">Phone (optional)</label>
         <input id="phone" name="phone" type="tel" defaultValue={values?.phone ?? ""} placeholder="+353 1 234 5678" autoComplete="tel" className={inputCls} />
       </div>
 
@@ -142,7 +142,7 @@ export function AddressForm({ initial, onSuccess, onCancel }: Props) {
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex-1 rounded-lg border border-border-strong py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-subtle transition-colors"
           >
             Cancel
           </button>
@@ -150,7 +150,7 @@ export function AddressForm({ initial, onSuccess, onCancel }: Props) {
         <button
           type="submit"
           disabled={isPending}
-          className="flex-1 rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+          className="flex-1 rounded-lg bg-btn-neutral py-2.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:opacity-50 transition-colors"
         >
           {isPending ? "Saving…" : "Save address"}
         </button>

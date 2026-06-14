@@ -10,7 +10,7 @@ export async function uploadToSupabase(file: File, bucket: string, userId: strin
   return publicUrl;
 }
 
-// For private buckets — returns the storage path, not a URL.
+// For private buckets, returns the storage path, not a URL.
 // Generate a signed URL server-side when displaying.
 export async function uploadPrivate(file: File, bucket: string, userId: string): Promise<string> {
   const supabase = createClient();

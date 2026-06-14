@@ -11,12 +11,12 @@ type Props = { searchParams: Promise<{ q?: string } & FilterParams> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const { q } = await searchParams;
-  return { title: q?.trim() ? `"${q.trim()}" — Search` : "Search" };
+  return { title: q?.trim() ? `"${q.trim()}" - Search` : "Search" };
 }
 
 export default async function SearchPage({ searchParams }: Props) {
   const sp = await searchParams;
-  // Cap input length — `to_tsquery` on multi-MB strings is a cheap DoS surface.
+  // Cap input length, `to_tsquery` on multi-MB strings is a cheap DoS surface.
   const q = (sp.q?.trim() ?? "").slice(0, 100);
   const { selectedCountries, minPrice, maxPrice, sort } = parseFilters(sp);
 
@@ -115,7 +115,7 @@ export default async function SearchPage({ searchParams }: Props) {
   return (
     <main className="mx-auto max-w-6xl px-4 pt-4 pb-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-text-secondary">
           {listings.length === 0
             ? `No results for "${q}"`
             : `${listings.length} result${listings.length === 1 ? "" : "s"} for "${q}"`}

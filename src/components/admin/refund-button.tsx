@@ -42,7 +42,7 @@ export function RefundButton({ orderId, totalAmount }: { orderId: string; totalA
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-gray-700">
+      <p className="text-sm text-text-secondary">
         This will issue a full refund of the order total to the buyer&apos;s card.
         {" "}Any released payouts will be reversed from the seller&apos;s Stripe account first.
       </p>
@@ -58,7 +58,7 @@ export function RefundButton({ orderId, totalAmount }: { orderId: string; totalA
         <button
           onClick={() => { setOpen(false); setError(null); }}
           disabled={loading}
-          className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          className="rounded-lg border border-border px-3 py-1.5 text-sm text-text-secondary hover:bg-bg-subtle disabled:opacity-50 transition-colors"
         >
           Cancel
         </button>

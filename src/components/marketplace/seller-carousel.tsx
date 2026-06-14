@@ -19,18 +19,18 @@ export function SellerCarousel({ shopName, slug, listings }: SellerCarouselItem)
   if (listings.length === 0) return null;
 
   return (
-    <div className="col-span-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-5 sm:px-6">
+    <div className="col-span-full rounded-2xl border border-border bg-bg-subtle px-4 py-5 sm:px-6">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <Link
           href={`/shop/${slug}`}
-          className="text-base font-semibold text-gray-900 hover:text-gray-600 transition-colors"
+          className="text-base font-semibold text-text-primary hover:text-text-secondary transition-colors"
         >
           {shopName}
         </Link>
         <Link
           href={`/shop/${slug}`}
-          className="flex items-center gap-0.5 text-xs text-gray-400 hover:text-gray-700 transition-colors"
+          className="flex items-center gap-0.5 text-xs text-text-muted hover:text-text-secondary transition-colors"
         >
           View shop <ChevronRight size={12} />
         </Link>
@@ -46,7 +46,7 @@ export function SellerCarousel({ shopName, slug, listings }: SellerCarouselItem)
               href={`/listings/${listing.slug}`}
               className="group/carousel shrink-0 w-36 sm:w-48"
             >
-              <div className="aspect-[3/4] overflow-hidden rounded-xl bg-gray-100">
+              <div className="aspect-[3/4] overflow-hidden rounded-xl bg-bg-subtle">
                 {image && (
                   <Image
                     src={image.url}
@@ -57,8 +57,8 @@ export function SellerCarousel({ shopName, slug, listings }: SellerCarouselItem)
                   />
                 )}
               </div>
-              <p className="mt-1.5 truncate text-xs font-medium text-gray-900">{listing.title}</p>
-              <p className="text-xs text-gray-500">{formatPrice(listing.priceAmount, listing.currency)}</p>
+              <p className="mt-1.5 truncate text-xs font-medium text-text-primary">{listing.title}</p>
+              <p className="text-xs text-text-secondary">{formatPrice(listing.priceAmount, listing.currency)}</p>
             </Link>
           );
         })}

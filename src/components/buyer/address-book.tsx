@@ -53,10 +53,10 @@ export function AddressBook({ addresses }: { addresses: AddressItem[] }) {
   return (
     <div className="space-y-3">
       {addresses.map((addr) => (
-        <div key={addr.id} className="rounded-xl border border-gray-200 bg-white">
+        <div key={addr.id} className="rounded-xl border border-border bg-bg-card">
           {editingId === addr.id ? (
             <div className="p-5">
-              <p className="mb-4 text-sm font-semibold text-gray-700">Edit address</p>
+              <p className="mb-4 text-sm font-semibold text-text-secondary">Edit address</p>
               <AddressForm
                 initial={addr}
                 onSuccess={() => { setEditingId(null); router.refresh(); }}
@@ -66,25 +66,25 @@ export function AddressBook({ addresses }: { addresses: AddressItem[] }) {
           ) : (
             <div className="p-5">
               <div className="flex items-start justify-between gap-3">
-                <address className="not-italic text-sm leading-relaxed text-gray-700">
+                <address className="not-italic text-sm leading-relaxed text-text-secondary">
                   {addr.name && <p className="font-medium">{addr.name}</p>}
                   <p>{addr.line1}{addr.houseNumber ? ` ${addr.houseNumber}` : ""}</p>
                   {addr.line2 && <p>{addr.line2}</p>}
                   <p>{addr.postalCode} {addr.city}</p>
                   <p>{COUNTRY_NAMES[addr.country] ?? addr.country}</p>
-                  {addr.phone && <p className="text-gray-400">{addr.phone}</p>}
+                  {addr.phone && <p className="text-text-muted">{addr.phone}</p>}
                 </address>
                 {addr.isDefault && (
-                  <span className="shrink-0 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                  <span className="shrink-0 rounded-full bg-bg-subtle px-2.5 py-0.5 text-xs font-medium text-text-secondary">
                     Default
                   </span>
                 )}
               </div>
 
-              <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-gray-100 pt-3">
+              <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-3">
                 <button
                   onClick={() => { setEditingId(addr.id); setConfirmDeleteId(null); }}
-                  className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-gray-900"
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary"
                 >
                   <Pencil size={12} /> Edit
                 </button>
@@ -93,7 +93,7 @@ export function AddressBook({ addresses }: { addresses: AddressItem[] }) {
                   <button
                     onClick={() => handleSetDefault(addr.id)}
                     disabled={isPending}
-                    className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-gray-300 hover:text-gray-900 disabled:opacity-40"
+                    className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-border-strong hover:text-text-primary disabled:opacity-40"
                   >
                     <Star size={12} /> Make default
                   </button>
@@ -101,7 +101,7 @@ export function AddressBook({ addresses }: { addresses: AddressItem[] }) {
 
                 {confirmDeleteId === addr.id ? (
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">Delete this address?</span>
+                    <span className="text-xs text-text-secondary">Delete this address?</span>
                     <button
                       onClick={() => handleDelete(addr.id)}
                       disabled={isPending}
@@ -111,7 +111,7 @@ export function AddressBook({ addresses }: { addresses: AddressItem[] }) {
                     </button>
                     <button
                       onClick={() => setConfirmDeleteId(null)}
-                      className="text-xs text-gray-400 hover:text-gray-600"
+                      className="text-xs text-text-muted hover:text-text-secondary"
                     >
                       Cancel
                     </button>
@@ -119,7 +119,7 @@ export function AddressBook({ addresses }: { addresses: AddressItem[] }) {
                 ) : (
                   <button
                     onClick={() => { setConfirmDeleteId(addr.id); setEditingId(null); }}
-                    className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-red-200 hover:text-red-600"
+                    className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-red-200 hover:text-red-600"
                   >
                     <Trash2 size={12} /> Delete
                   </button>
@@ -131,8 +131,8 @@ export function AddressBook({ addresses }: { addresses: AddressItem[] }) {
       ))}
 
       {showAdd ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <p className="mb-4 text-sm font-semibold text-gray-700">Add address</p>
+        <div className="rounded-xl border border-border bg-bg-card p-5">
+          <p className="mb-4 text-sm font-semibold text-text-secondary">Add address</p>
           <AddressForm
             initial={null}
             onSuccess={() => { setShowAdd(false); router.refresh(); }}
@@ -142,7 +142,7 @@ export function AddressBook({ addresses }: { addresses: AddressItem[] }) {
       ) : (
         <button
           onClick={() => setShowAdd(true)}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 py-4 text-sm font-medium text-gray-500 transition-colors hover:border-gray-400 hover:text-gray-700"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border-strong py-4 text-sm font-medium text-text-secondary transition-colors hover:border-border-strong hover:text-text-secondary"
         >
           <Plus size={16} />
           Add address

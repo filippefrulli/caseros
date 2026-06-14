@@ -34,7 +34,7 @@ export default async function FavouritesPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 pt-6 pb-12">
       <div className="mb-8">
-        <Link href="/account" className="mb-4 inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+        <Link href="/account" className="mb-4 inline-flex items-center rounded-lg border border-border p-2 text-text-muted hover:border-border-strong hover:text-text-secondary transition-colors">
           <ChevronLeft size={25} />
         </Link>
         <h1 className="mt-4 text-2xl font-bold text-center">Saved items</h1>
@@ -53,11 +53,11 @@ export default async function FavouritesPage() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 py-24 text-center">
-          <p className="text-gray-400">No saved items yet.</p>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-24 text-center">
+          <p className="text-text-muted">No saved items yet.</p>
           <Link
             href="/"
-            className="mt-3 text-sm font-medium text-gray-900 underline underline-offset-4"
+            className="mt-3 text-sm font-medium text-text-primary underline underline-offset-4"
           >
             Browse listings
           </Link>

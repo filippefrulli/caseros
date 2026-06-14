@@ -25,7 +25,7 @@ export function ShopTabs({
 
   return (
     <div>
-      <div className="mb-8 border-b border-gray-200">
+      <div className="mb-8 border-b border-border">
         <div className="flex gap-8">
           {tabs.map(({ key, label }) => (
             <button
@@ -33,8 +33,8 @@ export function ShopTabs({
               onClick={() => setActive(key)}
               className={`-mb-px pb-3 text-sm font-medium border-b-2 transition-colors ${
                 active === key
-                  ? "border-gray-900 text-gray-900"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  ? "border-border-strong text-text-primary"
+                  : "border-transparent text-text-secondary hover:text-text-secondary"
               }`}
             >
               {label}

@@ -11,10 +11,10 @@ import { AdminNewOrderEmail } from "@/emails/admin-new-order";
 const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
 if (!resend) {
-  console.warn("[email] RESEND_API_KEY is not set — all emails will be skipped");
+  console.warn("[email] RESEND_API_KEY is not set: all emails will be skipped");
 }
 
-// Sandbox default — works without a verified domain, delivers only to the
+// Sandbox default, works without a verified domain, delivers only to the
 // account owner's address. Override with RESEND_FROM once a domain is verified.
 const FROM = env.RESEND_FROM ?? "caseros <onboarding@resend.dev>";
 
@@ -25,7 +25,7 @@ type OrderItem = {
   currency: string;
 };
 
-// The Resend SDK never throws — it returns { data, error }. This helper logs
+// The Resend SDK never throws, it returns { data, error }. This helper logs
 // the attempt, outcome, and any error so every send is visible in Vercel logs.
 async function send(...args: Parameters<Resend["emails"]["send"]>) {
   const [payload] = args;
@@ -58,7 +58,7 @@ export async function sendOrderConfirmedEmail({
   appUrl: string;
 }) {
   if (!resend) {
-    console.warn("[email] RESEND_API_KEY not set — skipping order confirmed email");
+    console.warn("[email] RESEND_API_KEY not set: skipping order confirmed email");
     return;
   }
   await send(
@@ -88,7 +88,7 @@ export async function sendNewOrderEmail({
   appUrl: string;
 }) {
   if (!resend) {
-    console.warn("[email] RESEND_API_KEY not set — skipping new order email");
+    console.warn("[email] RESEND_API_KEY not set: skipping new order email");
     return;
   }
   await send(
@@ -119,7 +119,7 @@ export async function sendOrderShippedEmail({
   appUrl: string;
 }) {
   if (!resend) {
-    console.warn("[email] RESEND_API_KEY not set — skipping order shipped email");
+    console.warn("[email] RESEND_API_KEY not set: skipping order shipped email");
     return;
   }
   await send(
@@ -151,7 +151,7 @@ export async function sendOrderDeliveredEmail({
   appUrl: string;
 }) {
   if (!resend) {
-    console.warn("[email] RESEND_API_KEY not set — skipping order delivered email");
+    console.warn("[email] RESEND_API_KEY not set: skipping order delivered email");
     return;
   }
   await send(
@@ -175,11 +175,11 @@ export async function sendAdminSellerApplicationEmail({
   appUrl: string;
 }) {
   if (!resend) {
-    console.warn("[email] RESEND_API_KEY not set — skipping admin seller application email");
+    console.warn("[email] RESEND_API_KEY not set: skipping admin seller application email");
     return;
   }
   if (!env.ADMIN_EMAIL) {
-    console.warn("[email] ADMIN_EMAIL not set — skipping admin seller application email");
+    console.warn("[email] ADMIN_EMAIL not set: skipping admin seller application email");
     return;
   }
   await send(
@@ -209,11 +209,11 @@ export async function sendAdminNewOrderEmail({
   appUrl: string;
 }) {
   if (!resend) {
-    console.warn("[email] RESEND_API_KEY not set — skipping admin new order email");
+    console.warn("[email] RESEND_API_KEY not set: skipping admin new order email");
     return;
   }
   if (!env.ADMIN_EMAIL) {
-    console.warn("[email] ADMIN_EMAIL not set — skipping admin new order email");
+    console.warn("[email] ADMIN_EMAIL not set: skipping admin new order email");
     return;
   }
   await send(
@@ -245,7 +245,7 @@ export async function sendPayoutReleasedEmail({
   appUrl: string;
 }) {
   if (!resend) {
-    console.warn("[email] RESEND_API_KEY not set — skipping payout released email");
+    console.warn("[email] RESEND_API_KEY not set: skipping payout released email");
     return;
   }
   await send(

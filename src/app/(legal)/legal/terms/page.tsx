@@ -5,8 +5,8 @@ export const metadata: Metadata = { title: "Terms of Service" };
 export default function TermsOfServicePage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="text-3xl font-bold text-gray-900">Terms of Service</h1>
-      <p className="mt-2 text-sm text-gray-400">Last updated: May 2025</p>
+      <h1 className="text-3xl font-bold text-text-primary">Terms of Service</h1>
+      <p className="mt-2 text-sm text-text-muted">Last updated: May 2025</p>
 
       <Section title="1. About these terms">
         <p>
@@ -15,7 +15,7 @@ export default function TermsOfServicePage() {
           agree, do not use the platform.
         </p>
         <p>
-          Caseros is a marketplace platform — we facilitate transactions between buyers and
+          Caseros is a marketplace platform, we facilitate transactions between buyers and
           sellers but are not a party to any sale. The contract of sale is between you (the
           buyer) and the individual seller.
         </p>
@@ -161,8 +161,8 @@ export default function TermsOfServicePage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-10">
-      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-      <div className="mt-3 space-y-3 text-sm leading-7 text-gray-600">{children}</div>
+      <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
+      <div className="mt-3 space-y-3 text-sm leading-7 text-text-secondary">{children}</div>
     </section>
   );
 }
@@ -170,8 +170,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Subsection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-4">
-      <h3 className="font-medium text-gray-800">{title}</h3>
-      <div className="mt-1 text-sm leading-7 text-gray-600">{children}</div>
+      <h3 className="font-medium text-text-primary">{title}</h3>
+      <div className="mt-1 text-sm leading-7 text-text-secondary">{children}</div>
     </div>
   );
 }

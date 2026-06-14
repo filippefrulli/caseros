@@ -76,20 +76,20 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pt-6 pb-12">
-      <Link href={`/listings/${listing.slug}`} className="mb-6 inline-flex items-center rounded-lg border border-gray-200 p-2 text-gray-400 hover:border-gray-300 hover:text-gray-700 transition-colors">
+      <Link href={`/listings/${listing.slug}`} className="mb-6 inline-flex items-center rounded-lg border border-border p-2 text-text-muted hover:border-border-strong hover:text-text-secondary transition-colors">
         <ChevronLeft size={25} />
       </Link>
 
       {/* Listing summary */}
-      <div className="mb-8 flex items-center gap-4 rounded-xl border border-gray-200 p-4">
+      <div className="mb-8 flex items-center gap-4 rounded-xl border border-border p-4">
         {thumb && (
-          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-bg-subtle">
             <Image src={thumb} alt={listing.title} fill sizes="64px" className="object-cover" />
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium text-gray-900">{listing.title}</p>
-          <p className="text-sm text-gray-500">
+          <p className="truncate font-medium text-text-primary">{listing.title}</p>
+          <p className="text-sm text-text-secondary">
             by{" "}
             <Link href={`/shop/${listing.seller.slug}`} className="hover:underline">
               {listing.seller.shopName}
@@ -97,11 +97,11 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
           </p>
         </div>
         <div className="shrink-0 text-right">
-          <p className="font-semibold tabular-nums text-gray-900">
+          <p className="font-semibold tabular-nums text-text-primary">
             {formatPrice(listing.priceAmount * quantity, listing.currency)}
           </p>
           {quantity > 1 && (
-            <p className="text-xs text-gray-400">qty {quantity}</p>
+            <p className="text-xs text-text-muted">qty {quantity}</p>
           )}
         </div>
       </div>

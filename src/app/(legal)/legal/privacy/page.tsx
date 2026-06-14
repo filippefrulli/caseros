@@ -5,8 +5,8 @@ export const metadata: Metadata = { title: "Privacy Policy" };
 export default function PrivacyPolicyPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="text-3xl font-bold text-gray-900">Privacy Policy</h1>
-      <p className="mt-2 text-sm text-gray-400">Last updated: May 2025</p>
+      <h1 className="text-3xl font-bold text-text-primary">Privacy Policy</h1>
+      <p className="mt-2 text-sm text-text-muted">Last updated: May 2025</p>
 
       <Section title="1. Who we are">
         <p>
@@ -41,7 +41,7 @@ export default function PrivacyPolicyPage() {
             If you open a shop, we collect your shop name, bio, avatar and banner images,
             country, preferred currency, and optional social media links. We also process
             Know Your Customer (KYC) information, which may include your full name, date of
-            birth, address, and — for registered traders — a business registration number and
+            birth, address, and, for registered traders, a business registration number and
             contact details. A verification video may be requested and stored during the
             approval process.
           </p>
@@ -95,12 +95,12 @@ export default function PrivacyPolicyPage() {
         <p>We share personal data only with the following third parties and only to the extent necessary:</p>
         <ul className="mt-2 list-disc pl-5 space-y-1">
           <li>
-            <strong>Supabase</strong> — provides our authentication service and cloud database
+            <strong>Supabase</strong> - provides our authentication service and cloud database
             hosting. Your data is stored on Supabase's infrastructure, subject to their data
             processing agreement.
           </li>
           <li>
-            <strong>Stripe</strong> — processes all payments and seller payouts. When you pay
+            <strong>Stripe</strong> - processes all payments and seller payouts. When you pay
             for an order or a seller connects a bank account, you interact directly with
             Stripe's systems under their privacy policy.
           </li>
@@ -127,13 +127,13 @@ export default function PrivacyPolicyPage() {
       <Section title="6. Your rights (GDPR)">
         <p>If you are located in the European Economic Area, you have the right to:</p>
         <ul className="mt-2 list-disc pl-5 space-y-1">
-          <li><strong>Access</strong> — request a copy of the personal data we hold about you.</li>
-          <li><strong>Rectification</strong> — ask us to correct inaccurate data.</li>
-          <li><strong>Erasure</strong> — request deletion of your data, subject to legal retention obligations.</li>
-          <li><strong>Portability</strong> — receive your data in a structured, machine-readable format.</li>
-          <li><strong>Restriction</strong> — ask us to limit processing of your data in certain circumstances.</li>
-          <li><strong>Objection</strong> — object to processing based on legitimate interests.</li>
-          <li><strong>Withdraw consent</strong> — where processing is based on consent, withdraw it at any time.</li>
+          <li><strong>Access</strong> - request a copy of the personal data we hold about you.</li>
+          <li><strong>Rectification</strong> - ask us to correct inaccurate data.</li>
+          <li><strong>Erasure</strong> - request deletion of your data, subject to legal retention obligations.</li>
+          <li><strong>Portability</strong> - receive your data in a structured, machine-readable format.</li>
+          <li><strong>Restriction</strong> - ask us to limit processing of your data in certain circumstances.</li>
+          <li><strong>Objection</strong> - object to processing based on legitimate interests.</li>
+          <li><strong>Withdraw consent</strong> - where processing is based on consent, withdraw it at any time.</li>
         </ul>
         <p className="mt-3">
           To exercise any of these rights, email us at{" "}
@@ -164,8 +164,8 @@ export default function PrivacyPolicyPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-10">
-      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-      <div className="mt-3 space-y-3 text-sm leading-7 text-gray-600">{children}</div>
+      <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
+      <div className="mt-3 space-y-3 text-sm leading-7 text-text-secondary">{children}</div>
     </section>
   );
 }
@@ -173,8 +173,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Subsection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-4">
-      <h3 className="font-medium text-gray-800">{title}</h3>
-      <div className="mt-1 text-sm leading-7 text-gray-600">{children}</div>
+      <h3 className="font-medium text-text-primary">{title}</h3>
+      <div className="mt-1 text-sm leading-7 text-text-secondary">{children}</div>
     </div>
   );
 }

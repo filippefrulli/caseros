@@ -68,14 +68,14 @@ export function BuyNowButton({ listingId, slug, stock, payable, isLoggedIn, isDi
     <div className="flex-1">
       {!outOfStock && payable && (
         <div className="mb-3 flex items-center gap-3">
-          <span className="text-sm text-gray-600">Quantity</span>
-          <div className="flex items-center rounded-lg border border-gray-200">
+          <span className="text-sm text-text-secondary">Quantity</span>
+          <div className="flex items-center rounded-lg border border-border">
             <button
               type="button"
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
               disabled={quantity <= 1 || loading}
               aria-label="Decrease quantity"
-              className="flex h-9 w-9 items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-30 transition-colors"
+              className="flex h-9 w-9 items-center justify-center text-text-secondary hover:bg-bg-subtle disabled:opacity-30 transition-colors"
             >
               <Minus size={14} />
             </button>
@@ -87,7 +87,7 @@ export function BuyNowButton({ listingId, slug, stock, payable, isLoggedIn, isDi
               onClick={() => setQuantity((q) => Math.min(maxAllowed, q + 1))}
               disabled={quantity >= maxAllowed || loading}
               aria-label="Increase quantity"
-              className="flex h-9 w-9 items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-30 transition-colors"
+              className="flex h-9 w-9 items-center justify-center text-text-secondary hover:bg-bg-subtle disabled:opacity-30 transition-colors"
             >
               <Plus size={14} />
             </button>
@@ -99,7 +99,7 @@ export function BuyNowButton({ listingId, slug, stock, payable, isLoggedIn, isDi
         type="button"
         onClick={handleClick}
         disabled={disabled}
-        className="w-full rounded-xl bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-40 disabled:hover:bg-gray-900 transition-colors"
+        className="w-full rounded-xl bg-btn-primary py-3 text-sm font-medium text-btn-primary-fg hover:bg-btn-primary-hover disabled:opacity-40 disabled:hover:bg-btn-primary transition-colors"
       >
         {outOfStock
           ? "Out of stock"

@@ -29,7 +29,7 @@ export function StartConversationButton({ sellerId }: { sellerId: string }) {
     <button
       onClick={handleClick}
       disabled={loading}
-      className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+      className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-text-secondary hover:bg-bg-subtle transition-colors disabled:opacity-50"
     >
       <MessageCircle size={15} />
       {loading ? "Opening…" : "Message seller"}

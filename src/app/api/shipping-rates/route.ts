@@ -7,7 +7,7 @@ import { isIntegratedShippingEnabled } from "@/lib/platform-settings";
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
-  // Require auth — Shippo costs per request, so unauthenticated callers
+  // Require auth, Shippo costs per request, so unauthenticated callers
   // could rack up bills or scrape pricing.
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -68,7 +68,7 @@ export async function GET(req: Request) {
 
   const houseNumber = searchParams.get("houseNumber") ?? undefined;
   // Chrome sometimes autofills the full formatted address ("Street 12, City, Country")
-  // into the street field. Shippo only accepts the street portion — strip from first comma.
+  // into the street field. Shippo only accepts the street portion, strip from first comma.
   const street1 = line1.split(",")[0].trim();
 
   try {

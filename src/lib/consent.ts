@@ -26,7 +26,7 @@ export async function recordConsent(
       })),
     });
   } catch (err) {
-    // Non-fatal — a consent write failure must never block signup.
+    // Non-fatal, a consent write failure must never block signup.
     console.error("[consent] failed to record consent for user", userId, err);
   }
 }

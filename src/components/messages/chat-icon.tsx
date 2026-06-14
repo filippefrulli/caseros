@@ -7,7 +7,7 @@ export function ChatIcon({ unreadCount }: { unreadCount: number }) {
   return (
     <Link
       href="/messages"
-      className="relative flex items-center justify-center rounded-md p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+      className="relative flex items-center justify-center rounded-md p-2 text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors"
       aria-label={unreadCount > 0 ? `${unreadCount} unread messages` : "Messages"}
     >
       <MessageCircle size={20} />

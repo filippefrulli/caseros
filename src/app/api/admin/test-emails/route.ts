@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     }
   } catch (err) {
     console.error("[admin/test-emails] send failed:", err);
-    return NextResponse.json({ error: "Send failed — check server logs." }, { status: 500 });
+    return NextResponse.json({ error: "Send failed, check server logs." }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

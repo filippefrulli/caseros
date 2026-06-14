@@ -111,7 +111,7 @@ export async function createListing(
   });
   if (!seller) return { error: "Seller profile not found." };
 
-  // Stripe not connected — save as draft so no work is lost, then prompt to connect.
+  // Stripe not connected, save as draft so no work is lost, then prompt to connect.
   if (publishNow && !seller.stripeOnboardingDone) {
     await prisma.listing.create({
       data: {

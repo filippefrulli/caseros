@@ -43,7 +43,7 @@ export async function GET(_req: Request, { params }: Params) {
   // label URLs require Basic auth.
   const pdfRes = await fetchLabelPdf(order.shippingProvider, order.labelDocumentLink);
   if (!pdfRes.ok) {
-    return NextResponse.json({ error: "Could not retrieve label — please try again later." }, { status: 502 });
+    return NextResponse.json({ error: "Could not retrieve label, please try again later." }, { status: 502 });
   }
 
   const shortId = orderId.slice(-8).toUpperCase();

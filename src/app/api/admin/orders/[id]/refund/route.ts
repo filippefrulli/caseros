@@ -42,7 +42,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 
   // Void the shipping label when the order was already shipped so the carrier
-  // cost is refunded back to the platform account. Non-fatal — log and continue.
+  // cost is refunded back to the platform account. Non-fatal, log and continue.
   if (order.status === "SHIPPED" && order.shippingTransactionId) {
     try {
       await cancelShipment(order.shippingProvider, order.shippingTransactionId);

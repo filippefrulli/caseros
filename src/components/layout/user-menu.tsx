@@ -48,7 +48,7 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
 
   const overlay = (
     <>
-      {/* Backdrop — portalled to body so backdrop-blur on header doesn't trap it */}
+      {/* Backdrop, portalled to body so backdrop-blur on header doesn't trap it */}
       <div
         onClick={() => setOpen(false)}
         className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-200 ${
@@ -62,12 +62,12 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
         role="dialog"
         aria-modal="true"
         aria-label="User menu"
-        className={`fixed right-0 top-0 z-50 flex h-screen w-72 flex-col bg-white shadow-xl transition-transform duration-200 ease-in-out ${
+        className={`fixed right-0 top-0 z-50 flex h-screen w-72 flex-col bg-bg-card shadow-float transition-transform duration-200 ease-in-out ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Panel header */}
-        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-3">
             {avatarUrl ? (
               <Image
@@ -78,19 +78,19 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
                 className="rounded-full h-10 w-10"
               />
             ) : (
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-700 select-none">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-bg-subtle text-sm font-semibold text-text-secondary select-none">
                 {initials}
               </span>
             )}
             <div className="min-w-0">
-              {name && <p className="truncate text-sm font-semibold text-gray-900">{name}</p>}
-              {email && <p className="truncate text-xs text-gray-500">{email}</p>}
+              {name && <p className="truncate text-sm font-semibold text-text-primary">{name}</p>}
+              {email && <p className="truncate text-xs text-text-secondary">{email}</p>}
             </div>
           </div>
           <button
             onClick={() => setOpen(false)}
             aria-label="Close menu"
-            className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            className="rounded-md p-1 text-text-muted hover:bg-bg-subtle hover:text-text-secondary transition-colors"
           >
             <X size={18} />
           </button>
@@ -101,25 +101,25 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
           <Link
             href="/account"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors"
           >
-            <User size={16} className="shrink-0 text-gray-400" />
+            <User size={16} className="shrink-0 text-text-muted" />
             Profile
           </Link>
           <Link
             href="/account/orders"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors"
           >
-            <ShoppingBag size={16} className="shrink-0 text-gray-400" />
+            <ShoppingBag size={16} className="shrink-0 text-text-muted" />
             My orders
           </Link>
           <Link
             href="/account/favourites"
             onClick={() => setOpen(false)}
-            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors"
           >
-            <Heart size={16} className="shrink-0 text-gray-400" />
+            <Heart size={16} className="shrink-0 text-text-muted" />
             Favourites
           </Link>
           {isSeller ? (
@@ -127,15 +127,15 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
               <Link
                 href="/seller/dashboard"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors"
               >
-                <LayoutDashboard size={16} className="shrink-0 text-gray-400" />
+                <LayoutDashboard size={16} className="shrink-0 text-text-muted" />
                 Seller dashboard
               </Link>
               <Link
                 href="/seller/listings/new"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium bg-gray-900 text-white hover:bg-gray-700 transition-colors mt-1"
+                className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium bg-btn-primary text-btn-primary-fg hover:bg-btn-primary-hover transition-colors mt-1"
               >
                 <Plus size={16} className="shrink-0" />
                 Add a new listing
@@ -145,7 +145,7 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
             <Link
               href="/seller/onboarding"
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium bg-gray-900 text-white hover:bg-gray-700 transition-colors mt-1"
+              className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium bg-btn-neutral text-btn-neutral-fg hover:bg-btn-neutral-hover transition-colors mt-1"
             >
               <Store size={16} className="shrink-0" />
               Become a seller
@@ -154,7 +154,7 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
         </nav>
 
         {/* Sign out pinned at bottom */}
-        <div className="mt-auto border-t border-gray-100 px-3 py-4">
+        <div className="mt-auto border-t border-border px-3 py-4">
           <button
             onClick={handleSignOut}
             className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm text-error hover:bg-error-subtle transition-colors"
@@ -169,11 +169,11 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
 
   return (
     <>
-      {/* Avatar button — stays inside the navbar */}
+      {/* Avatar button, stays inside the navbar */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Open user menu"
-        className="flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900"
+        className="flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-btn-neutral"
       >
         {avatarUrl ? (
           <Image
@@ -184,7 +184,7 @@ export function UserMenu({ avatarUrl, name, email, isSeller }: UserMenuProps) {
             className="rounded-full h-8 w-8"
           />
         ) : (
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-xs font-semibold text-gray-700 select-none">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-subtle text-xs font-semibold text-text-secondary select-none">
             {initials}
           </span>
         )}

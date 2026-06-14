@@ -130,7 +130,7 @@ export async function POST(request: Request) {
 
   track("seller_registered", { sellerType }).catch(() => {});
 
-  // Fire-and-forget — don't block the response on email delivery.
+  // Fire-and-forget, don't block the response on email delivery.
   sendAdminSellerApplicationEmail({
     shopName: shopNameClean,
     sellerType,

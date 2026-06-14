@@ -16,7 +16,7 @@ export default async function SellerOnboardingPage() {
     include: { seller: true },
   });
 
-  // Already onboarded — skip straight to dashboard
+  // Already onboarded, skip straight to dashboard
   if (dbUser?.seller) redirect("/seller/dashboard");
 
   return (

@@ -16,7 +16,7 @@ export function ListingImageCarousel({ images, title }: Props) {
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-square w-full items-center justify-center rounded-2xl bg-gray-100 text-gray-300">
+      <div className="flex aspect-square w-full items-center justify-center rounded-2xl bg-bg-subtle text-text-muted">
         <Package size={64} strokeWidth={1} />
       </div>
     );
@@ -36,8 +36,8 @@ export function ListingImageCarousel({ images, title }: Props) {
               onClick={() => setSelected(i)}
               className={`relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
                 i === selected
-                  ? "border-gray-900"
-                  : "border-transparent hover:border-gray-300"
+                  ? "border-border-strong"
+                  : "border-transparent hover:border-border-strong"
               }`}
             >
               <Image
@@ -53,7 +53,7 @@ export function ListingImageCarousel({ images, title }: Props) {
       )}
 
       {/* Main image */}
-      <div className="relative aspect-square min-w-0 flex-1 overflow-hidden rounded-2xl bg-gray-100">
+      <div className="relative aspect-square min-w-0 flex-1 overflow-hidden rounded-2xl bg-bg-subtle">
         <Image
           src={current.url}
           alt={current.altText ?? title}

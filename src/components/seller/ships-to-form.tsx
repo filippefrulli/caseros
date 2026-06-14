@@ -40,13 +40,13 @@ export function ShipsToForm({ initial }: { initial: string[] }) {
       )}
 
       <div className="flex items-center justify-between">
-        <p className="text-xs text-gray-500">{selected.size} selected</p>
+        <p className="text-xs text-text-secondary">{selected.size} selected</p>
         <button
           type="button"
           onClick={() =>
             setSelected(allSelected ? new Set() : new Set(SHIPPING_COUNTRIES.map((c) => c.code)))
           }
-          className="text-xs text-gray-600 underline hover:text-gray-900"
+          className="text-xs text-text-secondary underline hover:text-text-primary"
         >
           {allSelected ? "Clear all" : "Select all"}
         </button>
@@ -54,14 +54,14 @@ export function ShipsToForm({ initial }: { initial: string[] }) {
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3">
         {SHIPPING_COUNTRIES.map((c) => (
-          <label key={c.code} className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+          <label key={c.code} className="flex cursor-pointer items-center gap-2 text-sm text-text-secondary">
             <input
               type="checkbox"
               name="countries"
               value={c.code}
               checked={selected.has(c.code)}
               onChange={() => toggle(c.code)}
-              className="h-4 w-4 rounded border-gray-300 accent-gray-900"
+              className="h-4 w-4 rounded border-border-strong accent-gray-900"
             />
             {c.name}
           </label>
@@ -71,7 +71,7 @@ export function ShipsToForm({ initial }: { initial: string[] }) {
       <button
         type="submit"
         disabled={isPending || selected.size === 0}
-        className="w-full rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+        className="w-full rounded-lg bg-btn-neutral py-2.5 text-sm font-medium text-white hover:bg-btn-neutral-hover disabled:opacity-50 transition-colors"
       >
         {isPending ? "Saving…" : "Save shipping destinations"}
       </button>

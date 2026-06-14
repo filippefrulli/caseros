@@ -11,7 +11,7 @@ import type {
 // Sendcloud Public REST API v3. Centralized marketplace model: Caseros holds a
 // single account and creates labels on behalf of sellers, passing each seller's
 // pickup address as the per-shipment `from_address` (so an Irish origin ships
-// without the account's default sender address — provided the account/carrier
+// without the account's default sender address, provided the account/carrier
 // contract supports that origin).
 //
 // NOTE: this account is v3-only (v2 POST /parcels returns 403). Endpoints and
@@ -44,7 +44,7 @@ async function sendcloudFetch(path: string, init?: RequestInit) {
     const text = await res.text().catch(() => res.statusText);
     throw new Error(`Sendcloud ${init?.method ?? "GET"} ${path} failed (${res.status}): ${text}`);
   }
-  // 204/empty bodies (e.g. cancel) — guard against JSON parse errors.
+  // 204/empty bodies (e.g. cancel), guard against JSON parse errors.
   const text = await res.text();
   return text ? JSON.parse(text) : {};
 }
@@ -211,7 +211,7 @@ export async function createShipment(params: CreateShipmentParams): Promise<Crea
 // Map a Sendcloud v3 parcel status code onto the Shippo-style normalized codes
 // the tracking-sync cron expects. Only DELIVERED triggers downstream effects.
 // NOTE: the exact delivered code should be confirmed against a real carrier
-// delivery — the free `sendcloud:letter` test option never reports tracking.
+// delivery, the free `sendcloud:letter` test option never reports tracking.
 function normalizeStatus(code: string | undefined): string {
   const c = (code ?? "").toUpperCase();
   if (c.includes("DELIVERED")) return "DELIVERED";

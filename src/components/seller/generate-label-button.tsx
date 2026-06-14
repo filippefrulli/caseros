@@ -39,16 +39,16 @@ export function GenerateLabelButton({
 
   if (trackingCode) {
     return (
-      <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 space-y-2">
-        <p className="text-xs text-gray-500">Tracking number</p>
-        <p className="font-mono text-sm font-semibold text-gray-900">{trackingCode}</p>
+      <div className="mt-3 rounded-lg border border-border bg-bg-subtle px-4 py-3 space-y-2">
+        <p className="text-xs text-text-secondary">Tracking number</p>
+        <p className="font-mono text-sm font-semibold text-text-primary">{trackingCode}</p>
         <div className="flex gap-2 flex-wrap">
           {trackingUrl && (
             <a
               href={trackingUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-gray-600 underline hover:text-gray-900"
+              className="text-xs text-text-secondary underline hover:text-text-primary"
             >
               Track parcel
             </a>
@@ -56,7 +56,7 @@ export function GenerateLabelButton({
           <a
             href={`/api/seller/orders/${orderId}/label-download`}
             download
-            className="text-xs text-gray-600 underline hover:text-gray-900"
+            className="text-xs text-text-secondary underline hover:text-text-primary"
           >
             Download label PDF
           </a>
@@ -67,8 +67,8 @@ export function GenerateLabelButton({
 
   if (!sendcloudConfigured) {
     return (
-      <p className="mt-3 text-xs text-gray-400">
-        Shipping not configured — contact support.
+      <p className="mt-3 text-xs text-text-muted">
+        Shipping not configured: contact support.
       </p>
     );
   }
@@ -111,21 +111,21 @@ export function GenerateLabelButton({
       }
       router.refresh();
     } catch {
-      setError("Network error — please try again.");
+      setError("Network error: please try again.");
     } finally {
       setLoading(false);
     }
   }
 
-  const inputCls = "block w-full rounded-md border border-gray-300 px-2 py-1.5 text-xs focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900";
+  const inputCls = "block w-full rounded-md border border-border-strong px-2 py-1.5 text-xs focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 
   return (
-    <div className="mt-3 rounded-lg border border-gray-200 p-3 space-y-3">
+    <div className="mt-3 rounded-lg border border-border p-3 space-y-3">
       {error && <p className="text-xs text-error">{error}</p>}
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Weight (g) *</label>
+          <label className="block text-xs text-text-secondary mb-1">Weight (g) *</label>
           <input
             type="number"
             min="1"
@@ -137,7 +137,7 @@ export function GenerateLabelButton({
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Dimensions (cm)</label>
+          <label className="block text-xs text-text-secondary mb-1">Dimensions (cm)</label>
           <div className="grid grid-cols-3 gap-1">
             <input type="number" min="1" max="999" value={lengthCm || ""} onChange={(e) => setLengthCm(Number(e.target.value))} placeholder="L" className={inputCls} />
             <input type="number" min="1" max="999" value={widthCm || ""} onChange={(e) => setWidthCm(Number(e.target.value))} placeholder="W" className={inputCls} />
@@ -149,7 +149,7 @@ export function GenerateLabelButton({
       <button
         onClick={handleGenerate}
         disabled={loading}
-        className="w-full rounded-lg bg-gray-900 py-2 text-xs font-medium text-white hover:bg-gray-700 disabled:opacity-50 transition-colors"
+        className="w-full rounded-lg bg-btn-neutral py-2 text-xs font-medium text-white hover:bg-btn-neutral-hover disabled:opacity-50 transition-colors"
       >
         {loading ? "Generating…" : "Generate shipping label"}
       </button>

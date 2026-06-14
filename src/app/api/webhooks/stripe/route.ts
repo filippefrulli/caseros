@@ -8,7 +8,7 @@ import { sendOrderConfirmedEmail, sendNewOrderEmail, sendAdminNewOrderEmail } fr
 import { track } from "@vercel/analytics/server";
 
 // Webhook handlers need Node crypto for signature verification and must always
-// run at request time — never cached, never prerendered, never on Edge.
+// run at request time, never cached, never prerendered, never on Edge.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
-  // Raw body is mandatory for HMAC verification — do not parse JSON first.
+  // Raw body is mandatory for HMAC verification, do not parse JSON first.
   const rawBody = await req.text();
 
   let event: Stripe.Event;
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
   // Check first whether we've already fully processed this event. The dedup row
   // is only written AFTER the handler succeeds (below), so a 500 from a handler
-  // leaves no row and the retry runs again — that's what we want. Per-entity
+  // leaves no row and the retry runs again, that's what we want. Per-entity
   // status guards in M3+ handlers prevent concurrent double-processing of a
   // simultaneously-redelivered event.
   const alreadyProcessed = await prisma.stripeWebhookEvent.findUnique({ where: { id: event.id } });
@@ -113,7 +113,7 @@ export async function POST(req: Request) {
           console.warn(`[stripe webhook] pi.succeeded ${pi.id} references unknown order ${orderId}`);
           break;
         }
-        // Idempotency guard — webhook may be redelivered or race with
+        // Idempotency guard, webhook may be redelivered or race with
         // checkout.session.completed. PENDING is the only valid start state.
         if (order.status !== "PENDING") break;
 
@@ -142,7 +142,7 @@ export async function POST(req: Request) {
         }
 
         if (oversoldItems.length > 0) {
-          // Race lost — buyer paid for stock that's gone. Refund immediately
+          // Race lost, buyer paid for stock that's gone. Refund immediately
           // and mark the order CANCELLED. charge.refunded webhook will not
           // re-process because status moves out of PENDING here.
           try {
@@ -165,8 +165,8 @@ export async function POST(req: Request) {
             data: {
               userId: order.buyerId,
               type: "ORDER_CANCELLED",
-              title: "Order cancelled — out of stock",
-              body: "Sorry — the item sold out before we could confirm your order. Your card has been refunded.",
+              title: "Order cancelled: out of stock",
+              body: "We apologize! The item sold out before we could confirm your order. Your card has been refunded.",
               entityType: "order",
               entityId: order.id,
             },
@@ -219,7 +219,7 @@ export async function POST(req: Request) {
         }
 
         // Send transactional emails. Awaited so errors surface in webhook logs
-        // (Stripe retries on 5xx). SDK never throws — errors are logged inside send().
+        // (Stripe retries on 5xx). SDK never throws, errors are logged inside send().
         const emailItems = order.items.map((i) => ({
           title: i.listingTitle,
           quantity: i.quantity,
@@ -334,7 +334,7 @@ export async function POST(req: Request) {
         const chargeId =
           typeof dispute.charge === "string" ? dispute.charge : dispute.charge?.id;
 
-        // Always log — this is the primary alert in dev/staging.
+        // Always log, this is the primary alert in dev/staging.
         console.error(
           `[DISPUTE] id=${dispute.id} amount=${dispute.amount} reason=${dispute.reason} charge=${chargeId}`,
         );
@@ -383,7 +383,7 @@ export async function POST(req: Request) {
   try {
     await prisma.stripeWebhookEvent.create({ data: { id: event.id, type: event.type } });
   } catch (err) {
-    // Two concurrent deliveries raced — both ran the handler. Per-entity status
+    // Two concurrent deliveries raced, both ran the handler. Per-entity status
     // guards make that idempotent, so swallow the unique violation here.
     if (!(err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002")) {
       throw err;

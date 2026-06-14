@@ -113,7 +113,7 @@ async function handleCheckout(req: Request) {
   const itemsTotal = unitAmount * quantity;
 
   // Resolve the shipping address: either from a saved address (addressId) or inline fields.
-  // Re-fetch shipping rates server-side to verify the chosen rate is real — never trust
+  // Re-fetch shipping rates server-side to verify the chosen rate is real, never trust
   // the amount from the client.
   let address: z.infer<typeof addressSchema> | null = null;
   let shouldSaveAddress = false;
@@ -121,7 +121,7 @@ async function handleCheckout(req: Request) {
   let matchedRate: Awaited<ReturnType<typeof getRates>>[number] | undefined;
 
   if (!listing.isDigital) {
-    // Resolve the destination address (saved or inline) — needed in both modes.
+    // Resolve the destination address (saved or inline), needed in both modes.
     if (addressId) {
       const saved = await prisma.address.findFirst({
         where: { id: addressId, userId: dbUser.id },
@@ -141,7 +141,7 @@ async function handleCheckout(req: Request) {
     // At this point address is guaranteed non-null (early returns cover all null cases above)
     const resolvedAddress = address!;
 
-    // Seller covers delivery — enforce their ships-to allowlist. Authoritative
+    // Seller covers delivery, enforce their ships-to allowlist. Authoritative
     // server-side check behind the filtered checkout dropdown. Applies in both modes.
     if (!listing.seller.shipsToCountries.includes(resolvedAddress.country)) {
       return NextResponse.json(
@@ -152,7 +152,7 @@ async function handleCheckout(req: Request) {
 
     if (await isIntegratedShippingEnabled()) {
       // Integrated shipping: re-fetch rates server-side to verify the chosen rate
-      // is real — never trust the amount from the client.
+      // is real, never trust the amount from the client.
       if (!shippingRate) {
         return NextResponse.json({ error: "Shipping rate is required." }, { status: 400 });
       }
@@ -213,7 +213,7 @@ async function handleCheckout(req: Request) {
   const sellerPayout = Math.floor(itemsTotal * (1 - commissionRate));
 
   // For new inline addresses, save as the buyer's new default.
-  // For addressId, the address is already in the book — no change.
+  // For addressId, the address is already in the book, no change.
   if (shouldSaveAddress && address) {
     await prisma.$transaction([
       prisma.address.updateMany({

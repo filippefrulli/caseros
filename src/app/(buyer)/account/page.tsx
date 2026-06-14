@@ -45,34 +45,34 @@ export default async function AccountPage() {
         />
         <div>
           <h1 className="text-2xl font-bold">{name}</h1>
-          <p className="text-sm text-gray-500">{email}</p>
+          <p className="text-sm text-text-secondary">{email}</p>
           {memberSince && (
-            <p className="mt-1 text-xs text-gray-400">Member since {memberSince}</p>
+            <p className="mt-1 text-xs text-text-muted">Member since {memberSince}</p>
           )}
         </div>
       </div>
 
       {/* Quick links */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 mb-12">
-        <Link href="/account/orders" className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:border-gray-300 hover:bg-gray-50 transition-colors">
-          <ShoppingBag size={18} className="shrink-0 text-gray-500" />
+        <Link href="/account/orders" className="flex items-center gap-3 rounded-xl border border-border p-4 hover:border-border-strong hover:bg-bg-subtle transition-colors">
+          <ShoppingBag size={18} className="shrink-0 text-text-secondary" />
           <div>
-            <p className="text-sm font-medium text-gray-900">Orders</p>
-            <p className="text-xs text-gray-400">{orderCount} total</p>
+            <p className="text-sm font-medium text-text-primary">Orders</p>
+            <p className="text-xs text-text-muted">{orderCount} total</p>
           </div>
         </Link>
-        <Link href="/account/favourites" className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:border-gray-300 hover:bg-gray-50 transition-colors">
-          <Heart size={18} className="shrink-0 text-gray-500" />
+        <Link href="/account/favourites" className="flex items-center gap-3 rounded-xl border border-border p-4 hover:border-border-strong hover:bg-bg-subtle transition-colors">
+          <Heart size={18} className="shrink-0 text-text-secondary" />
           <div>
-            <p className="text-sm font-medium text-gray-900">Favourites</p>
-            <p className="text-xs text-gray-400">{favoriteCount} saved</p>
+            <p className="text-sm font-medium text-text-primary">Favourites</p>
+            <p className="text-xs text-text-muted">{favoriteCount} saved</p>
           </div>
         </Link>
-        <Link href="/account/address" className="flex items-center gap-3 rounded-xl border border-gray-200 p-4 hover:border-gray-300 hover:bg-gray-50 transition-colors">
-          <MapPin size={18} className="shrink-0 text-gray-500" />
+        <Link href="/account/address" className="flex items-center gap-3 rounded-xl border border-border p-4 hover:border-border-strong hover:bg-bg-subtle transition-colors">
+          <MapPin size={18} className="shrink-0 text-text-secondary" />
           <div>
-            <p className="text-sm font-medium text-gray-900">Addresses</p>
-            <p className="text-xs text-gray-400">Manage delivery addresses</p>
+            <p className="text-sm font-medium text-text-primary">Addresses</p>
+            <p className="text-xs text-text-muted">Manage delivery addresses</p>
           </div>
         </Link>
       </div>
