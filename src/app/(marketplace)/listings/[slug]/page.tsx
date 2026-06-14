@@ -89,9 +89,40 @@ export default async function ListingPage({ params }: Props) {
         </div>
       )}
 
-      <div className="grid gap-10 md:grid-cols-2">
-        {/* Images */}
-        <ListingImageCarousel images={listing.images} title={listing.title} />
+      <div className="grid gap-10 md:grid-cols-2 md:items-start">
+        {/* Images + physical details */}
+        <div className="space-y-4">
+          <ListingImageCarousel images={listing.images} title={listing.title} />
+
+          {!listing.isDigital && (listing.lengthCm || listing.widthCm || listing.heightCm || listing.weightGrams) && (
+            <div className="rounded-xl border border-gray-100 px-4 py-3 text-sm">
+              <dl className="space-y-1">
+                {(listing.lengthCm || listing.widthCm || listing.heightCm) && (
+                  <div className="flex justify-between">
+                    <dt className="text-gray-400">Dimensions</dt>
+                    <dd className="text-gray-700">
+                      {[
+                        listing.lengthCm && `${listing.lengthCm} L`,
+                        listing.widthCm && `${listing.widthCm} W`,
+                        listing.heightCm && `${listing.heightCm} H`,
+                      ].filter(Boolean).join(" × ")} cm
+                    </dd>
+                  </div>
+                )}
+                {listing.weightGrams && (
+                  <div className="flex justify-between">
+                    <dt className="text-gray-400">Weight</dt>
+                    <dd className="text-gray-700">
+                      {listing.weightGrams >= 1000
+                        ? `${(listing.weightGrams / 1000).toFixed(1)} kg`
+                        : `${listing.weightGrams} g`}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+          )}
+        </div>
 
         {/* Details */}
         <div className="flex flex-col">

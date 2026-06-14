@@ -1,23 +1,21 @@
 import Link from "next/link";
 import {
-  Palette, Gem, Home, Shirt, ShoppingBag,
-  BookOpen, Gamepad, Cookie, Scissors, Clock,
+  Gem, Palette, Home, Shirt, Coffee,
+  BookOpen, Sparkles, Scissors, ShoppingBag,
 } from "lucide-react";
 import type { LucideProps } from "lucide-react";
 
 type IconComponent = React.ComponentType<LucideProps>;
 
 const ICONS: Record<string, IconComponent> = {
-  "art-prints":     Palette,
-  "jewelry":        Gem,
-  "home-living":    Home,
-  "clothing":       Shirt,
-  "accessories":    ShoppingBag,
-  "stationery":     BookOpen,
-  "toys-play":      Gamepad,
-  "food-drink":     Cookie,
-  "craft-supplies": Scissors,
-  "vintage":        Clock,
+  "jewelry":            Gem,
+  "prints-digital-art": Palette,
+  "home-decor":         Home,
+  "clothing-knitwear":  Shirt,
+  "ceramics-pottery":   Coffee,
+  "stationery-paper":   BookOpen,
+  "bath-beauty":        Sparkles,
+  "embroidery":         Scissors,
 };
 
 type Category = { id: string; name: string; slug: string };
