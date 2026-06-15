@@ -5,6 +5,7 @@ import { NewOrderEmail } from "@/emails/new-order";
 import { PayoutReleasedEmail } from "@/emails/payout-released";
 import { OrderDeliveredEmail } from "@/emails/order-delivered";
 import { OrderShippedEmail } from "@/emails/order-shipped";
+import { OrderCancelledEmail } from "@/emails/order-cancelled";
 import { AdminSellerApplicationEmail } from "@/emails/admin-seller-application";
 import { AdminNewOrderEmail } from "@/emails/admin-new-order";
 
@@ -130,6 +131,65 @@ export async function sendOrderShippedEmail({
       react: OrderShippedEmail({ buyerName, orderId, trackingCode, trackingUrl, appUrl }),
     },
     { idempotencyKey: `order-shipped/${orderId}` },
+  );
+}
+
+export async function sendOrderCancelledEmail({
+  to,
+  buyerName,
+  orderId,
+  appUrl,
+}: {
+  to: string;
+  buyerName: string | null;
+  orderId: string;
+  appUrl: string;
+}) {
+  if (!resend) {
+    console.warn("[email] RESEND_API_KEY not set: skipping order cancelled email");
+    return;
+  }
+  await send(
+    {
+      from: FROM,
+      to,
+      subject: `Your order #${orderId.slice(-8).toUpperCase()} has been cancelled and refunded`,
+      react: OrderCancelledEmail({ buyerName, orderId, appUrl }),
+    },
+    { idempotencyKey: `order-cancelled/${orderId}` },
+  );
+}
+
+// Plain-text alert so admins notice when a seller backs out of an order. Kept
+// simple (no React template) since it's internal-only.
+export async function sendAdminOrderCancelledEmail({
+  orderId,
+  shopName,
+  reason,
+  appUrl,
+}: {
+  orderId: string;
+  shopName: string;
+  reason: string;
+  appUrl: string;
+}) {
+  if (!resend) {
+    console.warn("[email] RESEND_API_KEY not set: skipping admin order cancelled email");
+    return;
+  }
+  if (!env.ADMIN_EMAIL) {
+    console.warn("[email] ADMIN_EMAIL not set: skipping admin order cancelled email");
+    return;
+  }
+  const shortId = orderId.slice(-8).toUpperCase();
+  await send(
+    {
+      from: FROM,
+      to: env.ADMIN_EMAIL,
+      subject: `Seller cancelled order #${shortId}`,
+      text: `${shopName} cancelled order #${shortId} and the buyer was refunded in full.\n\nReason: ${reason}\n\n${appUrl}/admin/orders/${orderId}`,
+    },
+    { idempotencyKey: `admin-order-cancelled/${orderId}` },
   );
 }
 

@@ -44,6 +44,7 @@ interface FormState {
   pickupPhone: string;
   // Step 4: verification
   verificationVideoUrl: string;
+  etsyShop: string;
   website: string;
   instagram: string;
   tiktok: string;
@@ -62,8 +63,11 @@ const EMPTY_FORM: FormState = {
   sameAsProfileAddress: false,
   pickupName: "", pickupLine1: "", pickupLine2: "", pickupCity: "", pickupPostalCode: "", pickupCountry: "", pickupPhone: "",
   verificationVideoUrl: "",
+  etsyShop: "",
   website: "", instagram: "", tiktok: "", youtube: "", facebook: "",
 };
+
+const ETSY_PREFIX = "https://etsy.com/shop/";
 
 // Countries with reliable default carrier pickup from the active shipping
 // provider (DPD, GLS, DHL Parcel). Excluded: IE/CY/MT (islands, no default
@@ -597,6 +601,7 @@ export function OnboardingForm({ userId }: { userId: string }) {
         body: JSON.stringify({
           ...form,
           ...resolvedPickup,
+          etsyShopUrl: form.etsyShop.trim() ? ETSY_PREFIX + form.etsyShop.trim() : "",
           ...Object.fromEntries(
             SOCIAL_PLATFORMS.map(({ key, prefix }) => {
               const handle = form[key as keyof Pick<FormState, "website" | "instagram" | "tiktok" | "youtube" | "facebook">].trim();
@@ -707,6 +712,36 @@ export function OnboardingForm({ userId }: { userId: string }) {
                 </div>
               );
             })}
+          </div>
+        </div>
+
+        {/* Etsy shop (optional) */}
+        <div>
+          <label className="block text-sm font-medium text-text-secondary">
+            Etsy shop <span className="text-text-muted">(optional)</span>
+          </label>
+          <p className="mt-0.5 text-xs text-text-muted">
+            Already selling on Etsy? Add your shop to speed up verification. Kept private, never shown on your Caseros page.
+          </p>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="w-20 shrink-0 text-xs text-text-secondary">Etsy</span>
+            <div className="flex flex-1 overflow-hidden rounded-lg border border-border-strong focus-within:border-accent focus-within:ring-1 focus-within:ring-accent">
+              <span className="flex items-center bg-bg-subtle px-2.5 text-xs text-text-muted whitespace-nowrap border-r border-border-strong select-none">
+                {ETSY_PREFIX}
+              </span>
+              <input
+                type="text"
+                value={form.etsyShop}
+                onChange={e => {
+                  let v = e.target.value;
+                  if (v.startsWith(ETSY_PREFIX)) v = v.slice(ETSY_PREFIX.length);
+                  else if (v.startsWith("https://") || v.startsWith("http://")) v = v.replace(/^https?:\/\/[^/]*\/(shop\/)?/, "");
+                  set({ etsyShop: v });
+                }}
+                placeholder="YourShopName"
+                className="flex-1 bg-bg-card px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none"
+              />
+            </div>
           </div>
         </div>
 

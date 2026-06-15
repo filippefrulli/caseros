@@ -10,6 +10,7 @@ import { formatPrice } from "@/lib/utils";
 import { Clock, XCircle, AlertCircle, Package, UserPen, Plus, Pencil } from "lucide-react";
 import { GenerateLabelButton } from "@/components/seller/generate-label-button";
 import { MarkAsSentButton } from "@/components/seller/mark-as-sent-button";
+import { CancelOrderButton } from "@/components/seller/cancel-order-button";
 import { isIntegratedShippingEnabled } from "@/lib/platform-settings";
 import { DeleteListingButton } from "@/components/seller/delete-listing-button";
 import { PublishListingButton } from "@/components/seller/publish-listing-button";
@@ -288,6 +289,10 @@ export default async function SellerDashboardPage() {
                       sendcloudConfigured={sendcloudConfigured}
                       sellerPickupReady={sellerPickupReady}
                     />
+                  )}
+
+                  {order.status === "PROCESSING" && (
+                    <CancelOrderButton orderId={order.id} />
                   )}
                 </li>
               );

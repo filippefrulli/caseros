@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     // Pickup/shipping address
     pickupName, pickupLine1, pickupLine2, pickupCity, pickupPostalCode, pickupCountry, pickupPhone,
     // Verification
-    verificationVideoUrl,
+    verificationVideoUrl, etsyShopUrl,
     // Social links
     website, instagram, tiktok, youtube, facebook,
   } = body;
@@ -114,6 +114,7 @@ export async function POST(request: Request) {
           contactEmail: contactEmail?.trim() ?? null,
           safetyCompliant: safetyCompliant ?? false,
           verificationVideoUrl: verificationVideoUrl.trim(),
+          etsyShopUrl: typeof etsyShopUrl === "string" && etsyShopUrl.trim() ? etsyShopUrl.trim() : null,
         },
       },
       socialLinks: {

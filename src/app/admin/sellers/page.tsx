@@ -171,6 +171,7 @@ export default async function AdminSellersPage() {
                       {kyc.businessRegNumber && <><span className="text-text-muted">Reg. no.</span><span>{kyc.businessRegNumber}</span></>}
                       {kyc.contactEmail && <><span className="text-text-muted">Contact email</span><span>{kyc.contactEmail}</span></>}
                       {kyc.contactPhone && <><span className="text-text-muted">Contact phone</span><span>{kyc.contactPhone}</span></>}
+                      {kyc.etsyShopUrl && <><span className="text-text-muted">Etsy shop</span><a href={kyc.etsyShopUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-text-secondary hover:text-text-primary underline">{kyc.etsyShopUrl.replace(/^https?:\/\//, "")}<ExternalLink size={11} /></a></>}
                     </div>
                   </details>
                 )}

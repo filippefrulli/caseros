@@ -104,6 +104,12 @@ export default async function AdminOrderDetailPage({ params }: Props) {
         </span>
       </div>
 
+      {order.status === "CANCELLED" && order.cancellationReason && (
+        <div className="mb-8 rounded-lg bg-error-subtle px-4 py-3 text-sm text-error">
+          <span className="font-medium">Cancellation reason:</span> {order.cancellationReason}
+        </div>
+      )}
+
       {/* Buyer */}
       <section className="mb-6 rounded-xl border border-border p-5">
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-secondary">Buyer</h2>

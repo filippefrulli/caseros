@@ -267,6 +267,11 @@ model Order {
   // as sent). Drives the auto-release-payouts fallback in self-managed mode.
   shippedAt             DateTime? @map("shipped_at")
 
+  // Set when the order is cancelled. Seller cancellations (pre-shipment) require
+  // a reason, surfaced to admins and useful for spotting cancellation abuse.
+  cancellationReason String?   @map("cancellation_reason")
+  cancelledAt        DateTime? @map("cancelled_at")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -458,6 +463,7 @@ model SellerKyc {
   // Acknowledgements & verification
   disclaimerAcknowledged Boolean   @default(false) @map("disclaimer_acknowledged")
   verificationVideoUrl   String?   @map("verification_video_url")
+  etsyShopUrl            String?   @map("etsy_shop_url")
   verifiedAt             DateTime? @map("verified_at")
   reviewNotes            String?   @map("review_notes")
 
